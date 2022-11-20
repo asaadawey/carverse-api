@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id          Int           @id @default(autoincrement())
+  UserTypeID  Int
+  FirstName   String
+  LastName    String
+  Password    String
+  Email       String        @unique
+  PhoneNumber String        @unique
+  Nationality String
+  CreatedOn   DateTime      @default(now())
+  ModifiedOn  DateTime      @updatedAt
+  userTypes   userTypes     @relation(fields: [UserTypeID], references: [id])
+  cars        cars[]
+  creditCards creditCards[]
+  customer    customer?
+  provider    provider?
+}
+
+model customer {
+  id     Int      @id @default(autoincrement())
+  UserID Int      @unique
+  users  users    @relation(fields: [UserID], references: [id])
+  orders orders[]
+}
+
+model provider {
+  id               Int                @id @default(autoincrement())
+  UserID           Int                @unique
+  NumberOfOrders   Int                @default(0)
+  users            users              @relation(fields: [UserID], references: [id])
+  orders           orders[]
+  providerServices providerServices[]
+}
+
+model additionalFees {
+  id        Int      @id @default(autoincrement())
+  FeeName   String   @unique
+  FeePrice  Decimal  @default(0)
+  CreatedOn DateTime @default(now())
+}
+
+model services {
+  id                 Int                @id @default(autoincrement())
+  ServiceName        String             @unique
+  ServiceDescription String
+  ServiceIconLink    String
+  ServicePrice       Decimal            @default(0)
+  IsActive           Boolean            @default(true)
+  CreatedOn          DateTime           @default(now())
+  ModifiedOn         DateTime           @updatedAt
+  ModuleID           Int
+  GradientID         Int
+  colorGradiants     colorGradiants     @relation(fields: [GradientID], references: [id])
+  modules            modules            @relation(fields: [ModuleID], references: [id])
+  orderServices      orderServices[]
+  packageServices    packageServices[]
+  providerServices   providerServices[]
+}
+
+model orders {
+  id                       Int                        @id @default(autoincrement())
+  PaymentMethodID          Int
+  CustomerID               Int
+  ProviderID               Int
+  OrderTotalAmount         Float
+  OrderCreatedDate         DateTime                   @default(now())
+  Longitude                Float
+  Latitude                 Float
+  AddressString            String
+  customer                 customer                   @relation(fields: [CustomerID], references: [id])
+  paymentMethods           paymentMethods             @relation(fields: [PaymentMethodID], references: [id])
+  provider                 provider                   @relation(fields: [ProviderID], references: [id])
+  orderCreditCardsPurchase orderCreditCardsPurchase[]
+  orderHistory             orderHistory[]
+  orderServices            orderServices[]
+}
+
+model orderServices {
+  id        Int       @id @default(autoincrement())
+  ServiceID Int
+  OrderID   Int
+  CarID     Int
+  CreatedOn DateTime? @default(now()) @db.Timestamptz(6)
+  cars      cars      @relation(fields: [CarID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  orders    orders    @relation(fields: [OrderID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  services  services  @relation(fields: [ServiceID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model orderCreditCardsPurchase {
+  id          Int         @id @default(autoincrement())
+  CardID      Int
+  OrderID     Int
+  TotalAmount Float
+  CreatedOn   DateTime    @default(now())
+  creditCards creditCards @relation(fields: [CardID], references: [id])
+  orders      orders      @relation(fields: [OrderID], references: [id])
+}
+
+model creditCards {
+  id                       Int                        @id @default(autoincrement())
+  UserID                   Int
+  CVC                      String
+  CardNumber               String
+  ExpiryDate               String
+  IsActive                 Boolean                    @default(true)
+  CreatedOn                DateTime                   @default(now())
+  users                    users                      @relation(fields: [UserID], references: [id])
+  orderCreditCardsPurchase orderCreditCardsPurchase[]
+}
+
+model paymentMethods {
+  id                Int      @id @default(autoincrement())
+  MethodName        String   @unique
+  MethodDescription String
+  CreatedOn         DateTime @default(now())
+  orders            orders[]
+}
+
+model userTypes {
+  id        Int      @id @default(autoincrement())
+  TypeName  String   @unique
+  CreatedOn DateTime @default(now())
+  users     users[]
+}
+
+model modules {
+  id                Int        @id @default(autoincrement())
+  ModuleName        String     @unique
+  ModuleDescription String
+  ModuleIconLink    String
+  CreatedOn         DateTime   @default(now())
+  packages          packages[]
+  services          services[]
+}
+
+model providerServices {
+  id         Int       @id @default(autoincrement())
+  ProviderID Int?
+  ServiceID  Int?
+  Pofeciency String?
+  Price      Decimal   @default(0)
+  CreatedOn  String?
+  Rating     Decimal   @default(0)
+  provider   provider? @relation(fields: [ProviderID], references: [id])
+  services   services? @relation(fields: [ServiceID], references: [id])
+}
+
+model packages {
+  id                   Int               @id @default(autoincrement())
+  ModuleID             Int
+  GradiantID           Int
+  PackageName          String
+  PackageDescription   String
+  PackagePrice         Float
+  PackageOriginalPrice Float
+  PackageIconLink      String
+  CreatedOn            DateTime          @default(now())
+  colorGradiants       colorGradiants    @relation(fields: [GradiantID], references: [id])
+  modules              modules           @relation(fields: [ModuleID], references: [id])
+  packageServices      packageServices[]
+}
+
+model bodyTypes {
+  id       Int    @id @default(autoincrement())
+  TypeName String @unique
+  cars     cars[]
+}
+
+model cars {
+  id            Int             @id @default(autoincrement())
+  UserID        Int
+  BodyTypeID    Int
+  PlateNumber   String
+  Color         String
+  Manufacturer  String
+  Model         String
+  CreatedOn     DateTime        @default(now())
+  ModifiedOn    DateTime        @updatedAt
+  PlateCity     String?
+  bodyTypes     bodyTypes       @relation(fields: [BodyTypeID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users         users           @relation(fields: [UserID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  orderServices orderServices[]
+}
+
+model colorGradiants {
+  id                 Int        @id @default(autoincrement())
+  ColorName          String     @unique
+  ColorMainText      String
+  ColorSecondaryText String
+  ColorStart         String
+  ColorEnd           String
+  packages           packages[]
+  services           services[]
+}
+
+model packageServices {
+  PackageID Int
+  ServiceID Int
+  packages  packages @relation(fields: [PackageID], references: [id])
+  services  services @relation(fields: [ServiceID], references: [id])
+
+  @@id([PackageID, ServiceID])
+}
+
+model orderHistory {
+  id                Int               @id @default(autoincrement())
+  OrderID           Int
+  HistoryItemID     Int
+  CreatedOn         DateTime          @default(now())
+  orderHistoryItems orderHistoryItems @relation(fields: [HistoryItemID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  orders            orders            @relation(fields: [OrderID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model orderHistoryItems {
+  id           Int            @id @default(autoincrement())
+  HistoryName  String         @unique
+  orderHistory orderHistory[]
+}
