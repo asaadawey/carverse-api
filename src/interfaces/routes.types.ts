@@ -1,9 +1,9 @@
-export type ServiceProps<TWhereUnique, TWhereAll, TSelect, TInclude, TUpdate> = {
-  findOneUnqiue: <T>(where: TWhereUnique, select?: TSelect, include?: TInclude) => Promise<PayloadReturn<T, TSelect>>;
-  findOne: <T>(where: TWhereAll, select?: TSelect, include?: TInclude) => Promise<PayloadReturn<T, TSelect>>;
-  findMany: <T>(where: TWhereAll, update: TSelect, include?: TInclude) => Promise<PayloadReturn<T, TSelect>[]>;
-  updateOne: (where: TWhereUnique, update: TUpdate) => Promise<boolean>;
-};
+// export type ServiceProps<TWhereUnique, TWhereAll, TSelect, TInclude, TUpdate> = {
+//   findOneUnqiue: <T>(where: TWhereUnique, select?: TSelect, include?: TInclude) => Promise<PayloadReturn<T, TSelect>>;
+//   findOne: <T>(where: TWhereAll, select?: TSelect, include?: TInclude) => Promise<PayloadReturn<T, TSelect>>;
+//   findMany: <T>(where: TWhereAll, update: TSelect, include?: TInclude) => Promise<PayloadReturn<T, TSelect>[]>;
+//   updateOne: (where: TWhereUnique, update: TUpdate) => Promise<boolean>;
+// };
 
 export type ResultResponse = { result: boolean };
 /*
