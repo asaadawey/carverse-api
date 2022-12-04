@@ -16,6 +16,7 @@ jobs:
     strategy:
       matrix:
         node-version: [16.x]
+        yarn-version: [1.22.18]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -24,6 +25,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          yarn-version: ${{ matrix.yarn-version }}
           cache: 'yarn'
       - run: yarn lint
       - run: yarn build --if-present
