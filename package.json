@@ -9,6 +9,9 @@
     "dev": "yarn start",
     "seed": "ts-node-dev ./prisma/seed.ts"
   },
+  "engines": {
+    "yarn": "1.22.18"
+  },
   "dependencies": {
     "@prisma/client": "^3.7.0",
     "@types/jsonwebtoken": "^8.5.4",
