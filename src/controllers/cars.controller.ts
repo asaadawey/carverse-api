@@ -1,10 +1,7 @@
-import { RequestHandler } from "express";
-import prismaClient from "../../prisma/client";
-import {
-  PaginatorQueryParamsProps,
-  spreadPaginationParams,
-} from "../interfaces/express.types";
-import { ResultResponse } from "../interfaces/routes.types";
+import { RequestHandler } from 'express';
+import prismaClient from 'databaseHelpers/client';
+import { PaginatorQueryParamsProps, spreadPaginationParams } from 'interfaces/express.types';
+import { ResultResponse } from 'interfaces/routes.types';
 
 const prisma = prismaClient;
 
@@ -35,7 +32,6 @@ export const getAllCars: RequestHandler<
   GetAllCarsQueryParams
 > = async (req, res, next) => {
   try {
-    console.log(req.query);
     const cars = await prisma.cars.findMany({
       ...spreadPaginationParams(req.query),
       where: { UserID: Number(req.query.userId) || undefined },
@@ -49,7 +45,6 @@ export const getAllCars: RequestHandler<
         PlateNumber: true,
       },
     });
-    console.log({ cars });
     res.status(200).json(cars);
   } catch (err) {
     next(err);
@@ -103,12 +98,11 @@ type AddCarResponse = ResultResponse;
 
 type AddCarQueryParams = {};
 
-export const addCar: RequestHandler<
-  AddCarLinkQuery,
-  AddCarResponse,
-  AddCarRequestBody,
-  AddCarQueryParams
-> = async (req, res, next) => {
+export const addCar: RequestHandler<AddCarLinkQuery, AddCarResponse, AddCarRequestBody, AddCarQueryParams> = async (
+  req,
+  res,
+  next,
+) => {
   try {
     const result = await prisma.cars.create({
       data: {
@@ -147,11 +141,9 @@ export const verifyCarNumber: RequestHandler<
   VerifyCarNumberQueryParams
 > = async (req, res, next) => {
   try {
-    console.log("ee");
     const result = await prisma.cars.findMany({
       where: { PlateNumber: { equals: req.body.PlateNumber } },
     });
-    console.log({ result });
     res.status(200).json({ result: result.length === 0 });
   } catch (err) {
     next(err);

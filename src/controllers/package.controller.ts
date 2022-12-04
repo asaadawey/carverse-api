@@ -1,11 +1,6 @@
-import {
-  colorGradiants,
-  packages,
-  PrismaClient,
-  services,
-} from ".prisma/client";
-import { RequestHandler } from "express";
-import prismaClient from "../../prisma/client";
+import { colorGradiants, packages, services } from '.prisma/client';
+import { RequestHandler } from 'express';
+import prismaClient from 'databaseHelpers/client';
 
 const prisma = prismaClient;
 
@@ -14,10 +9,7 @@ export type GetAllPackagesLinkQuery = {};
 
 export type GetAllPackagesRequest = {};
 
-export type GetAllPackagesResponse = {} & (Omit<
-  packages,
-  "CreatedOn" | "GradiantID"
-> & {
+export type GetAllPackagesResponse = {} & (Omit<packages, 'CreatedOn' | 'GradiantID'> & {
   colorGradiants: colorGradiants;
   packageServices: {
     services: services & { colorGradiants: colorGradiants };

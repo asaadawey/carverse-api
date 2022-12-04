@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import prismaClient from "../../prisma/client";
+import prismaClient from "databaseHelpers/client";
 
 const prisma = prismaClient;
 //#region AddOrder

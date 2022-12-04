@@ -1,9 +1,9 @@
-import { RequestHandler } from "express";
-import { HttpException } from "../errors/HttpException";
-import * as yup from "yup";
-import { sign } from "jsonwebtoken";
-import { Token, tokens } from "../interfaces/token.types";
-import prismaClient from "../../prisma/client";
+import { RequestHandler } from 'express';
+import { HttpException } from 'errors/HttpException';
+import * as yup from 'yup';
+import { sign } from 'jsonwebtoken';
+import { Token, tokens } from 'interfaces/token.types';
+import prismaClient from 'databaseHelpers/client';
 
 const prisma = prismaClient;
 
@@ -29,12 +29,11 @@ type LoginResponse = {
 
 type LoginQueryParams = {};
 
-export const login: RequestHandler<
-  LoginLinkQuery,
-  LoginResponse,
-  LoginRequestBody,
-  LoginQueryParams
-> = async (req, res, next): Promise<void> => {
+export const login: RequestHandler<LoginLinkQuery, LoginResponse, LoginRequestBody, LoginQueryParams> = async (
+  req,
+  res,
+  next,
+): Promise<void> => {
   try {
     console.log(req.body);
     const { email, password } = req.body;
@@ -53,10 +52,9 @@ export const login: RequestHandler<
       },
     });
     //TODO HASH PASSWORDS
-    if (!user) throw new HttpException(409, "Email or passowrd incorrect");
+    if (!user) throw new HttpException(409, 'Email or passowrd incorrect');
 
-    if (user.Password !== password)
-      throw new HttpException(409, "Email or password incorrect");
+    if (user.Password !== password) throw new HttpException(409, 'Email or password incorrect');
 
     const token = sign(
       {
@@ -65,7 +63,7 @@ export const login: RequestHandler<
         timestamp: new Date(),
       } as Token,
       tokens.secret,
-      { expiresIn: tokens.expiry }
+      { expiresIn: tokens.expiry },
     );
     res.status(201).json({
       token,
@@ -103,19 +101,18 @@ type RegisterRequestBody = {
 
 type RegisterQueryParams = { grantOnly: string };
 
-const registerBodySchema: yup.SchemaOf<Omit<RegisterRequestBody, "grantOnly">> =
-  yup.object().shape({
-    Email: yup
-      .string()
-      //  .email("Email is not valid")
-      .required("Email field is required"),
-    Password: yup.string().required("Password field is required"),
-    FirstName: yup.string().required("FirstName field is required"),
-    LastName: yup.string().required("LastName field is required"),
-    PhoneNumber: yup.string().required("PhoneNumber field is required"),
-    Nationality: yup.string().required("Nationality field is required"),
-    UserTypeName: yup.string().required("UserTypeName is required"),
-  });
+const registerBodySchema: yup.SchemaOf<Omit<RegisterRequestBody, 'grantOnly'>> = yup.object().shape({
+  Email: yup
+    .string()
+    //  .email("Email is not valid")
+    .required('Email field is required'),
+  Password: yup.string().required('Password field is required'),
+  FirstName: yup.string().required('FirstName field is required'),
+  LastName: yup.string().required('LastName field is required'),
+  PhoneNumber: yup.string().required('PhoneNumber field is required'),
+  Nationality: yup.string().required('Nationality field is required'),
+  UserTypeName: yup.string().required('UserTypeName is required'),
+});
 
 export const registerUser: RequestHandler<
   RegisterLinkQuery,
@@ -124,10 +121,9 @@ export const registerUser: RequestHandler<
   RegisterQueryParams
 > = async (req, res, next) => {
   try {
-    console.log(req.body);
     await registerBodySchema.validate(req.body);
-    const grant = req.query.grantOnly === "true";
-    console.log({ grant });
+    const grant = req.query.grantOnly === 'true';
+
     const { UserTypeName, ...rest } = req.body;
 
     if (!grant)
@@ -137,18 +133,11 @@ export const registerUser: RequestHandler<
     else {
       const user = await prisma.users.findFirst({
         where: {
-          OR: [
-            { PhoneNumber: { equals: rest.PhoneNumber } },
-            { Email: { equals: rest.Email } },
-          ],
+          OR: [{ PhoneNumber: { equals: rest.PhoneNumber } }, { Email: { equals: rest.Email } }],
         },
       });
 
-      if (user)
-        throw new HttpException(
-          409,
-          "There is user found with the same PhoneNumber or Email"
-        );
+      if (user) throw new HttpException(409, 'There is user found with the same PhoneNumber or Email');
     }
     res.status(201).json({ result: true });
   } catch (error: any) {

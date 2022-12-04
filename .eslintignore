@@ -1,0 +1,7 @@
+*.config.js
+/node_modules
+/@types
+/coverage
+/dist
+/elk
+/tools

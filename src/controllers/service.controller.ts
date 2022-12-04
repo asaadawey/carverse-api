@@ -1,6 +1,6 @@
-import { colorGradiants, providerServices, services } from ".prisma/client";
-import { RequestHandler } from "express";
-import prismaClient from "../../prisma/client";
+import { colorGradiants, providerServices, services } from '.prisma/client';
+import { RequestHandler } from 'express';
+import prismaClient from 'databaseHelpers/client';
 
 const prisma = prismaClient;
 
@@ -34,10 +34,7 @@ export const getAllServices: RequestHandler<
     const { ModuleID, skip, take, ProviderID } = req.query;
     let data = await prisma.providerServices.findMany({
       where: {
-        AND: [
-          { ProviderID: { equals: Number(ProviderID) } },
-          { services: { ModuleID: { equals: Number(ModuleID) } } },
-        ],
+        AND: [{ ProviderID: { equals: Number(ProviderID) } }, { services: { ModuleID: { equals: Number(ModuleID) } } }],
       },
       take: take ? parseInt(take) : undefined,
       skip: skip ? parseInt(skip) : undefined,
@@ -45,7 +42,6 @@ export const getAllServices: RequestHandler<
         services: { include: { colorGradiants: true } },
       },
     });
-    console.log({ data });
     res.status(201).json(data);
   } catch (error: any) {
     next(error);

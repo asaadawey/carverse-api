@@ -1,7 +1,7 @@
-import { provider, services, users } from "@prisma/client";
-import { RequestHandler } from "express";
-import * as _ from "lodash";
-import prismaClient from "../../prisma/client";
+import { provider, services, users } from '@prisma/client';
+import { RequestHandler } from 'express';
+import * as _ from 'lodash';
+import prismaClient from 'databaseHelpers/client';
 
 const prisma = prismaClient;
 
@@ -36,7 +36,7 @@ export const getAllProviders: RequestHandler<
       },
     });
 
-    if (details === "true") {
+    if (details === 'true') {
       //Calculate price average
       providers.forEach(async (provider, id) => {
         const providerServices = await prisma.providerServices.findMany({
@@ -45,9 +45,7 @@ export const getAllProviders: RequestHandler<
 
         providers[id] = {
           ...provider,
-          avg:
-            _.sumBy(providerServices, (a) => a.Price as any) /
-            providerServices.length,
+          avg: _.sumBy(providerServices, (a) => a.Price as any) / providerServices.length,
         };
       });
     }
@@ -89,10 +87,7 @@ export const getOneProvider: RequestHandler<
     const { id } = req.query;
     const provider = await prisma.provider.findFirst({
       where: {
-        OR: [
-          { UserID: { equals: Number(id) } },
-          { id: { equals: Number(id) } },
-        ],
+        OR: [{ UserID: { equals: Number(id) } }, { id: { equals: Number(id) } }],
       },
       select: {
         id: true,
@@ -104,9 +99,8 @@ export const getOneProvider: RequestHandler<
     const ordersCount = await prisma.orders.count({
       where: { ProviderID: parseInt(id) },
     });
-    console.log({ provider, ordersCount });
-    if (provider && ordersCount !== undefined)
-      res.status(200).json({ ...provider, ordersCount });
+
+    if (provider && ordersCount !== undefined) res.status(200).json({ ...provider, ordersCount });
     else res.status(401);
   } catch (error: any) {
     next(error);
@@ -119,7 +113,7 @@ type GetRightProvidersLinkQuery = {};
 
 type GetRightProvidersRequest = {
   onlineUsersIds: number[];
-  selectedTime: Date | "now";
+  selectedTime: Date | 'now';
 };
 
 type GetRightProvidersResponse = {

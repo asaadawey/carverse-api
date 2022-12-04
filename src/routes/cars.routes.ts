@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { RouterLinks } from "../constants/links";
+import { RouterLinks } from "@constants/links";
 import {
   addCar,
   getAllBodyTypes,
   getAllCars,
   verifyCarNumber,
-} from "../controllers/cars.controller";
-import authMiddleware from "../middleware/auth.middleware";
+} from "controllers/cars.controller";
+import authMiddleware from "middleware/auth.middleware";
 
 const router = Router();
 

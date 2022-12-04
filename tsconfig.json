@@ -1,7 +1,25 @@
 {
+  "ts-node": {
+    // Do not forget to `npm i -D tsconfig-paths`
+    "require": ["tsconfig-paths/register"]
+  },
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
-    "resolveJsonModule": false,
+    "resolveJsonModule": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": "./src",
+    "paths": {
+      // "*": ["*", "node_modules/*"],
+      "databaseHelpers*": ["databaseHelpers/*"],
+      "@constants*": ["constants/*"],
+      "controllers*": ["controllers/*"],
+      "errors*": ["errors/*"],
+      "interfaces*": ["interfaces/*"],
+      "middleware*": ["middleware/*"],
+      "routes*": ["routes/*"],
+      "web-socket*": ["web-socket/*"]
+    },
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */
     "target": "ESNext" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,
@@ -65,5 +83,6 @@
     /* Advanced Options */
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
-  }
+  },
+  "include": ["./src/**/*", "@types/**/*"]
 }

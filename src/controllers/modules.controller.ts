@@ -1,6 +1,6 @@
 import { modules } from "@prisma/client";
 import { RequestHandler } from "express";
-import prismaClient from "../../prisma/client";
+import prismaClient from "databaseHelpers/client";
 
 const prisma = prismaClient;
 
