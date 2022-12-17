@@ -29,10 +29,18 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
     console.log({
       body: req.body,
       headers: req.headers,
+      additionalData,
     });
     res
       .status(status)
-      .json({ message, status, ...(envVars.mode === 'development' && additionalData ? { data: additionalData } : {}) });
+      .json({
+        message,
+        status,
+        ...((envVars.mode === 'development' || envVars.mode === 'test') && additionalData
+          ? { data: additionalData }
+          : {}),
+      })
+      .end();
   } catch (error) {
     next(error);
   }

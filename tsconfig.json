@@ -13,8 +13,8 @@
     "baseUrl": "./src",
     "paths": {
       // "*": ["*", "node_modules/*"],
-      "databaseHelpers": ["databaseHelpers/*"],
-      "@constants*": ["constants/*"],
+      "databaseHelpers/client": ["databaseHelpers/client.ts"],
+      "constants": ["constants/*"],
       "controllers": ["controllers/*"],
       "errors": ["errors/index.ts"],
       "errors/*": ["errors/*"],
@@ -27,7 +27,8 @@
       "responses/*": ["responses/*"],
       "@responses": ["responses/*"],
       "config": ["config/*"],
-      "@prismaMock": ["./singeleton.ts"]
+      "@prismaMock": ["./singeleton.ts"],
+      "app": ["./index.ts"]
     },
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */
@@ -101,7 +102,7 @@
     "@types/**/*",
     "singleton.ts",
     "jest.config.js",
-    "src/helpers/testHelpers/singeleton.ts",
+    "src/helpers/testHelpers/unit-singeleton.ts",
     "**/*.spec.ts",
     "**/*.test.ts"
   ]

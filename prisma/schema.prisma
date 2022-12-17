@@ -19,7 +19,7 @@ model users {
   Nationality String
   CreatedOn   DateTime      @default(now())
   ModifiedOn  DateTime      @updatedAt
-  userTypes   userTypes     @relation(fields: [UserTypeID], references: [id])
+  userTypes   userTypes     @relation(fields: [UserTypeID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   cars        cars[]
   creditCards creditCards[]
   customer    customer?
@@ -29,7 +29,7 @@ model users {
 model customer {
   id     Int      @id @default(autoincrement())
   UserID Int      @unique
-  users  users    @relation(fields: [UserID], references: [id])
+  users  users    @relation(fields: [UserID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   orders orders[]
 }
 
@@ -37,7 +37,7 @@ model provider {
   id               Int                @id @default(autoincrement())
   UserID           Int                @unique
   NumberOfOrders   Int                @default(0)
-  users            users              @relation(fields: [UserID], references: [id])
+  users            users              @relation(fields: [UserID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   orders           orders[]
   providerServices providerServices[]
 }
@@ -60,8 +60,8 @@ model services {
   ModifiedOn         DateTime           @updatedAt
   ModuleID           Int
   GradientID         Int
-  colorGradiants     colorGradiants     @relation(fields: [GradientID], references: [id])
-  modules            modules            @relation(fields: [ModuleID], references: [id])
+  colorGradiants     colorGradiants     @relation(fields: [GradientID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  modules            modules            @relation(fields: [ModuleID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   orderServices      orderServices[]
   packageServices    packageServices[]
   providerServices   providerServices[]
@@ -77,9 +77,9 @@ model orders {
   Longitude                Float
   Latitude                 Float
   AddressString            String
-  customer                 customer                   @relation(fields: [CustomerID], references: [id])
-  paymentMethods           paymentMethods             @relation(fields: [PaymentMethodID], references: [id])
-  provider                 provider                   @relation(fields: [ProviderID], references: [id])
+  customer                 customer                   @relation(fields: [CustomerID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  paymentMethods           paymentMethods             @relation(fields: [PaymentMethodID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  provider                 provider                   @relation(fields: [ProviderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   orderCreditCardsPurchase orderCreditCardsPurchase[]
   orderHistory             orderHistory[]
   orderServices            orderServices[]
@@ -91,9 +91,9 @@ model orderServices {
   OrderID   Int
   CarID     Int
   CreatedOn DateTime? @default(now()) @db.Timestamptz(6)
-  cars      cars      @relation(fields: [CarID], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  orders    orders    @relation(fields: [OrderID], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  services  services  @relation(fields: [ServiceID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cars      cars      @relation(fields: [CarID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  orders    orders    @relation(fields: [OrderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  services  services  @relation(fields: [ServiceID], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model orderCreditCardsPurchase {
@@ -102,8 +102,8 @@ model orderCreditCardsPurchase {
   OrderID     Int
   TotalAmount Float
   CreatedOn   DateTime    @default(now())
-  creditCards creditCards @relation(fields: [CardID], references: [id])
-  orders      orders      @relation(fields: [OrderID], references: [id])
+  creditCards creditCards @relation(fields: [CardID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  orders      orders      @relation(fields: [OrderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model creditCards {
@@ -114,7 +114,7 @@ model creditCards {
   ExpiryDate               String
   IsActive                 Boolean                    @default(true)
   CreatedOn                DateTime                   @default(now())
-  users                    users                      @relation(fields: [UserID], references: [id])
+  users                    users                      @relation(fields: [UserID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   orderCreditCardsPurchase orderCreditCardsPurchase[]
 }
 
@@ -151,8 +151,8 @@ model providerServices {
   Price      Decimal   @default(0)
   CreatedOn  String?
   Rating     Decimal   @default(0)
-  provider   provider? @relation(fields: [ProviderID], references: [id])
-  services   services? @relation(fields: [ServiceID], references: [id])
+  provider   provider? @relation(fields: [ProviderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  services   services? @relation(fields: [ServiceID], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model packages {
@@ -165,8 +165,8 @@ model packages {
   PackageOriginalPrice Float
   PackageIconLink      String
   CreatedOn            DateTime          @default(now())
-  colorGradiants       colorGradiants    @relation(fields: [GradiantID], references: [id])
-  modules              modules           @relation(fields: [ModuleID], references: [id])
+  colorGradiants       colorGradiants    @relation(fields: [GradiantID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  modules              modules           @relation(fields: [ModuleID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   packageServices      packageServices[]
 }
 
@@ -187,8 +187,8 @@ model cars {
   CreatedOn     DateTime        @default(now())
   ModifiedOn    DateTime        @updatedAt
   PlateCity     String?
-  bodyTypes     bodyTypes       @relation(fields: [BodyTypeID], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users         users           @relation(fields: [UserID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  bodyTypes     bodyTypes       @relation(fields: [BodyTypeID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  users         users           @relation(fields: [UserID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   orderServices orderServices[]
 }
 
@@ -206,8 +206,8 @@ model colorGradiants {
 model packageServices {
   PackageID Int
   ServiceID Int
-  packages  packages @relation(fields: [PackageID], references: [id])
-  services  services @relation(fields: [ServiceID], references: [id])
+  packages  packages @relation(fields: [PackageID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  services  services @relation(fields: [ServiceID], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@id([PackageID, ServiceID])
 }
@@ -217,8 +217,8 @@ model orderHistory {
   OrderID           Int
   HistoryItemID     Int
   CreatedOn         DateTime          @default(now())
-  orderHistoryItems orderHistoryItems @relation(fields: [HistoryItemID], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  orders            orders            @relation(fields: [OrderID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  orderHistoryItems orderHistoryItems @relation(fields: [HistoryItemID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  orders            orders            @relation(fields: [OrderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model orderHistoryItems {

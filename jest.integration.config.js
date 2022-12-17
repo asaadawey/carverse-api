@@ -3,10 +3,10 @@ module.exports = {
     '^.+\\.ts?$': 'ts-jest',
   },
   testEnvironment: 'node',
-  testRegex: '\\.(spec)\\.ts?$',
+  testRegex: '/.*\\.integration.test\\.ts$',
   moduleFileExtensions: ['js', 'ts'],
   modulePaths: ['<rootDir>/src/'],
-  setupFilesAfterEnv: ['<rootDir>/src/helpers/testHelpers/unit-singeleton.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/helpers/testHelpers/integration-singeleton.ts'],
   clearMocks: true,
   forceExit: true,
 };

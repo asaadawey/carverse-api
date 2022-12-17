@@ -29,3 +29,5 @@ export type YupSchema<Body = undefined, Query = undefined, Params = undefined> =
   query?: yup.SchemaOf<Query> | undefined;
   params?: yup.SchemaOf<Params> | undefined;
 }>;
+
+export type ResultResponse = { result: boolean };

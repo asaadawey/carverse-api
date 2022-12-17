@@ -81,48 +81,6 @@ export const getAllBodyTypes: RequestHandler<
 
 //#endregion
 
-//#region AddCar
-type AddCarLinkQuery = {};
-
-type AddCarRequestBody = {
-  UserID: number;
-  BodyTypeID: string;
-  PlateNumber: string;
-  PlateCity: string;
-  Color: string;
-  Manufacturer: string;
-  Model: string;
-};
-
-type AddCarResponse = ResultResponse;
-
-type AddCarQueryParams = {};
-
-export const addCar: RequestHandler<AddCarLinkQuery, AddCarResponse, AddCarRequestBody, AddCarQueryParams> = async (
-  req,
-  res,
-  next,
-) => {
-  try {
-    const result = await prisma.cars.create({
-      data: {
-        UserID: req.body.UserID,
-        BodyTypeID: Number(req.body.BodyTypeID),
-        Color: req.body.Color,
-        Manufacturer: req.body.Manufacturer,
-        Model: req.body.Model,
-        PlateCity: req.body.PlateCity,
-        PlateNumber: req.body.PlateNumber,
-      },
-      select: { id: true },
-    });
-    res.status(200).json({ result: Boolean(result.id) });
-  } catch (err) {
-    next(err);
-  }
-};
-
-//#endregion
 //#region VerifyCarNumber
 type VerifyCarNumberLinkQuery = {};
 

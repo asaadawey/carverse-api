@@ -1,4 +1,4 @@
-import { prismaMock } from 'helpers/testHelpers/singeleton';
+import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
 import checkUserExist from './checkUserExist.controller';
 import { createSuccessResponse } from 'responses';
 

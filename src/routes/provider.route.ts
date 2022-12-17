@@ -1,10 +1,7 @@
-import { Router } from "express";
-import { RouterLinks } from "@constants/links";
-import {
-  getAllProviders,
-  getOneProvider,
-} from "controllers/provider.controller";
-import authMiddleware from "middleware/auth.middleware";
+import { Router } from 'express';
+import { RouterLinks } from 'constants/links';
+import { getAllProviders, getOneProvider } from 'controllers/provider.controller';
+import authMiddleware from 'middleware/auth.middleware';
 
 const router = Router();
 

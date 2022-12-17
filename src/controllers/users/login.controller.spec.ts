@@ -1,7 +1,7 @@
 import login from './login.controller';
 import { DeepMockProxy } from 'jest-mock-extended';
 import { sign } from 'jsonwebtoken';
-import { prismaMock } from 'helpers/testHelpers/singeleton';
+import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
 import { HttpException } from 'errors';
 import { createSuccessResponse, createFailResponse } from 'responses';
 

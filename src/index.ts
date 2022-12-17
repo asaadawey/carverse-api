@@ -7,9 +7,8 @@ import apiAuthMiddleware from 'middleware/apiAuth.middleware';
 import routes from 'routes/index';
 
 import io from 'web-socket/index';
-import http from 'http';
+
 import path from 'path';
-import envVars from 'config/environment';
 
 import { preLogmiddleware } from 'middleware/log.middleware';
 
@@ -35,10 +34,4 @@ app.use('/icons', [authMiddleware, express.static(path.join(process.cwd(), 'publ
 
 app.use(errorMiddleware);
 
-const server = http.createServer(app);
-
-io.listen(server);
-
-server.listen(envVars.port, () => {
-  console.log(`Port : ${envVars.port} Listen start at ${new Date().toISOString()}`);
-});
+export default app;

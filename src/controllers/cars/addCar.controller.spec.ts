@@ -1,11 +1,11 @@
 import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
-import register from './register.controller';
+import addCar from './addCar.controller';
 import { createSuccessResponse } from 'responses';
 
-describe('users/register', () => {
-  it('Should success', async () => {
-    prismaMock.users.create.mockResolvedValue({});
-    await register(global.mockReq, global.mockRes, global.mockNext);
+describe('cars/addCar', () => {
+  it('Should succeed', async () => {
+    prismaMock.cars.create.mockResolvedValue({ id: 1 });
+    await addCar(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
     expect(createSuccessResponse).toHaveBeenCalledWith(

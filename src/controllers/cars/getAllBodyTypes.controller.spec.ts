@@ -1,11 +1,11 @@
 import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
-import getAllCars from './getAllCars.controller';
+import getAllBodyTypes from './getAllBodyTypes.controller';
 import { createSuccessResponse } from 'responses';
 
-describe('cars/getAllCars', () => {
-  it('Should sucess and return all cars', async () => {
-    prismaMock.cars.findMany.mockResolvedValue([]);
-    await getAllCars(global.mockReq, global.mockRes, global.mockNext);
+describe('cars/getAllBodyTypes', () => {
+  it('Should return user not exist', async () => {
+    prismaMock.bodyTypes.findMany.mockResolvedValue([]);
+    await getAllBodyTypes(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
     expect(createSuccessResponse).toHaveBeenCalledWith(global.mockReq, global.mockRes, [], global.mockNext);

@@ -8,7 +8,8 @@ const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next
   const auth = req.headers.authorization;
   try {
     if (auth) {
-      if (envVars.mode === 'development' && envVars.auth.skipAuth) {
+      if ((envVars.mode === 'development' || envVars.mode === 'test') && envVars.auth.skipAuth) {
+        req.userId = Number(req.headers['userid']);
         next();
         return;
       }

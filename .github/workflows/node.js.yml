@@ -29,3 +29,11 @@ jobs:
       - run: yarn lint
       - run: yarn build
       # - run: yarn test
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the stack
+        run: docker-compose up -d
+      - name: Test
+        run: yarn test:all

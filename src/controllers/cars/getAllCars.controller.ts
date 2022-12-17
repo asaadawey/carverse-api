@@ -45,7 +45,7 @@ const getAllCars: RequestHandler<
         PlateNumber: true,
       },
     });
-    createSuccessResponse(req, res, cars, next);
+    createSuccessResponse(req, res, [...cars], next);
   } catch (err) {
     createFailResponse(req, res, err, next);
   }
