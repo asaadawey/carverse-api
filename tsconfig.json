@@ -3,22 +3,31 @@
     // Do not forget to `npm i -D tsconfig-paths`
     "require": ["tsconfig-paths/register"]
   },
+
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
     "resolveJsonModule": true,
+    "allowUmdGlobalAccess": true,
     "rootDir": "./src",
     "outDir": "./dist",
     "baseUrl": "./src",
     "paths": {
       // "*": ["*", "node_modules/*"],
-      "databaseHelpers*": ["databaseHelpers/*"],
+      "databaseHelpers": ["databaseHelpers/*"],
       "@constants*": ["constants/*"],
-      "controllers*": ["controllers/*"],
-      "errors*": ["errors/*"],
-      "interfaces*": ["interfaces/*"],
-      "middleware*": ["middleware/*"],
-      "routes*": ["routes/*"],
-      "web-socket*": ["web-socket/*"]
+      "controllers": ["controllers/*"],
+      "errors": ["errors/index.ts"],
+      "errors/*": ["errors/*"],
+      "interfaces": ["interfaces/*"],
+      "middleware": ["middleware/*"],
+      "routes": ["routes/*"],
+      "web-socket": ["web-socket/*"],
+      "helpers": ["helpers/*"],
+      "responses": ["responses/index.ts"],
+      "responses/*": ["responses/*"],
+      "@responses": ["responses/*"],
+      "config": ["config/*"],
+      "@prismaMock": ["./singeleton.ts"]
     },
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */
@@ -82,7 +91,18 @@
 
     /* Advanced Options */
     "skipLibCheck": true /* Skip type checking of declaration files. */,
+    "types": ["jest", "node"],
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": ["./src/**/*", "@types/**/*"]
+  "typeAcquisition": { "include": ["jest"] },
+  "include": [
+    "./src/**/*",
+    "./src/global.d.ts",
+    "@types/**/*",
+    "singleton.ts",
+    "jest.config.js",
+    "src/helpers/testHelpers/singeleton.ts",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }

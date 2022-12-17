@@ -1,9 +1,7 @@
 import { RequestHandler } from 'express';
-import prismaClient from 'databaseHelpers/client';
+import prisma from 'databaseHelpers/client';
 import { PaginatorQueryParamsProps, spreadPaginationParams } from 'interfaces/express.types';
 import { ResultResponse } from 'interfaces/routes.types';
-
-const prisma = prismaClient;
 
 //#region GetAllCars
 type GetAllCarsLinkQuery = {};
@@ -52,6 +50,7 @@ export const getAllCars: RequestHandler<
 };
 
 //#endregion
+
 //#region GetAllBodyTypes
 type GetAllBodyTypesLinkQuery = {};
 
@@ -81,6 +80,7 @@ export const getAllBodyTypes: RequestHandler<
 };
 
 //#endregion
+
 //#region AddCar
 type AddCarLinkQuery = {};
 

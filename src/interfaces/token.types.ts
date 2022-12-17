@@ -1,4 +1,4 @@
-import { APP_SECRET } from "../constants";
+import envVars from 'config/environment';
 
 export interface Token {
   id: number;
@@ -8,7 +8,7 @@ export interface Token {
 }
 
 export const tokens = {
-  secret: APP_SECRET,
-  expiry: "1y",
-  name: "app-tokeno",
+  secret: envVars.appSecret,
+  expiry: '1y',
+  name: envVars.appName,
 };

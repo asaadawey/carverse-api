@@ -1,25 +1,36 @@
 import { RequestHandler } from 'express';
 import { decode, JwtPayload, verify } from 'jsonwebtoken';
-import { APP_SECRET } from '../constants';
-import { HttpException } from 'errors/HttpException';
+import { HttpException } from 'errors';
+import envVars from 'config/environment';
 import { tokens } from 'interfaces/token.types';
 
 const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next) => {
   const auth = req.headers.authorization;
   try {
     if (auth) {
-      const token = verify(auth, APP_SECRET) as JwtPayload;
+      if (envVars.mode === 'development' && envVars.auth.skipAuth) {
+        next();
+        return;
+      }
+      const token = verify(auth, envVars.appSecret) as JwtPayload;
 
       if (token) {
         if (token.name === tokens.name) {
           var decodedToken = decode(auth, { complete: true }) as any;
           var dateNow = new Date();
 
-          if (decodedToken.exp < dateNow.getTime()) throw new HttpException(401, 'Not authorised');
+          if (decodedToken.exp < dateNow.getTime()) throw new HttpException(401, 'Not authorised', 'Token expired');
+          //Inject user id
+          req.userId = token.id;
           next();
-        } else throw new HttpException(401, 'Not authorised');
-      } else throw new HttpException(401, 'Not authorised');
-    } else throw new HttpException(401, 'Not authorised');
+        } else
+          throw new HttpException(
+            401,
+            'Not authorised',
+            'Token exist and active but not name doesnt match ' + tokens.name,
+          );
+      } else throw new HttpException(401, 'Not authorised', 'Token exist but not active');
+    } else throw new HttpException(401, 'Not authorised', 'No token provided');
   } catch (error: any) {
     next(error);
   }
