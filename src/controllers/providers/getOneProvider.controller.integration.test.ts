@@ -72,7 +72,7 @@ describe('Integration providers/getOneProvider', () => {
         userTypes: {
           connectOrCreate: { where: { TypeName: 'Test' }, create: { TypeName: randomstring.generate(7) } },
         },
-        provider: {},
+        provider: { create: {} },
       },
       select: {
         id: true,
@@ -112,5 +112,14 @@ describe('Integration providers/getOneProvider', () => {
       .send()
       .expect(HTTPResponses.Success);
     expect(Object.keys(result.body).length).toBe(0);
+  });
+
+  it('Should return zero orders', async () => {
+    const result = await supertest(app)
+      .get(`${RouterLinks.getOneProvider.replace(':id', String(createdNoOrdersUserId))}`)
+      .set(commonHeaders())
+      .send()
+      .expect(HTTPResponses.Success);
+    expect(result.body.ordersCount).toBe(0);
   });
 });

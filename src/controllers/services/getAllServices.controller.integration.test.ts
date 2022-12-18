@@ -4,7 +4,7 @@ import { RouterLinks } from 'constants/links';
 import { commonHeaders } from 'helpers/testHelpers/defaults';
 import prisma from 'helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
-import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
+import { HTTPResponses } from 'interfaces/enums';
 
 describe('Integration providers/getAllProviders', () => {
   let createdProviderId: number;

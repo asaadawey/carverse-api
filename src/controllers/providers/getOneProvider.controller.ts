@@ -1,6 +1,5 @@
 import prisma from 'helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
-import { paginationSchema } from 'interfaces/express.types';
 import * as yup from 'yup';
 import { createFailResponse, createSuccessResponse } from 'responses';
 import { colorGradiants } from '@prisma/client';
