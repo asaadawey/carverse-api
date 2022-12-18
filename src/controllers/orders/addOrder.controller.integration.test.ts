@@ -133,10 +133,10 @@ describe('Integration orders/addOrder', () => {
         customerId,
         orderServices: [
           {
+            carId,
             serviceId,
           },
         ],
-        orderAmount: 400,
         longitude: 12,
         latitude: 13,
         addressString: 'Bateen',
