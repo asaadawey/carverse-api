@@ -4,9 +4,10 @@ import { HttpException } from 'errors';
 import envVars from 'config/environment';
 import { tokens } from 'interfaces/token.types';
 import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
+import { createFailResponse } from 'responses';
 
 const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next) => {
-  const auth = req.headers.authorization;
+  const auth = req.header(envVars.auth.authKey);
   try {
     if (auth) {
       if ((envVars.mode === 'development' || envVars.mode === 'test') && envVars.auth.skipAuth) {
@@ -40,7 +41,7 @@ const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next
         );
     } else throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'No token provided');
   } catch (error: any) {
-    next(error);
+    createFailResponse(req, res, error, next);
   }
 };
 

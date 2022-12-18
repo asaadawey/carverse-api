@@ -9,6 +9,6 @@ export interface Token {
 
 export const tokens = {
   secret: envVars.appSecret,
-  expiry: '1y',
+  expiry: ['development', 'test'].includes(envVars.mode) ? '1y' : '1d',
   name: envVars.appName,
 };

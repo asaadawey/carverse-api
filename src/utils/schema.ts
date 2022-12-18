@@ -17,7 +17,7 @@ export const validate =
         params: req.params,
       });
       return next();
-    } catch (err) {
-      createFailResponse(req, res, err, next, '', HTTPErrorString.BadRequest, HTTPResponses.ValidationError);
+    } catch (error: any) {
+      createFailResponse(req, res, error, next, '', HTTPErrorString.BadRequest, HTTPResponses.ValidationError);
     }
   };

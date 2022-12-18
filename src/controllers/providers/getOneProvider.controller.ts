@@ -2,6 +2,8 @@ import prisma from 'helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { paginationSchema } from 'interfaces/express.types';
 import * as yup from 'yup';
+import { createFailResponse, createSuccessResponse } from 'responses';
+import { colorGradiants } from '@prisma/client';
 //#region GetOneProvider
 type GetOneProviderParams = { id: string };
 
@@ -18,6 +20,8 @@ type GetOneProvidersResponse = {
   providerServices: {
     services: {
       ServiceName: string;
+      colorGradiants: colorGradiants;
+      ServicePrice: number;
       ServiceIconLink: string;
       ServiceDescription: string;
     } | null;
@@ -26,13 +30,10 @@ type GetOneProvidersResponse = {
 
 type GetOneProviderQuery = {};
 
-export const getAllProvidersSchema: yup.SchemaOf<{}> = yup.object({
-  query: yup
-    .object()
-    .shape({
-      avg: yup.string().optional().oneOf(['true', 'false'], 'Wrong value passed to avg'),
-    })
-    .concat(paginationSchema),
+export const getOneProviderSchema: yup.SchemaOf<{ params: GetOneProviderParams }> = yup.object({
+  params: yup.object().shape({
+    id: yup.string().required(),
+  }),
 });
 
 const getOneProvider: RequestHandler<
@@ -43,25 +44,37 @@ const getOneProvider: RequestHandler<
 > = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const provider = await prisma.provider.findFirst({
-      where: {
-        OR: [{ UserID: { equals: Number(id) } }, { id: { equals: Number(id) } }],
-      },
-      select: {
-        id: true,
-        users: { select: { FirstName: true, LastName: true, id: true } },
-        providerServices: { select: { services: true } },
-      },
-    });
+    const [provider, ordersCount] = await Promise.all([
+      prisma.provider.findFirst({
+        where: {
+          OR: [{ UserID: { equals: Number(id) } }, { id: { equals: Number(id) } }],
+        },
+        select: {
+          id: true,
+          users: { select: { FirstName: true, LastName: true, id: true } },
+          providerServices: {
+            select: {
+              services: {
+                select: {
+                  ServiceName: true,
+                  colorGradiants: true,
+                  ServicePrice: true,
+                  ServiceIconLink: true,
+                  ServiceDescription: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.orders.count({
+        where: { ProviderID: Number(id) },
+      }),
+    ]);
 
-    const ordersCount = await prisma.orders.count({
-      where: { ProviderID: parseInt(id) },
-    });
-
-    if (provider && ordersCount !== undefined) res.status(200).json({ ...provider, ordersCount });
-    else res.status(401);
+    createSuccessResponse(req, res, { ...provider, ...(provider ? { ordersCount } : {}) }, next);
   } catch (error: any) {
-    next(error);
+    createFailResponse(req, res, error, next);
   }
 };
 //#endregion

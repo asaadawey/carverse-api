@@ -31,8 +31,8 @@ const getAllModules: RequestHandler<
       select: { id: true, ModuleName: true, ModuleDescription: true, ModuleIconLink: true },
     });
     createSuccessResponse(req, res, modules, next);
-  } catch (err) {
-    createFailResponse(req, res, err, next);
+  } catch (error: any) {
+    createFailResponse(req, res, error, next);
   }
 };
 
