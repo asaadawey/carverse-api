@@ -9,8 +9,8 @@ import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 describe('Integration orders/addOrder', () => {
   let customerId: number;
   let providerId: number;
-  let carId: number;
-  let serviceId: number;
+  let createdCarId: number;
+  let createdServiceId: number;
   beforeAll(async () => {
     const createService = await prisma.services.create({
       data: {
@@ -87,13 +87,13 @@ describe('Integration orders/addOrder', () => {
 
     customerId = createdUser[0].customer?.id || 0;
     providerId = createdUser[1].provider?.id || 0;
-    carId = createdUser[0].cars[0].id;
-    serviceId = createService.id;
+    createdCarId = createdUser[0].cars[0].id;
+    createdServiceId = createService.id;
   });
   it('Should success', async () => {
     console.log({
-      carId,
-      serviceId,
+      carId: createdCarId,
+      serviceId: createdServiceId,
     });
     const result = await supertest(app)
       .post(RouterLinks.addOrder)
@@ -103,8 +103,8 @@ describe('Integration orders/addOrder', () => {
         customerId,
         orderServices: [
           {
-            carId,
-            serviceId,
+            carId: createdCarId,
+            serviceId: createdServiceId,
           },
         ],
         orderAmount: 400,
@@ -133,8 +133,8 @@ describe('Integration orders/addOrder', () => {
         customerId,
         orderServices: [
           {
-            carId,
-            serviceId,
+            carId: createdCarId,
+            serviceId: createdServiceId,
           },
         ],
         longitude: 12,
