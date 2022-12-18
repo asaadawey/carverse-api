@@ -28,8 +28,8 @@ const getAllBodyTypes: RequestHandler<
       select: { TypeName: true, id: true },
     });
     createSuccessResponse(req, res, bodyTypes, next);
-  } catch (err) {
-    createFailResponse(req, res, err, next);
+  } catch (error: any) {
+    createFailResponse(req, res, error, next);
   }
 };
 

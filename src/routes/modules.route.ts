@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import getAllModules, { getAllModulesSchema } from 'controllers/modules/getAllModules.controller';
+import { getAllModulesSchema } from 'controllers/modules/getAllModules.controller';
+import { getAllModules } from 'controllers/modules';
 import { RouterLinks } from 'constants/links';
 import { validate } from 'utils/schema';
 

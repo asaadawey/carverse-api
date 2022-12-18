@@ -11,8 +11,8 @@ const apiAuthMiddleware: RequestHandler<any, any, any, any> = async (req, res, n
       throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedAPI, 'GAPI Key not found');
     }
     next();
-  } catch (err) {
-    createFailResponse(req, res, err, next);
+  } catch (error: any) {
+    createFailResponse(req, res, error, next);
   }
 };
 

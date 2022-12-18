@@ -11,6 +11,7 @@ const environmentSchema = yup.object().shape({
   NODE_ENV: yup.string().required(),
   API_KEY: yup.string().required(),
   API_VALUE: yup.string().required(),
+  AUTH_KEY: yup.string().required(),
 });
 
 export default environmentSchema;

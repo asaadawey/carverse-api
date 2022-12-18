@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { RouterLinks } from 'constants/links';
 import { validate } from 'utils/schema';
-import getAllPackages, { getAllPackagesSchema } from 'controllers/packages/getAllPackages.controller';
+import { getAllPackages } from 'controllers/packages';
+import { getAllPackagesSchema } from 'controllers/packages/getAllPackages.controller';
 
 const router = Router();
 

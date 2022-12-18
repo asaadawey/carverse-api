@@ -4,6 +4,7 @@ import { OrderHistory, PaymentMethods } from 'interfaces/enums';
 const prisma = new PrismaClient();
 
 const main = async () => {
+  console.log('Seeding prisma at ' + process.env.DATABASE_URL);
   //#region ColorGradiants
   await prisma.colorGradiants.upsert({
     create: {
@@ -226,17 +227,18 @@ const main = async () => {
   //#endregion
 };
 
-console.log('Seeding prisma at ' + process.env.DATABASE_URL);
-main()
-  .then(() => {
-    if (process.argv[2] === '--exit') process.exit(0);
-  })
-  .catch((error) => {
-    console.log(error);
-    if (process.argv[2] === '--exit') process.exit(1);
-  })
-  .finally(() => {
-    if (process.argv[2] === '--exit') process.exit(0);
-  });
+if (process.argv[2] === '--exit') {
+  main()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.log(error);
+      process.exit(1);
+    })
+    .finally(() => {
+      process.exit(0);
+    });
+}
 
 export default main;

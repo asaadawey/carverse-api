@@ -48,8 +48,8 @@ const getAllCars: RequestHandler<
       },
     });
     createSuccessResponse(req, res, [...cars], next);
-  } catch (err) {
-    createFailResponse(req, res, err, next);
+  } catch (error: any) {
+    createFailResponse(req, res, error, next);
   }
 };
 

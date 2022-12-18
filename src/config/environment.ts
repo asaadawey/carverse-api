@@ -19,5 +19,6 @@ export default {
     apiKey: values.API_KEY,
     apiValue: values.API_VALUE,
     skipAuth: values.SKIP_AUTH,
+    authKey: values.AUTH_KEY,
   },
 };

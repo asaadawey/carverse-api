@@ -50,8 +50,8 @@ const addCar: RequestHandler<AddCarLinkQuery, AddCarResponse, AddCarRequestBody,
     });
 
     createSuccessResponse(req, res, { result: true }, next);
-  } catch (err) {
-    createFailResponse(req, res, err, next);
+  } catch (error: any) {
+    createFailResponse(req, res, error, next);
   }
 };
 

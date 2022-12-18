@@ -3,6 +3,7 @@ import { RouterLinks } from 'constants/links';
 import { addCar, checkCarExist, getAllBodyTypes, getAllCars } from 'controllers/cars';
 
 import { validate } from 'utils/schema';
+
 import { getAllCarsSchema } from 'controllers/cars/getAllCars.controller';
 import { getAllBodyTypesSchema } from 'controllers/cars/getAllBodyTypes.controller';
 import { addCarSchema } from 'controllers/cars/addCar.controller';
