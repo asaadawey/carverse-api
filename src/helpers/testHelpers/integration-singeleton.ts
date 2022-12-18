@@ -1,4 +1,4 @@
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import { Prisma } from '@prisma/client';
 
 async function cleanDatabase() {
@@ -14,7 +14,8 @@ async function cleanDatabase() {
 }
 
 beforeAll(async () => {
-  await cleanDatabase();
+  // await seed();
+  //   await cleanDatabase();
 });
 
 afterAll(async () => {

@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import authMiddleware from 'middleware/auth.middleware';
-import { getAllModules } from 'controllers/modules.controller';
+import getAllModules, { getAllModulesSchema } from 'controllers/modules/getAllModules.controller';
 import { RouterLinks } from 'constants/links';
+import { validate } from 'utils/schema';
 
 const router = Router();
 
-router.get(RouterLinks.getModules, authMiddleware, getAllModules);
+router.get(RouterLinks.getModules, validate(getAllModulesSchema), getAllModules);
 
 export default router;

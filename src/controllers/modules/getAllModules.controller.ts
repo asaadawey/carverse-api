@@ -1,9 +1,7 @@
 import * as yup from 'yup';
 import { RequestHandler } from 'express';
-import prismaClient from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import { createFailResponse, createSuccessResponse } from 'responses';
-
-const prisma = prismaClient;
 
 //#region GetModules
 

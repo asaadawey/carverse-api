@@ -11,11 +11,11 @@
     "prisma:migrate": "dotenv -e .env_local -- yarn prisma migrate dev",
     "start": "dotenv -e .env_stage ts-node ./src/bin/index.ts",
     "dev": "dotenv -e .env_local -- ts-node-dev -r tsconfig-paths/register ./src/bin/index.ts",
-    "seed": "ts-node-dev ./prisma/seed.ts",
+    "seed": "dotenv -e .env_test -- ts-node ./src/helpers/databaseHelpers/seed.ts --exit",
     "test": "dotenv -e .env_test -- jest --silent",
     "test:all": "yarn test:integration && yarn test",
     "deploy:docker": "dotenv -e .env_test -- npx prisma db push",
-    "jest:integration": "dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --silent --runInBand",
+    "jest:integration": "dotenv -e .env_test -- yarn seed && dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --runInBand",
     "test:integration": "yarn docker:up && yarn deploy:docker && yarn jest:integration  && yarn docker:down"
   },
   "engines": {

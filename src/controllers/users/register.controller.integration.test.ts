@@ -2,8 +2,9 @@ import supertest from 'supertest';
 import app from '../../index';
 import { RouterLinks } from 'constants/links';
 import { commonHeaders } from 'helpers/testHelpers/defaults';
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
+import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 
 describe('Integration users/register', () => {
   it('Should success', async () => {
@@ -25,7 +26,7 @@ describe('Integration users/register', () => {
         PhoneNumber: 'PhoneNumber test',
         UserTypeName: randomTypename,
       })
-      .expect(200);
+      .expect(HTTPResponses.Success);
     expect(result.body.result).toEqual(true);
   });
 
@@ -39,7 +40,7 @@ describe('Integration users/register', () => {
         password: '1',
         unkownArg: '1',
       })
-      .expect(400);
-    expect(result.body.message).toEqual('Bad request');
+      .expect(HTTPResponses.ValidationError);
+    expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
   });
 });

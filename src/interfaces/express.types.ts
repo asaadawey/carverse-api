@@ -17,6 +17,11 @@ export type PaginatorQueryParamsProps = {
   skip?: string;
 };
 
+export const paginationSchema: yup.SchemaOf<PaginatorQueryParamsProps> = yup.object().shape({
+  take: yup.string().optional().min(1),
+  skip: yup.string().optional().min(0),
+});
+
 export const spreadPaginationParams = ({ skip, take }: PaginatorQueryParamsProps) => {
   return {
     take: take ? Number(take) : undefined,

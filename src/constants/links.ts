@@ -6,10 +6,10 @@ export enum RouterLinks {
   getModules = '/modules',
   //#endregion
   //#region Packages
-  getPackages = '/packages',
+  getPackages = '/packages/:moduleId',
   //#endregion
   //#region Providers
-  getProviders = '/providers',
+  getAllProviders = '/providers',
   getOneProvider = '/providers/one',
   //#endregion
   //#region Services
@@ -28,11 +28,11 @@ export enum RouterLinks {
   getOneCar = '/cars/one',
   getBodyTypes = '/cars/bodyTypes',
   addCar = '/cars/add',
-  verifyCarNumber = '/car/isPlateNumerUnique',
+  verifyCarNumber = '/car/checkCarExist/:plateNumber',
   getAllCities = '/car/cities',
   //#endregion
   //#region Orders
   addOrder = '/orders/add',
-  getOneOrder = '/orders/one',
+  getOneOrder = '/orders/one/:id',
   //#endregion
 }

@@ -2,15 +2,17 @@ import supertest from 'supertest';
 import app from '../../index';
 import { RouterLinks } from 'constants/links';
 import { commonHeaders } from 'helpers/testHelpers/defaults';
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
+import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 
 describe('Integration users/checkUserExist', () => {
+  const email = 'testEmail@email.com';
   it('Should return true if he found user', async () => {
     const randomTypename = randomstring.generate(7);
     await prisma.users.create({
       data: {
-        Email: 'testEmail',
+        Email: email,
         FirstName: 'testFirst',
         LastName: 'testLast',
         Nationality: 'testNation',
@@ -23,10 +25,10 @@ describe('Integration users/checkUserExist', () => {
       .post(RouterLinks.checkUserExist)
       .set(commonHeaders())
       .send({
-        Email: 'testEmail',
+        Email: email,
         PhoneNumber: 'testPhone',
       })
-      .expect(200);
+      .expect(HTTPResponses.Success);
     expect(result.body.result).toEqual(true);
   });
 
@@ -39,22 +41,19 @@ describe('Integration users/checkUserExist', () => {
         password: '1',
         unkownArg: '1',
       })
-      .expect(400);
-    expect(result.body.message).toEqual('Bad request');
+      .expect(HTTPResponses.ValidationError);
+    expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
   });
 
   it('Should return false if user not exist', async () => {
-    const randomstring1 = randomstring.generate(7);
-    const randomstring2 = randomstring.generate(7);
-
     const result = await supertest(app)
       .post(RouterLinks.checkUserExist)
       .set(commonHeaders())
       .send({
-        Email: randomstring1,
-        PhoneNumber: randomstring2,
+        Email: email + 'ef',
+        PhoneNumber: randomstring.generate(7),
       })
-      .expect(200);
+      .expect(HTTPResponses.Success);
     expect(result.body.result).toEqual(false);
   });
 });

@@ -1,6 +1,6 @@
 import { colorGradiants, providerServices, services } from '.prisma/client';
 import { RequestHandler } from 'express';
-import prismaClient from 'databaseHelpers/client';
+import prismaClient from 'helpers/databaseHelpers/client';
 
 const prisma = prismaClient;
 

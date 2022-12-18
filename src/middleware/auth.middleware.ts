@@ -3,6 +3,7 @@ import { decode, JwtPayload, verify } from 'jsonwebtoken';
 import { HttpException } from 'errors';
 import envVars from 'config/environment';
 import { tokens } from 'interfaces/token.types';
+import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 
 const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next) => {
   const auth = req.headers.authorization;
@@ -20,18 +21,24 @@ const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next
           var decodedToken = decode(auth, { complete: true }) as any;
           var dateNow = new Date();
 
-          if (decodedToken.exp < dateNow.getTime()) throw new HttpException(401, 'Not authorised', 'Token expired');
+          if (decodedToken.exp < dateNow.getTime())
+            throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Token expired');
           //Inject user id
           req.userId = token.id;
           next();
         } else
           throw new HttpException(
-            401,
-            'Not authorised',
+            HTTPResponses.Unauthorised,
+            HTTPErrorString.UnauthorisedToken,
             'Token exist and active but not name doesnt match ' + tokens.name,
           );
-      } else throw new HttpException(401, 'Not authorised', 'Token exist but not active');
-    } else throw new HttpException(401, 'Not authorised', 'No token provided');
+      } else
+        throw new HttpException(
+          HTTPResponses.Unauthorised,
+          HTTPErrorString.UnauthorisedToken,
+          'Token exist but not active',
+        );
+    } else throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'No token provided');
   } catch (error: any) {
     next(error);
   }

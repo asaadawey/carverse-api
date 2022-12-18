@@ -4,6 +4,7 @@ import { sign } from 'jsonwebtoken';
 import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
 import { HttpException } from 'errors';
 import { createSuccessResponse, createFailResponse } from 'responses';
+import { HTTPResponses } from 'interfaces/enums';
 
 jest.mock('jsonwebtoken');
 
@@ -23,7 +24,7 @@ describe('users/login', () => {
     expect(createFailResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
-      new HttpException(409, 'Email or password incorrect', 'password is incorrect'),
+      new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'password is incorrect'),
       global.mockNext,
     );
   });
@@ -39,7 +40,7 @@ describe('users/login', () => {
       global.mockReq,
       global.mockRes,
 
-      new HttpException(409, 'Email or password incorrect', 'No user found'),
+      new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'No user found'),
       global.mockNext,
     );
   });

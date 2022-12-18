@@ -1,4 +1,4 @@
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { ResultResponse } from 'interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'responses';

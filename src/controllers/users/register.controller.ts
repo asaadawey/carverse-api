@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import { createSuccessResponse, createFailResponse } from 'responses';
 
 //#region Register

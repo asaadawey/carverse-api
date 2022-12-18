@@ -2,10 +2,11 @@ import supertest from 'supertest';
 import app from '../../index';
 import { RouterLinks } from 'constants/links';
 import { commonHeaders } from 'helpers/testHelpers/defaults';
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
+import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 
-describe('Integration users/checkUserExist', () => {
+describe('Integration cars/addCar', () => {
   let userId: number;
   let bodyId: number;
   beforeAll(async () => {
@@ -46,9 +47,9 @@ describe('Integration users/checkUserExist', () => {
         Manufacturer: 'Mer',
         Model: '2001',
       })
-      .expect(400);
+      .expect(HTTPResponses.ValidationError);
 
-    expect(result.body.message).toBe('Bad request');
+    expect(result.body.message).toBe(HTTPErrorString.BadRequest);
   });
 
   it('Should return one car as will be created', async () => {
@@ -63,7 +64,7 @@ describe('Integration users/checkUserExist', () => {
         Manufacturer: 'Mer',
         Model: '2001',
       })
-      .expect(200);
+      .expect(HTTPResponses.Success);
 
     expect(result.body.result).toBe(true);
   });

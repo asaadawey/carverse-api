@@ -2,20 +2,21 @@ import supertest from 'supertest';
 import app from '../../index';
 import { RouterLinks } from 'constants/links';
 import { commonHeaders } from 'helpers/testHelpers/defaults';
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
+import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 
 describe('Integration users/login', () => {
   it('Should fail if username and password is incorrect', async () => {
     console.log(RouterLinks.login);
     const result = await supertest(app)
       .post(RouterLinks.login)
-      .set(commonHeaders())
+      .set(commonHeaders(1, true))
       .send({
         email: '1',
         password: '1',
       })
-      .expect(409);
+      .expect(HTTPResponses.BusinessError);
     expect(result.body.message).toEqual('Email or password incorrect');
   });
 
@@ -23,14 +24,14 @@ describe('Integration users/login', () => {
     console.log(RouterLinks.login);
     const result = await supertest(app)
       .post(RouterLinks.login)
-      .set(commonHeaders())
+      .set(commonHeaders(1, true))
       .send({
         email: '1',
         password: '1',
         unkownArg: '1',
       })
-      .expect(400);
-    expect(result.body.message).toEqual('Bad request');
+      .expect(HTTPResponses.ValidationError);
+    expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
   });
 
   it('Should success', async () => {
@@ -49,12 +50,12 @@ describe('Integration users/login', () => {
     console.log(RouterLinks.login);
     const result = await supertest(app)
       .post(RouterLinks.login)
-      .set(commonHeaders())
+      .set(commonHeaders(1, true))
       .send({
         email: 'testEmail',
         password: 'testPaswword',
       })
-      .expect(200);
+      .expect(HTTPResponses.Success);
     expect(result.body.userInfo).toBeDefined();
   });
 });

@@ -1,0 +1,82 @@
+import prisma from 'helpers/databaseHelpers/client';
+import { RequestHandler } from 'express';
+import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'interfaces/express.types';
+import { createFailResponse, createSuccessResponse } from 'responses';
+import * as _ from 'lodash';
+import * as yup from 'yup';
+
+//#region GetAllProviders
+type GetAllProvidersParams = {};
+
+type GetAllProvidersRequestBody = {};
+
+type GetAllProvidersResponse = (({ id: number; NumberOfOrders: number } & { avg?: number }) & {
+  users: { FirstName: string; LastName: string };
+})[];
+
+type GetAllProvidersQuery = PaginatorQueryParamsProps & {
+  avg: string;
+};
+
+export const getAllProvidersSchema: yup.SchemaOf<{}> = yup.object({
+  query: yup
+    .object()
+    .shape({
+      avg: yup.string().optional().oneOf(['true', 'false'], 'Wrong value passed to avg'),
+    })
+    .concat(paginationSchema),
+});
+
+const getAllProviders: RequestHandler<
+  GetAllProvidersParams,
+  GetAllProvidersResponse,
+  GetAllProvidersRequestBody,
+  GetAllProvidersQuery
+> = async (req, res, next) => {
+  try {
+    const { avg } = req.query;
+    const providers: GetAllProvidersResponse = await prisma.provider.findMany({
+      ...spreadPaginationParams(req.query),
+      select: {
+        id: true,
+        NumberOfOrders: true,
+
+        users: {
+          select: { FirstName: true, LastName: true },
+        },
+      },
+    });
+
+    if (avg === 'true') {
+      var i = 0;
+      //Calculate price average
+      for (let provider of providers) {
+        const providerServices = await prisma.providerServices.findMany({
+          where: { ProviderID: { equals: provider.id } },
+          select: {
+            Price: true,
+            services: {
+              select: {
+                ServiceName: true,
+                ServiceDescription: true,
+                ServiceIconLink: true,
+              },
+            },
+          },
+        });
+        const sum = _.sumBy(providerServices, (a) => Number(a.Price) as any);
+        providers[i] = {
+          ...provider,
+          avg: sum / providerServices.length,
+        };
+        i++;
+      }
+    }
+    createSuccessResponse(req, res, providers, next);
+  } catch (error: any) {
+    createFailResponse(req, res, error, next);
+  }
+};
+//#endregion
+
+export default getAllProviders;

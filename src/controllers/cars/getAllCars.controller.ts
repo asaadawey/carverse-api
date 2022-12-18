@@ -1,6 +1,6 @@
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
-import { PaginatorQueryParamsProps, spreadPaginationParams } from 'interfaces/express.types';
+import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'responses';
 import * as yup from 'yup';
 //#region GetAllCars
@@ -23,7 +23,9 @@ type GetAllCarsResponse = {
 
 type GetAllCarsQueryParams = PaginatorQueryParamsProps;
 
-export const getAllCarsSchema: yup.SchemaOf<{}> = yup.object({});
+export const getAllCarsSchema: yup.SchemaOf<{}> = yup.object({
+  query: yup.object().concat(paginationSchema),
+});
 
 const getAllCars: RequestHandler<
   GetAllCarsLinkQuery,

@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { HTTPResponses } from 'interfaces/enums';
 
 const createFailResponse = (
   req: Request,
@@ -6,8 +7,8 @@ const createFailResponse = (
   error: any,
   next: NextFunction,
   message = '',
-  additionalPramater = null,
-  status = 409,
+  additionalPramater: any = null,
+  status: HTTPResponses = HTTPResponses.ValidationError,
 ) => {
   console.error(
     `POST-LOG [${status}] [RESPONSE-FUNC] [${req.method}] ${req.url} ${JSON.stringify(error)} ${
@@ -17,6 +18,7 @@ const createFailResponse = (
 
   if (error) {
     if (message) error.message = message;
+    error.status = error.status || status;
     next(error);
   } else {
     next();

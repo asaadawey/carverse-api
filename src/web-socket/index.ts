@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { Server, Socket } from 'socket.io';
 import * as _ from 'lodash';
-import prismaClient from 'databaseHelpers/client';
+import prismaClient from 'helpers/databaseHelpers/client';
 import { OrderHistory } from '../interfaces/enums';
 import schedule from 'node-schedule';
 import { addSeconds } from 'date-fns';

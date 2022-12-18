@@ -6,11 +6,11 @@ import prisma from 'helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
 import { HTTPResponses } from 'interfaces/enums';
 
-describe('Integration cars/getAllCars', () => {
-  it('Should return one car as will be created', async () => {
-    const randomTypename = randomstring.generate(7);
-    const randomBodyTypename = randomstring.generate(7);
-    const createResult = await prisma.users.create({
+describe('Integration cars/checkCarExist', () => {
+  let randomPlateNumber: string;
+  it('Should return true if he found car', async () => {
+    randomPlateNumber = randomstring.generate(7);
+    await prisma.users.create({
       data: {
         Email: 'testEmail',
         FirstName: 'testFirst',
@@ -18,36 +18,38 @@ describe('Integration cars/getAllCars', () => {
         Nationality: 'testNation',
         Password: 'testPaswword',
         PhoneNumber: 'testPhone',
-        userTypes: { create: { TypeName: randomTypename } },
+        userTypes: { create: { TypeName: randomstring.generate(7) } },
         cars: {
           create: {
             Color: 'Red',
             Manufacturer: 'Mercedes',
             Model: '2010',
-            PlateNumber: '58849',
-            bodyTypes: { create: { TypeName: randomBodyTypename } },
+            PlateNumber: randomPlateNumber,
+            bodyTypes: { create: { TypeName: randomstring.generate(7) } },
           },
         },
       },
       select: {
         id: true,
+        cars: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
     const result = await supertest(app)
-      .get(RouterLinks.getCars)
-      .set(commonHeaders(createResult.id))
-      .send()
+      .get(RouterLinks.verifyCarNumber.replace(':plateNumber', randomPlateNumber))
+      .set(commonHeaders())
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body[0].Color).toBe('Red');
+    expect(result.body.result).toEqual(true);
   });
 
-  it('Should return empty array', async () => {
+  it('Should return false if car not exist', async () => {
     const result = await supertest(app)
-      .get(RouterLinks.getCars)
-      .set(commonHeaders(99))
-      .send()
+      .get(RouterLinks.verifyCarNumber.replace(':plateNumber', randomstring.generate(7)))
+      .set(commonHeaders())
       .expect(HTTPResponses.Success);
-    expect(result.body.length).toEqual(0);
+    expect(result.body.result).toEqual(false);
   });
 });

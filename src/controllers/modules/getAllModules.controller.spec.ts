@@ -2,7 +2,7 @@ import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
 import getAllModules from './getAllModules.controller';
 import { createSuccessResponse } from 'responses';
 
-describe('cars/getAllModules', () => {
+describe('modules/getAllModules', () => {
   it('Should succeed and return all modules', async () => {
     prismaMock.modules.findMany.mockResolvedValue([
       {

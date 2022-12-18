@@ -1,11 +1,11 @@
-import { colorGradiants, packages, services } from '.prisma/client';
+import { colorGradiants, packages, services } from '@prisma/client';
+import prisma from 'helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
-import prismaClient from 'databaseHelpers/client';
-
-const prisma = prismaClient;
+import { createFailResponse, createSuccessResponse } from 'responses';
+import * as yup from 'yup';
 
 //#region GetAllPackages
-export type GetAllPackagesLinkQuery = {};
+export type GetAllPackagesParams = { moduleId: string };
 
 export type GetAllPackagesRequest = {};
 
@@ -16,20 +16,23 @@ export type GetAllPackagesResponse = {} & (Omit<packages, 'CreatedOn' | 'Gradian
   }[];
 })[];
 
-export type GetAllPackagesQueryParams = {
-  ModuleID: string;
-};
+export type GetAllPackagesQuery = {};
 
-export const getAllPackages: RequestHandler<
-  GetAllPackagesLinkQuery,
+export const getAllPackagesSchema: yup.SchemaOf<{ params: GetAllPackagesParams }> = yup.object({
+  params: yup.object({
+    moduleId: yup.string().min(1).required(),
+  }),
+});
+const getAllPackages: RequestHandler<
+  GetAllPackagesParams,
   GetAllPackagesResponse,
   GetAllPackagesRequest,
-  GetAllPackagesQueryParams
+  GetAllPackagesQuery
 > = async (req, res, next) => {
   try {
-    const { ModuleID } = req.query;
+    const { moduleId } = req.params;
     const data = await prisma.packages.findMany({
-      where: { ModuleID: { equals: parseInt(ModuleID) } },
+      where: { ModuleID: { equals: Number(moduleId) } },
       select: {
         id: true,
         ModuleID: true,
@@ -44,10 +47,11 @@ export const getAllPackages: RequestHandler<
         },
       },
     });
-
-    res.status(201).json(data);
+    createSuccessResponse(req, res, data || [], next);
   } catch (error: any) {
-    next(error);
+    createFailResponse(req, res, error, next);
   }
 };
 //#endregion
+
+export default getAllPackages;

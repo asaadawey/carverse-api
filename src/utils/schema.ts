@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 import createFailResponse from 'responses/faliure';
 import * as yup from 'yup';
 
@@ -17,6 +18,6 @@ export const validate =
       });
       return next();
     } catch (err) {
-      createFailResponse(req, res, err, next);
+      createFailResponse(req, res, err, next, '', HTTPErrorString.BadRequest, HTTPResponses.ValidationError);
     }
   };

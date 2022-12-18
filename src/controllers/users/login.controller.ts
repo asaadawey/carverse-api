@@ -3,8 +3,9 @@ import { HttpException } from 'errors';
 import * as yup from 'yup';
 import { sign } from 'jsonwebtoken';
 import { Token, tokens } from 'interfaces/token.types';
-import prisma from 'databaseHelpers/client';
+import prisma from 'helpers/databaseHelpers/client';
 import { createSuccessResponse, createFailResponse } from 'responses';
+import { HTTPResponses } from 'interfaces/enums';
 // import createFailResponse from 'responses';
 
 //#region Login
@@ -58,9 +59,10 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
       },
     });
     //TODO HASH PASSWORDS
-    if (!user) throw new HttpException(409, 'Email or password incorrect', 'No user found');
+    if (!user) throw new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'No user found');
 
-    if (user.Password !== password) throw new HttpException(409, 'Email or password incorrect', 'Password incorrect');
+    if (user.Password !== password)
+      throw new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'Password incorrect');
 
     const token = sign(
       {
