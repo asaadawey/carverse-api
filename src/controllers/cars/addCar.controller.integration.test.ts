@@ -14,12 +14,12 @@ describe('Integration cars/addCar', () => {
     const randomBodyTypename = randomstring.generate(7);
     const createUserResult = await prisma.users.create({
       data: {
-        Email: 'testEmail',
+        Email: randomstring.generate(7),
         FirstName: 'testFirst',
         LastName: 'testLast',
         Nationality: 'testNation',
         Password: 'testPaswword',
-        PhoneNumber: 'testPhone',
+        PhoneNumber: randomstring.generate(7),
         userTypes: { create: { TypeName: randomTypename } },
       },
       select: {

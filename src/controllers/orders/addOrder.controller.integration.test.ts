@@ -83,6 +83,16 @@ describe('Integration orders/addOrder', () => {
           provider: { select: { id: true } },
         },
       }),
+      prisma.paymentMethods.upsert({
+        create: { MethodName: 'Cash', MethodDescription: 's' },
+        update: {},
+        where: { MethodName: 'Cash' },
+      }),
+      prisma.orderHistoryItems.upsert({
+        create: { HistoryName: 'Pending' },
+        update: {},
+        where: { HistoryName: 'Pending' },
+      }),
     ]);
 
     customerId = createdUser[0].customer?.id || 0;

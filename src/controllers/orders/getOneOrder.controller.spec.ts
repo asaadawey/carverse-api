@@ -7,7 +7,7 @@ describe('orders/getOneOrder', () => {
     prismaMock.orders.findUnique.mockResolvedValue({
       id: 111,
     });
-    global.mockReq.params = { id: 111 };
+    global.mockReq.params = { id: 1211 };
     await getOneOrder(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
