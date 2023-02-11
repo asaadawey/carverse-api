@@ -7,7 +7,7 @@ import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 import { createFailResponse } from 'responses';
 
 const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next) => {
-  const auth = req.header(envVars.auth.authKey);
+  const auth = req.header(envVars.auth.authKey.toLowerCase());
   try {
     if (auth) {
       if ((envVars.mode === 'development' || envVars.mode === 'test') && envVars.auth.skipAuth) {

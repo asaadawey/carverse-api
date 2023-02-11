@@ -2,7 +2,6 @@
 import express from 'express';
 import errorMiddleware from 'middleware/error.middleware';
 
-import authMiddleware from 'middleware/auth.middleware';
 import apiAuthMiddleware from 'middleware/apiAuth.middleware';
 import routes from 'routes/index';
 
@@ -30,7 +29,7 @@ app.use(preLogmiddleware);
 
 app.use(routes);
 
-app.use('/icons', [authMiddleware, express.static(path.join(process.cwd(), 'public', 'icons'))]);
+app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))]);
 
 app.use(errorMiddleware);
 

@@ -4,3 +4,4 @@ node_modules
 prisma/migrations/**/*
 dist/**/*
 yarn-error.log
+coverage
