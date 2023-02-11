@@ -27,9 +27,9 @@ app.use((req, res, next) => {
 
 app.use(preLogmiddleware);
 
-app.use(routes);
-
 app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))]);
+
+app.use(routes);
 
 app.use(errorMiddleware);
 
