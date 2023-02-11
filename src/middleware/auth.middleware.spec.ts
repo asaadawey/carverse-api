@@ -76,7 +76,7 @@ describe('auth.middleware', () => {
     envVars.auth.skipAuth = false;
     let req = httpMocks.createRequest({
       headers: {
-        [envVars.auth.authKey]: 'RIGHT KEY',
+        [envVars.auth.authKey.toLowerCase()]: 'RIGHT KEY',
       },
     });
     (verify as DeepMockProxy<any>).mockReturnValue({
