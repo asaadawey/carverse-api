@@ -36,4 +36,4 @@ jobs:
           cache: 'yarn'
       - run: yarn
       - name: Test
-        run: yarn test:all --silent
+        run: yarn test:all --silent --coverage
