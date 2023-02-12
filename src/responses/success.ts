@@ -6,8 +6,9 @@ const createSuccessResponse = (
   res: Response,
   body: any,
   next: NextFunction,
-  status: HTTPResponses = 200,
+  status: HTTPResponses = HTTPResponses.Success,
 ) => {
+  console.log(`[POST-LOG] SUCCESS [${status}] ${JSON.stringify(body)}`);
   res.status(status).json(body);
   next();
 };
