@@ -9,7 +9,7 @@ jest.mock('helpers/databaseHelpers/client.ts', () => ({
 }));
 
 jest.mock('responses/success.ts');
-jest.mock('responses/faliure.ts');
+jest.mock('responses/failure.ts');
 
 export const prismaMock = prisma as unknown as DeepMockProxy<any>;
 
