@@ -36,9 +36,7 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
       .json({
         message,
         status,
-        ...((envVars.mode === 'development' || envVars.mode === 'test') && additionalData
-          ? { data: additionalData }
-          : {}),
+        ...(envVars.logVerbose === 'all' && additionalData ? { data: additionalData } : {}),
       })
       .end();
   } catch (error) {

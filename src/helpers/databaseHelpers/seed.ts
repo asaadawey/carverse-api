@@ -123,6 +123,11 @@ const main = async () => {
     where: { TypeName: 'Provider' },
     update: {},
   });
+  await prisma.userTypes.upsert({
+    create: { TypeName: 'Admin' },
+    where: { TypeName: 'Admin' },
+    update: {},
+  });
   //#endregion
   //#region Users
   await prisma.users.upsert({

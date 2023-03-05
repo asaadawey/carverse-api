@@ -1,11 +1,11 @@
 import { RequestHandler } from 'express';
 import { HttpException } from 'errors';
 import * as yup from 'yup';
-import { sign } from 'jsonwebtoken';
-import { Token, tokens } from 'interfaces/token.types';
 import prisma from 'helpers/databaseHelpers/client';
 import { createSuccessResponse, createFailResponse } from 'responses';
 import { HTTPResponses } from 'interfaces/enums';
+import crypto from 'crypto';
+import { generateToken } from 'utils/token';
 // import createFailResponse from 'responses';
 
 //#region Login
@@ -13,6 +13,7 @@ export const loginSchema: yup.SchemaOf<{ body: LoginRequestBody }> = yup.object(
   body: yup.object({
     email: yup.string().required('Email is required'),
     password: yup.string().required('Password is required'),
+    keepLoggedIn: yup.boolean().optional(),
   }),
 });
 
@@ -21,6 +22,7 @@ type LoginRequestQuery = {};
 type LoginRequestBody = {
   email: string;
   password: string;
+  keepLoggedIn?: boolean;
 };
 
 type LoginResponse = {
@@ -61,20 +63,17 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
     //TODO HASH PASSWORDS
     if (!user) throw new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'No user found');
 
-    if (user.Password !== password)
+    const isValid = crypto.timingSafeEqual(Buffer.from(password), Buffer.from(user.Password));
+
+    if (!isValid)
       throw new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'Password incorrect');
 
-    const token = sign(
-      {
-        id: user.id,
-        customerId: user.customer?.id,
-        providerId: user.provider?.id,
-        name: tokens.name,
-        timestamp: new Date(),
-      } as Token,
-      tokens.secret,
-      { expiresIn: tokens.expiry },
-    );
+    const token = generateToken({
+      id: user.id,
+      customerId: user.customer?.id,
+      providerId: user.provider?.id,
+      keepLoggedIn: Boolean(req.body.keepLoggedIn),
+    });
 
     createSuccessResponse(
       req,

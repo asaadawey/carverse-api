@@ -9,6 +9,10 @@ const createSuccessResponse = (
   status: HTTPResponses = HTTPResponses.Success,
 ) => {
   console.log(`[POST-LOG] SUCCESS [${status}] ${JSON.stringify(body)}`);
+  if (req.updatedToken) {
+    res.set('updated-token', req.updatedToken);
+    req.updatedToken = '';
+  }
   res.status(status).json(body);
   next();
 };

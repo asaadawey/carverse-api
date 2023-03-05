@@ -4,7 +4,7 @@ import httpMocks from 'node-mocks-http';
 import { HttpException } from 'errors';
 import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 import envVars from 'config/environment';
-import { decode, verify } from 'jsonwebtoken';
+import { decode, sign, verify } from 'jsonwebtoken';
 import { DeepMockProxy } from 'jest-mock-extended';
 import { tokens } from 'interfaces/token.types';
 
@@ -85,9 +85,32 @@ describe('auth.middleware', () => {
       id: 1,
     });
     (decode as DeepMockProxy<any>).mockReturnValue({
-      exp: new Date().getTime() + 1000000, //Past time
+      exp: new Date().getTime() + 1000000, //Present time
     });
     await authMiddleware(req, global.mockRes, global.mockNext);
     expect(global.mockNext).toBeCalled();
+  });
+
+  it('Should success and expect token to be refreshed', async () => {
+    //@ts-ignore
+    envVars.auth.skipAuth = false;
+    let req = httpMocks.createRequest({
+      headers: {
+        [envVars.auth.authKey.toLowerCase()]: 'RIGHT KEY',
+      },
+    });
+    (verify as DeepMockProxy<any>).mockReturnValueOnce({
+      name: envVars.appName,
+      keepLoggedIn: true,
+      id: 1,
+    });
+    (sign as DeepMockProxy<any>).mockReturnValue('Test');
+    (decode as DeepMockProxy<any>).mockReturnValue({
+      exp: new Date().getTime() - 1000000, //Past time
+      keepLoggedIn: true,
+    });
+    await authMiddleware(req, global.mockRes, global.mockNext);
+    expect(global.mockNext).toBeCalled();
+    expect(req.updatedToken).toEqual('Test');
   });
 });

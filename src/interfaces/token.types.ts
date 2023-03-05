@@ -3,8 +3,11 @@ import envVars from 'config/environment';
 export interface Token {
   id: number;
   name: string;
+  customerId?: number;
+  providerId?: number;
+  keepLoggedIn?: boolean;
   timestamp: Date;
-  exp?: Date;
+  exp?: Date | string;
 }
 
 export const tokens = {

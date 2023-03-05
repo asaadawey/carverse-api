@@ -5,6 +5,7 @@ declare global {
   namespace Express {
     interface Request {
       userId: number;
+      updatedToken: string | undefined;
     }
     interface Response {
       io: Socket;
