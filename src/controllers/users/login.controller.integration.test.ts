@@ -54,6 +54,7 @@ describe('Integration users/login', () => {
       .send({
         email: 'testEmail',
         password: 'testPaswword',
+        keepLoggedIn: false,
       })
       .expect(HTTPResponses.Success);
     expect(result.body.userInfo).toBeDefined();
