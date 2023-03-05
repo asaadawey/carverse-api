@@ -3,9 +3,10 @@ import { HttpException } from 'errors';
 import * as yup from 'yup';
 import prisma from 'helpers/databaseHelpers/client';
 import { createSuccessResponse, createFailResponse } from 'responses';
-import { HTTPResponses } from 'interfaces/enums';
+import { HTTPErrorMessages, HTTPResponses } from 'interfaces/enums';
 import crypto from 'crypto';
 import { generateToken } from 'utils/token';
+import { decrypt } from 'utils/encrypt';
 // import createFailResponse from 'responses';
 
 //#region Login
@@ -14,6 +15,7 @@ export const loginSchema: yup.SchemaOf<{ body: LoginRequestBody }> = yup.object(
     email: yup.string().required('Email is required'),
     password: yup.string().required('Password is required'),
     keepLoggedIn: yup.bool().optional(),
+    encryptedClient: yup.string().required('en****it'),
   }),
 });
 
@@ -23,6 +25,7 @@ type LoginRequestBody = {
   email: string;
   password: string;
   keepLoggedIn?: boolean;
+  encryptedClient: string;
 };
 
 type LoginResponse = {
@@ -55,24 +58,47 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         FirstName: true,
         LastName: true,
         id: true,
-        userTypes: true,
+        userTypes: {
+          select: {
+            TypeName: true,
+            AllowedClients: true,
+          },
+        },
         customer: { select: { id: true } },
         provider: { select: { id: true } },
       },
     });
     //TODO HASH PASSWORDS
-    if (!user) throw new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'No user found');
+    if (!user)
+      throw new HttpException(
+        HTTPResponses.BusinessError,
+        HTTPErrorMessages.InvalidUsernameOrPassowrd,
+        'No user found',
+      );
 
     const isValid = crypto.timingSafeEqual(Buffer.from(password), Buffer.from(user.Password));
 
     if (!isValid)
-      throw new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'Password incorrect');
+      throw new HttpException(
+        HTTPResponses.BusinessError,
+        HTTPErrorMessages.InvalidUsernameOrPassowrd,
+        'Password incorrect',
+      );
+
+    // Check if received exists in allowed client
+    const decryptedClient = decrypt(req.body.encryptedClient);
+    if (!user.userTypes.AllowedClients.includes(decryptedClient))
+      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.NoSufficientPermissions, {
+        decryptedClient,
+        userClient: user.userTypes.AllowedClients,
+      });
 
     const token = generateToken({
       id: user.id,
       customerId: user.customer?.id,
       providerId: user.provider?.id,
       keepLoggedIn: Boolean(req.body.keepLoggedIn),
+      authorisedEncryptedClient: req.body.encryptedClient,
     });
 
     createSuccessResponse(

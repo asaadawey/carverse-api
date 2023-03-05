@@ -18,10 +18,20 @@ export enum HTTPErrorString {
   UnauthorisedToken = 'Unauthorised',
 }
 
+export enum HTTPErrorMessages {
+  InvalidUsernameOrPassowrd = 'Invalid username or password',
+  NoSufficientPermissions = '',
+}
+
 export enum HTTPResponses {
   NotFound = 404,
   Success = 200,
   BusinessError = 422,
   ValidationError = 400,
   Unauthorised = 401,
+}
+
+export enum AllowedClients {
+  MobileApp = 'mobile-app',
+  CP = 'cp',
 }

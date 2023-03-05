@@ -9,7 +9,7 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
   try {
     let status: number = error.status || 500;
     let message: string = error.message || 'Something went wrong';
-    let additionalData = '';
+    let additionalData = error.additionalData;
 
     if (error instanceof Prisma.PrismaClientUnknownRequestError || (error.clientVersion && !error.code)) {
       //Prisma unknown errors custom handler

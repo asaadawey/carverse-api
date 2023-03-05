@@ -6,6 +6,7 @@ export interface Token {
   customerId?: number;
   providerId?: number;
   keepLoggedIn?: boolean;
+  authorisedEncryptedClient: string;
   timestamp: Date;
   exp?: Date | string;
 }

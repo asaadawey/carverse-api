@@ -10,11 +10,14 @@ import io from 'web-socket/index';
 import path from 'path';
 
 import { preLogmiddleware } from 'middleware/log.middleware';
+import helmet from 'helmet';
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(helmet());
 
 app.use(apiAuthMiddleware);
 

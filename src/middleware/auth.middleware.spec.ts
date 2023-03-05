@@ -7,6 +7,7 @@ import envVars from 'config/environment';
 import { decode, sign, verify } from 'jsonwebtoken';
 import { DeepMockProxy } from 'jest-mock-extended';
 import { tokens } from 'interfaces/token.types';
+import { encrypt } from 'utils/encrypt';
 
 jest.mock('jsonwebtoken');
 
@@ -72,12 +73,13 @@ describe('auth.middleware', () => {
     );
   });
 
-  it('Should success', async () => {
+  it('Should fail because allowed client is not right', async () => {
     //@ts-ignore
     envVars.auth.skipAuth = false;
     let req = httpMocks.createRequest({
       headers: {
         [envVars.auth.authKey.toLowerCase()]: 'RIGHT KEY',
+        [envVars.allowedClient.key]: 'Iam the allowed client',
       },
     });
     (verify as DeepMockProxy<any>).mockReturnValue({
@@ -85,6 +87,33 @@ describe('auth.middleware', () => {
       id: 1,
     });
     (decode as DeepMockProxy<any>).mockReturnValue({
+      authorisedEncryptedClient: encrypt('Iam different that the allowed client'),
+      exp: new Date().getTime() + 1000000, //Present time
+    });
+    await authMiddleware(req, global.mockRes, global.mockNext);
+
+    expect(createFailResponse).toBeCalledWith(
+      req,
+      global.mockRes,
+      new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Allowed Client is not right'),
+      global.mockNext,
+    );
+  });
+  it('Should success', async () => {
+    //@ts-ignore
+    envVars.auth.skipAuth = false;
+    let req = httpMocks.createRequest({
+      headers: {
+        [envVars.auth.authKey.toLowerCase()]: 'RIGHT KEY',
+        [envVars.allowedClient.key]: encrypt('cp'),
+      },
+    });
+    (verify as DeepMockProxy<any>).mockReturnValue({
+      name: envVars.appName,
+      id: 1,
+    });
+    (decode as DeepMockProxy<any>).mockReturnValue({
+      authorisedEncryptedClient: encrypt('cp'),
       exp: new Date().getTime() + 1000000, //Present time
     });
     await authMiddleware(req, global.mockRes, global.mockNext);
@@ -97,6 +126,7 @@ describe('auth.middleware', () => {
     let req = httpMocks.createRequest({
       headers: {
         [envVars.auth.authKey.toLowerCase()]: 'RIGHT KEY',
+        [envVars.allowedClient.key]: encrypt('cp'),
       },
     });
     (verify as DeepMockProxy<any>).mockReturnValueOnce({
@@ -108,6 +138,7 @@ describe('auth.middleware', () => {
     (decode as DeepMockProxy<any>).mockReturnValue({
       exp: new Date().getTime() - 1000000, //Past time
       keepLoggedIn: true,
+      authorisedEncryptedClient: encrypt('cp'),
     });
     await authMiddleware(req, global.mockRes, global.mockNext);
     expect(global.mockNext).toBeCalled();

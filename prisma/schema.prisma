@@ -129,6 +129,7 @@ model paymentMethods {
 model userTypes {
   id        Int      @id @default(autoincrement())
   TypeName  String   @unique
+  AllowedClients String[]
   CreatedOn DateTime @default(now())
   users     users[]
 }

@@ -4,7 +4,8 @@ import { sign } from 'jsonwebtoken';
 import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
 import { HttpException } from 'errors';
 import { createSuccessResponse, createFailResponse } from 'responses';
-import { HTTPResponses } from 'interfaces/enums';
+import { HTTPErrorMessages, HTTPResponses } from 'interfaces/enums';
+import { encrypt } from 'utils/encrypt';
 
 jest.mock('jsonwebtoken');
 
@@ -26,12 +27,16 @@ describe('users/login', () => {
     expect(createFailResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
-      new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'password is incorrect'),
+      new HttpException(
+        HTTPResponses.BusinessError,
+        HTTPErrorMessages.InvalidUsernameOrPassowrd,
+        'password is incorrect',
+      ),
       global.mockNext,
     );
   });
 
-  it('Should return fail because', async () => {
+  it('Should return fail because no user found', async () => {
     //@ts-ignore
     prismaMock.users.findFirst.mockResolvedValue();
 
@@ -42,7 +47,30 @@ describe('users/login', () => {
       global.mockReq,
       global.mockRes,
 
-      new HttpException(HTTPResponses.BusinessError, 'Email or password incorrect', 'No user found'),
+      new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.InvalidUsernameOrPassowrd, 'No user found'),
+      global.mockNext,
+    );
+  });
+
+  it('Should return fail because allowed clients is not right', async () => {
+    //@ts-ignore
+    prismaMock.users.findFirst.mockResolvedValue({
+      Password: '1',
+      userTypes: {
+        AllowedClients: ['cp'],
+      },
+    });
+
+    global.mockReq.body = { email: '1', password: '1', encryptedClient: 'Not right client' };
+
+    await login(global.mockReq, global.mockRes, global.mockNext);
+
+    expect(createFailResponse).toHaveBeenCalledTimes(1);
+    expect(createFailResponse).toHaveBeenCalledWith(
+      global.mockReq,
+      global.mockRes,
+
+      new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.NoSufficientPermissions, expect.any(Object)),
       global.mockNext,
     );
   });
@@ -53,8 +81,11 @@ describe('users/login', () => {
       id: 1,
       Email: '1',
       Password: '1',
+      userTypes: {
+        AllowedClients: ['cp'],
+      },
     });
-    global.mockReq.body = { email: '1', password: '1' };
+    global.mockReq.body = { email: '1', password: '1', encryptedClient: encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
 
