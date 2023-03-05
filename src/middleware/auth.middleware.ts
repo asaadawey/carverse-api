@@ -26,6 +26,8 @@ const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next
             throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Token expired');
           //Inject user id
           req.userId = token.id;
+          if (!req.userId)
+            throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'No user id found');
           next();
         } else
           throw new HttpException(

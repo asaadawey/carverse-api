@@ -9,6 +9,7 @@ import { DeepMockProxy } from 'jest-mock-extended';
 import { tokens } from 'interfaces/token.types';
 
 jest.mock('jsonwebtoken');
+
 describe('auth.middleware', () => {
   it('Should fail becuase no auth token is passed', async () => {
     let req = httpMocks.createRequest({
@@ -81,9 +82,10 @@ describe('auth.middleware', () => {
     });
     (verify as DeepMockProxy<any>).mockReturnValue({
       name: envVars.appName,
+      id: 1,
     });
     (decode as DeepMockProxy<any>).mockReturnValue({
-      exp: new Date().getTime() + 1000, //Past time
+      exp: new Date().getTime() + 1000000, //Past time
     });
     await authMiddleware(req, global.mockRes, global.mockNext);
     expect(global.mockNext).toBeCalled();

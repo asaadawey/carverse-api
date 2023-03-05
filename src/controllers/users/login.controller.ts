@@ -67,6 +67,8 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
     const token = sign(
       {
         id: user.id,
+        customerId: user.customer?.id,
+        providerId: user.provider?.id,
         name: tokens.name,
         timestamp: new Date(),
       } as Token,

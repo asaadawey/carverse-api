@@ -6,6 +6,7 @@ import { OrderHistory } from '../interfaces/enums';
 import schedule from 'node-schedule';
 import { addSeconds } from 'date-fns';
 
+//#region Enums & Interfaces
 enum ProviderStatus {
   Online = 'Online',
   Offline = 'Offline',
@@ -13,7 +14,8 @@ enum ProviderStatus {
 }
 
 type ProviderSocket = {
-  id: number;
+  userId: number;
+  providerId: number;
   longitude: number;
   latitude: number;
   uuid: string;
@@ -34,21 +36,32 @@ interface ServerToClientEvents {
   'notify-order-add': (data: ActiveOrders) => void;
   'notify-order-remove': (data: ActiveOrders) => void;
   'notify-active-order-remove': (data: ActiveOrders) => void;
-  'order-accepted': (data: { result: boolean; orderId: number; providerId: number }) => void;
+  'order-accepted': (data: { result: boolean; orderId: number; providerId: number; userId: number }) => void;
   'order-rejected': (data: { result: boolean; orderId: number; message?: string }) => void;
   'set-active-order': (data: { orderId: number }) => void;
   'order-timeout': () => void;
-  'provider-to-customer-location-change': (data: { longitude: number; latitude: number; providerId: number }) => void;
+  'provider-to-customer-location-change': (data: {
+    longitude: number;
+    latitude: number;
+    providerId: number;
+    userId: number;
+  }) => void;
 }
 
 interface ClientToServerEvents {
   'provider-online-start': (data: ProviderSocket) => void;
   'provider-offline-start': (data: { id: number }) => void;
-  'provider-online-location-change': (data: { id: number; longitude: number; latitude: number }) => void;
+  'provider-online-location-change': (data: {
+    userId: number;
+    longitude: number;
+    latitude: number;
+    providerId: number;
+  }) => void;
   'new-order': (data: {
     orderId: number;
     customerUuid: string;
     providerId: number;
+    userId: number;
     customerNotificationToken: string;
   }) => void;
   'all-online-providers': () => void;
@@ -56,6 +69,7 @@ interface ClientToServerEvents {
   'provider-reject-order': (data: { orderId: number; customerUuid: string }) => void;
   'customer-reject-inprogress-order': (data: { orderId: number }) => void;
 }
+//#endregion
 
 type CustomSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
@@ -92,18 +106,19 @@ const broadcastOnlineProvider = (socket: CustomSocket) => {
 };
 
 const addOnlineProvider = (
-  { id, longitude, latitude, uuid, notifcationToken, status }: ProviderSocket,
+  { userId, providerId, longitude, latitude, uuid, notifcationToken, status }: ProviderSocket,
   socket: CustomSocket,
   isUpdate?: true,
 ) => {
-  console.log('[SOCKET - Add/Update providers] Updating online providers, Provider ID : ' + id);
+  console.log('[SOCKET - Add/Update providers] Updating online providers, Provider User ID : ' + userId);
   console.log('[SOCKET - Add/Update providers] Received new statuss ' + status);
-  const filteredOnlineProviders = onlineProviders.filter((provider) => provider.id !== id);
+  const filteredOnlineProviders = onlineProviders.filter((provider) => provider.userId !== userId);
   onlineProviders = _.uniqBy(
     [
       ...filteredOnlineProviders,
       {
-        id,
+        userId,
+        providerId,
         longitude,
         latitude,
         uuid,
@@ -111,7 +126,7 @@ const addOnlineProvider = (
         status,
       },
     ],
-    (a) => a.id,
+    (a) => a.userId,
   );
   console.log('[SOCKET - Add/Update providers] New online providers : ', onlineProviders);
 
@@ -125,7 +140,7 @@ const addOnlineProvider = (
 
 const removeOnlineProvider = (id: number, socket: CustomSocket) => {
   console.log('[SOCKET - Remove online provider] Provider went offline, Provider ID : ' + id);
-  onlineProviders = onlineProviders.filter((provider) => provider.id !== id);
+  onlineProviders = onlineProviders.filter((provider) => provider.userId !== id);
   broadcastOnlineProvider(socket);
   socket.emit('provider-offline-finish', { result: true });
   socket.leave('providers');
@@ -212,7 +227,7 @@ const removePendingOrder = async (
   }
 };
 
-const getOnlineProvider = (id: any, searchKey: keyof ProviderSocket = 'id') => {
+const getOnlineProvider = (id: any, searchKey: keyof ProviderSocket = 'userId') => {
   const provider = onlineProviders.find((provider) => provider[searchKey] === id) as ProviderSocket;
   return provider;
 };
@@ -239,7 +254,8 @@ io.on('connection', (socket) => {
 
     addOnlineProvider(
       {
-        id: args.id,
+        userId: args.userId,
+        providerId: args.providerId,
         latitude: args.latitude,
         longitude: args.longitude,
         notifcationToken: args.notifcationToken,
@@ -255,7 +271,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('provider-online-location-change', (args) => {
-    let provider = getOnlineProvider(args.id);
+    let provider = getOnlineProvider(args.userId);
 
     provider = { ...provider, ...args };
 
@@ -269,7 +285,8 @@ io.on('connection', (socket) => {
       socket.to(order.customerUuid).emit('provider-to-customer-location-change', {
         latitude: args.latitude,
         longitude: args.longitude,
-        providerId: provider.id,
+        providerId: provider.providerId,
+        userId: provider.userId,
       });
     }
   });
@@ -317,7 +334,8 @@ io.on('connection', (socket) => {
       socket.to(args.customerUuid).emit('order-accepted', {
         result: true,
         orderId: args.orderId,
-        providerId: provider.id,
+        providerId: provider.providerId,
+        userId: provider.userId,
       });
 
       socket.emit('set-active-order', { orderId: args.orderId });
@@ -341,6 +359,7 @@ io.on('connection', (socket) => {
       await removePendingOrder(args.orderId, socket, OrderHistory.CustomerCancelled, {
         isOrderActive: true,
       });
+
       socket.to(order.providerUuid).emit('notify-order-remove', {
         customerUuid: order.customerUuid,
         orderId: order.orderId,
@@ -352,7 +371,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     const provider = getOnlineProvider(socket.id, 'uuid');
     if (provider) {
-      setProviderOffline(provider.id, socket);
+      setProviderOffline(provider.userId, socket);
     }
   });
 });
