@@ -13,7 +13,7 @@ export const loginSchema: yup.SchemaOf<{ body: LoginRequestBody }> = yup.object(
   body: yup.object({
     email: yup.string().required('Email is required'),
     password: yup.string().required('Password is required'),
-    keepLoggedIn: yup.boolean().optional(),
+    keepLoggedIn: yup.bool().optional(),
   }),
 });
 

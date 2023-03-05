@@ -18,6 +18,8 @@ describe('users/login', () => {
     //@ts-ignore
     prismaMock.users.findFirst.mockResolvedValue({ Password: 'd' });
 
+    global.mockReq.body = { email: '1', password: '1' };
+
     await login(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createFailResponse).toHaveBeenCalledTimes(1);

@@ -31,6 +31,7 @@ describe('Integration users/login', () => {
         unkownArg: '1',
       })
       .expect(HTTPResponses.ValidationError);
+
     expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
   });
 

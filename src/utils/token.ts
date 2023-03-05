@@ -10,7 +10,6 @@ export const generateToken = (payload: Omit<Token, 'timestamp' | 'name' | 'exp'>
       providerId: payload.providerId,
       name: tokens.name,
       timestamp: new Date(),
-      exp: tokens.expiry,
     } as Token,
     tokens.secret,
     { expiresIn: tokens.expiry },
