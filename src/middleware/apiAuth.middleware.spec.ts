@@ -1,9 +1,9 @@
 import { createFailResponse } from 'responses';
 import apiAuthMiddleware from './apiAuth.middleware';
-import CryptoJS from 'crypto-js';
 import httpMocks from 'node-mocks-http';
 import { HttpException } from 'errors';
 import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
+import { commonHeaders } from 'helpers/testHelpers/defaults';
 import envVars from 'config/environment';
 
 describe('apiAuth.middleware', () => {
@@ -39,10 +39,8 @@ describe('apiAuth.middleware', () => {
 
   it('Should succeed', async () => {
     let req = httpMocks.createRequest({
-      headers: {
-        [envVars.auth.apiKey]: CryptoJS.AES.encrypt(envVars.auth.apiValue, envVars.auth.apiSalt).toString(),
-      },
-    });
+      headers: commonHeaders(),
+    } as any);
 
     await apiAuthMiddleware(req, global.mockRes, global.mockNext);
     expect(global.mockNext).toBeCalled();
