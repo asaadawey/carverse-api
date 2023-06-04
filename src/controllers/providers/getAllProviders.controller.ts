@@ -16,6 +16,7 @@ type GetAllProvidersResponse = (({ id: number; NumberOfOrders: number } & { avg?
 
 type GetAllProvidersQuery = PaginatorQueryParamsProps & {
   avg: string;
+  ids?: string;
 };
 
 export const getAllProvidersSchema: yup.SchemaOf<{}> = yup.object({
@@ -23,6 +24,7 @@ export const getAllProvidersSchema: yup.SchemaOf<{}> = yup.object({
     .object()
     .shape({
       avg: yup.string().optional().oneOf(['true', 'false'], 'Wrong value passed to avg'),
+      ids: yup.string().optional(),
     })
     .concat(paginationSchema),
 });
@@ -34,9 +36,19 @@ const getAllProviders: RequestHandler<
   GetAllProvidersQuery
 > = async (req, res, next) => {
   try {
-    const { avg } = req.query;
+    const { avg, ids } = req.query;
+
     const providers: GetAllProvidersResponse = await prisma.provider.findMany({
       ...spreadPaginationParams(req.query),
+      ...(ids
+        ? {
+            where: {
+              id: {
+                in: ids.split(',').map(Number),
+              },
+            },
+          }
+        : {}),
       select: {
         id: true,
         NumberOfOrders: true,

@@ -1,8 +1,9 @@
+//@ts-nocheck
 import { RequestHandler } from 'express';
-import { decode, JwtPayload, verify } from 'jsonwebtoken';
+import { JwtPayload, verify } from 'jsonwebtoken';
 import { HttpException } from 'errors';
 import envVars from 'config/environment';
-import { Token, tokens } from 'interfaces/token.types';
+import { tokens } from 'interfaces/token.types';
 import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 import { createFailResponse } from 'responses';
 import { generateToken } from 'utils/token';
@@ -19,7 +20,7 @@ const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next
       );
 
     // For testing
-    if ((envVars.mode === 'development' || envVars.mode === 'test') && envVars.auth.skipAuth) {
+    if ((envVars.mode === 'development' || envVars.mode === 'test') && envVars.auth.skipAuth === 'true') {
       req.userId = Number(req.headers['userid']);
       next();
       return;
@@ -43,27 +44,26 @@ const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next
     if (!token.id)
       throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'No user id found');
 
-    var decodedToken = decode(auth, { complete: true }) as unknown as Token;
     var dateNow = new Date();
 
     //Token is expired and the user didn't tick keepLoggedIn checkbox
-    if ((decodedToken.exp as unknown as number) < dateNow.getTime() && !decodedToken.keepLoggedIn)
+    if ((token.exp as unknown as number) < dateNow.getTime() && !token.keepLoggedIn)
       throw new HttpException(
         HTTPResponses.Unauthorised,
         HTTPErrorString.UnauthorisedToken,
-        'Token expired and keep logged in param is empty' + JSON.stringify(decodedToken),
+        'Token expired and keep logged in param is empty' + JSON.stringify(token),
       );
 
     //Token have been allowed for another client
-    if (decrypt(decodedToken.authorisedEncryptedClient) !== decrypt(req.header(envVars.allowedClient.key) || ''))
+    if (decrypt(token.authorisedEncryptedClient || '') !== decrypt(req.header(envVars.allowedClient.key || '') || ''))
       throw new HttpException(
         HTTPResponses.Unauthorised,
         HTTPErrorString.UnauthorisedToken,
         'Allowed Client is not right',
       );
 
-    if ((decodedToken.exp as unknown as number) < dateNow.getTime() && decodedToken.keepLoggedIn) {
-      const updatedToken = generateToken({ ...decodedToken });
+    if ((token.exp as unknown as number) < dateNow.getTime() && token.keepLoggedIn) {
+      const updatedToken = generateToken({ ...(token as any) });
       req.updatedToken = updatedToken;
     }
 

@@ -20,7 +20,7 @@ export enum HTTPErrorString {
 
 export enum HTTPErrorMessages {
   InvalidUsernameOrPassowrd = 'Invalid username or password',
-  NoSufficientPermissions = '',
+  NoSufficientPermissions = 'No sufficient permission',
 }
 
 export enum HTTPResponses {

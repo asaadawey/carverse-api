@@ -7,6 +7,7 @@ import { HTTPErrorMessages, HTTPResponses } from 'interfaces/enums';
 import crypto from 'crypto';
 import { generateToken } from 'utils/token';
 import { decrypt } from 'utils/encrypt';
+import envVars from 'config/environment';
 // import createFailResponse from 'responses';
 
 //#region Login
@@ -15,7 +16,7 @@ export const loginSchema: yup.SchemaOf<{ body: LoginRequestBody }> = yup.object(
     email: yup.string().required('Email is required'),
     password: yup.string().required('Password is required'),
     keepLoggedIn: yup.bool().optional(),
-    encryptedClient: yup.string().required('en****it'),
+    encryptedClient: yup.string().required('client is required'),
   }),
 });
 
@@ -84,6 +85,11 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         HTTPErrorMessages.InvalidUsernameOrPassowrd,
         'Password incorrect',
       );
+    // const headerSalt = req.headers['salt'];
+
+    // const envSalt = envVars.auth.apiSalt;
+
+    // const isSame = headerSalt === envSalt;
 
     // Check if received exists in allowed client
     const decryptedClient = decrypt(req.body.encryptedClient);

@@ -17,7 +17,7 @@
     "test:all": "yarn test:integration && yarn test",
     "deploy:docker": "dotenv -e .env_test -- npx prisma db push",
     "jest:integration": "dotenv -e .env_test -- yarn seed && dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --silent --runInBand",
-    "test:integration": "yarn docker:up && yarn deploy:docker && yarn jest:integration  && yarn docker:down"
+    "test:integration": "yarn docker:up && yarn deploy:docker && yarn jest:integration && yarn docker:down"
   },
   "engines": {
     "yarn": "1.22.19"
