@@ -209,6 +209,20 @@ const main = async () => {
   });
   await prisma.orderHistoryItems.upsert({
     create: {
+      HistoryName: OrderHistory.ProviderArrived,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.ProviderArrived },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.ServiceFinished,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.ServiceFinished },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
       HistoryName: OrderHistory.Cancelled,
     },
     update: {},

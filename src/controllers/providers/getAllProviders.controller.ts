@@ -11,7 +11,7 @@ type GetAllProvidersParams = {};
 type GetAllProvidersRequestBody = {};
 
 type GetAllProvidersResponse = (({ id: number; NumberOfOrders: number } & { avg?: number }) & {
-  users: { FirstName: string; LastName: string };
+  users: { FirstName: string; LastName: string; id: number };
 })[];
 
 type GetAllProvidersQuery = PaginatorQueryParamsProps & {
@@ -54,7 +54,7 @@ const getAllProviders: RequestHandler<
         NumberOfOrders: true,
 
         users: {
-          select: { FirstName: true, LastName: true },
+          select: { FirstName: true, LastName: true, id: true },
         },
       },
     });

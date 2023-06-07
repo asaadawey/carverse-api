@@ -5,6 +5,8 @@ export enum OrderHistory {
   Cancelled = 'Cancelled',
   Timeout = 'Timeout',
   CustomerCancelled = 'Customer Cancelled',
+  ProviderArrived = 'Provider arrived',
+  ServiceFinished = 'Service finished',
 }
 
 export enum PaymentMethods {

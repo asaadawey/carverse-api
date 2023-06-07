@@ -7,12 +7,13 @@ export interface Token {
   providerId?: number;
   keepLoggedIn?: boolean;
   authorisedEncryptedClient: string;
+  previousExpiredTokens?: string[];
   timestamp: Date;
   exp?: Date | string;
 }
 
 export const tokens = {
   secret: envVars.appSecret,
-  expiry: ['development', 'test'].includes(envVars.mode) ? '1y' : '1d',
+  expiry: ['development', 'test'].includes(envVars.mode) && envVars.auth.skipAuth === 'true' ? '1y' : '1d',
   name: envVars.appName,
 };

@@ -7,7 +7,6 @@ import { HTTPErrorMessages, HTTPResponses } from 'interfaces/enums';
 import crypto from 'crypto';
 import { generateToken } from 'utils/token';
 import { decrypt } from 'utils/encrypt';
-import envVars from 'config/environment';
 // import createFailResponse from 'responses';
 
 //#region Login
@@ -103,7 +102,7 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
       id: user.id,
       customerId: user.customer?.id,
       providerId: user.provider?.id,
-      keepLoggedIn: Boolean(req.body.keepLoggedIn),
+      exp: Boolean(req.body.keepLoggedIn) ? '10d' : '',
       authorisedEncryptedClient: req.body.encryptedClient,
     });
 
