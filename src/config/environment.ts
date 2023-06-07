@@ -22,5 +22,8 @@ export default {
     skipAuth: values.SKIP_AUTH,
     authKey: values.AUTH_KEY,
   },
+  allowedClient: {
+    key: values.ALLOWED_CLIENT_KEY,
+  },
   logVerbose: values.LOG_VERBOSE,
 };

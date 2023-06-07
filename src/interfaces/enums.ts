@@ -5,6 +5,8 @@ export enum OrderHistory {
   Cancelled = 'Cancelled',
   Timeout = 'Timeout',
   CustomerCancelled = 'Customer Cancelled',
+  ProviderArrived = 'Provider arrived',
+  ServiceFinished = 'Service finished',
 }
 
 export enum PaymentMethods {
@@ -18,10 +20,20 @@ export enum HTTPErrorString {
   UnauthorisedToken = 'Unauthorised',
 }
 
+export enum HTTPErrorMessages {
+  InvalidUsernameOrPassowrd = 'Invalid username or password',
+  NoSufficientPermissions = 'No sufficient permission',
+}
+
 export enum HTTPResponses {
   NotFound = 404,
   Success = 200,
   BusinessError = 422,
   ValidationError = 400,
   Unauthorised = 401,
+}
+
+export enum AllowedClients {
+  MobileApp = 'mobile-app',
+  CP = 'cp',
 }

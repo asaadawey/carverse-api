@@ -2,6 +2,7 @@ import * as yup from 'yup';
 import { RequestHandler } from 'express';
 import prisma from 'helpers/databaseHelpers/client';
 import { createFailResponse, createSuccessResponse } from 'responses';
+import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'interfaces/express.types';
 
 //#region GetModules
 
@@ -16,9 +17,8 @@ type GetModulesResponse = {
   ModuleIconLink: string;
 }[];
 
-type GetModulesQueryParams = {};
-
-export const getAllModulesSchema: yup.SchemaOf<{}> = yup.object({});
+type GetModulesQueryParams = PaginatorQueryParamsProps;
+export const getAllModulesSchema: yup.SchemaOf<{}> = yup.object({ query: yup.object().concat(paginationSchema) });
 
 const getAllModules: RequestHandler<
   GetModulesLinkQuery,
@@ -28,6 +28,7 @@ const getAllModules: RequestHandler<
 > = async (req, res, next) => {
   try {
     const modules = await prisma.modules.findMany({
+      ...spreadPaginationParams(req.query),
       select: { id: true, ModuleName: true, ModuleDescription: true, ModuleIconLink: true },
     });
     createSuccessResponse(req, res, modules, next);

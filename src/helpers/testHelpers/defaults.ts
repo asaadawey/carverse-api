@@ -1,8 +1,8 @@
 import envVars from 'config/environment';
-import CryptoJS from 'crypto-js';
+// import { encrypt } from 'utils/encrypt';
 
 export const commonHeaders = (userId: number = 1, disableAuth = false) => ({
-  [envVars.auth.apiKey]: CryptoJS.AES.encrypt(envVars.auth.apiValue, envVars.auth.apiSalt).toString(),
+  [envVars.auth.apiKey]: envVars.auth.apiValue,
   'content-type': 'application/json',
   accept: '*/*',
   userId,

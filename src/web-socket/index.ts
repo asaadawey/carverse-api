@@ -46,11 +46,13 @@ interface ServerToClientEvents {
     providerId: number;
     userId: number;
   }) => void;
+  'provider-to-customer-arrived': (data: { orderId: number }) => void;
 }
 
 interface ClientToServerEvents {
   'provider-online-start': (data: ProviderSocket) => void;
   'provider-offline-start': (data: { id: number }) => void;
+  'provider-arrived': (data: { orderId: number }) => void;
   'provider-online-location-change': (data: {
     userId: number;
     longitude: number;
@@ -67,7 +69,7 @@ interface ClientToServerEvents {
   'all-online-providers': () => void;
   'provider-accept-order': (data: { orderId: number; customerUuid: string }) => void;
   'provider-reject-order': (data: { orderId: number; customerUuid: string }) => void;
-  'customer-reject-inprogress-order': (data: { orderId: number }) => void;
+  'customer-reject-inprogress-order': (data: { orderId: number; providerId: number }) => void;
 }
 //#endregion
 
@@ -292,7 +294,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('new-order', (args) => {
-    const selectedProvider = getOnlineProvider(args.providerId);
+    const selectedProvider = getOnlineProvider(args.providerId, 'providerId');
+
+    if (!selectedProvider) {
+      socket.emit('order-timeout');
+      return;
+    }
 
     addPendingOrder(
       {
@@ -303,13 +310,17 @@ io.on('connection', (socket) => {
       socket,
     );
 
-    const dateAfter10Sec = addSeconds(new Date(), 10);
+    const dateAfter60Sec = addSeconds(new Date(), 60);
 
     //Order timeout schedule job
-    schedule.scheduleJob(dateAfter10Sec, async function () {
-      socket.emit('order-timeout');
+    schedule.scheduleJob(dateAfter60Sec, async function () {
+      // Check if the provider has job so cancel timout
+      const selectedProvider = getOnlineProvider(args.providerId, 'providerId');
+      if (selectedProvider.status !== ProviderStatus.HaveOrder) {
+        socket.emit('order-timeout');
 
-      await removePendingOrder(args.orderId, socket, OrderHistory.Timeout);
+        await removePendingOrder(args.orderId, socket, OrderHistory.Timeout);
+      }
     });
   });
 
@@ -352,9 +363,6 @@ io.on('connection', (socket) => {
     const order = getActiveOrders(args?.orderId, 'orderId');
     if (order) {
       console.log('[SOCKET] Order found ', order.orderId);
-      const provider = getOnlineProvider(order?.providerUuid, 'uuid');
-
-      addOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket, true);
 
       await removePendingOrder(args.orderId, socket, OrderHistory.CustomerCancelled, {
         isOrderActive: true,
@@ -365,12 +373,39 @@ io.on('connection', (socket) => {
         orderId: order.orderId,
         providerUuid: order.providerUuid,
       });
+      // Below fallback if order is not found for any reason. Remove active order from provider so we don't block provider
+    } else if (args.providerId) {
+      const provider = getOnlineProvider(args.providerId, 'providerId');
+
+      addOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket, true);
+
+      socket
+        .to(provider?.uuid || '')
+        .emit('notify-active-order-remove', { customerUuid: socket.id, orderId: -1, providerUuid: provider.uuid });
     }
   });
 
-  socket.on('disconnect', () => {
+  socket.on('provider-arrived', async (args) => {
+    //Get order
+    const order = getActiveOrders(args.orderId);
+
+    if (order) {
+      // Append to order history
+      await addOrderHistory(args.orderId, OrderHistory.ProviderArrived);
+
+      // Notify customer
+      socket.to(order.customerUuid).emit('provider-to-customer-arrived', { orderId: args.orderId });
+    }
+  });
+
+  socket.on('disconnect', async () => {
     const provider = getOnlineProvider(socket.id, 'uuid');
     if (provider) {
+      // Check if provider have any active order
+      const order = getActiveOrders(provider.uuid, 'providerUuid');
+      if (order) {
+        await removePendingOrder(order.orderId, socket, OrderHistory.Cancelled, { isOrderActive: true });
+      }
       setProviderOffline(provider.userId, socket);
     }
   });

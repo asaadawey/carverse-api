@@ -9,7 +9,7 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
   try {
     let status: number = error.status || 500;
     let message: string = error.message || 'Something went wrong';
-    let additionalData = '';
+    let additionalData = error.additionalData;
 
     if (error instanceof Prisma.PrismaClientUnknownRequestError || (error.clientVersion && !error.code)) {
       //Prisma unknown errors custom handler
@@ -23,7 +23,7 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
     } else if (error instanceof yup.ValidationError) {
       message = 'Bad request';
       status = 400;
-      additionalData = error.message || (error as any);
+      additionalData = error.message || (error as any) || additionalData;
     }
     console.log(`ERROR-BUILDER [${req.method}] ${req.path} ${status}, ${message}`);
     console.log({

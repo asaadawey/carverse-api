@@ -1,5 +1,5 @@
 import { PrismaClient } from '.prisma/client';
-import { OrderHistory, PaymentMethods } from 'interfaces/enums';
+import { AllowedClients, OrderHistory, PaymentMethods } from 'interfaces/enums';
 
 const prisma = new PrismaClient();
 
@@ -114,19 +114,19 @@ const main = async () => {
   //#endregion
   //#region Customers
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Customer' },
+    create: { TypeName: 'Customer', AllowedClients: AllowedClients.MobileApp },
     where: { TypeName: 'Customer' },
-    update: {},
+    update: { AllowedClients: AllowedClients.MobileApp },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Provider' },
+    create: { TypeName: 'Provider', AllowedClients: AllowedClients.MobileApp },
     where: { TypeName: 'Provider' },
-    update: {},
+    update: { AllowedClients: AllowedClients.MobileApp },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Admin' },
+    create: { TypeName: 'Admin', AllowedClients: AllowedClients.CP },
     where: { TypeName: 'Admin' },
-    update: {},
+    update: { AllowedClients: AllowedClients.MobileApp },
   });
   //#endregion
   //#region Users
@@ -206,6 +206,20 @@ const main = async () => {
     },
     update: {},
     where: { HistoryName: OrderHistory.Accepted },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.ProviderArrived,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.ProviderArrived },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.ServiceFinished,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.ServiceFinished },
   });
   await prisma.orderHistoryItems.upsert({
     create: {

@@ -4,7 +4,8 @@ import { RouterLinks } from 'constants/links';
 import { commonHeaders } from 'helpers/testHelpers/defaults';
 import prisma from 'helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
-import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
+import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from 'interfaces/enums';
+import { encrypt } from 'utils/encrypt';
 
 describe('Integration users/login', () => {
   it('Should fail if username and password is incorrect', async () => {
@@ -15,9 +16,10 @@ describe('Integration users/login', () => {
       .send({
         email: '1',
         password: '1',
+        encryptedClient: 'ds',
       })
       .expect(HTTPResponses.BusinessError);
-    expect(result.body.message).toEqual('Email or password incorrect');
+    expect(result.body.message).toEqual(HTTPErrorMessages.InvalidUsernameOrPassowrd);
   });
 
   it('Should fail because of schema validation', async () => {
@@ -31,6 +33,7 @@ describe('Integration users/login', () => {
         unkownArg: '1',
       })
       .expect(HTTPResponses.ValidationError);
+
     expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
   });
 
@@ -44,16 +47,17 @@ describe('Integration users/login', () => {
         Nationality: 'testNation',
         Password: 'testPaswword',
         PhoneNumber: 'testPhone',
-        userTypes: { create: { TypeName: randomTypename } },
+        userTypes: { create: { TypeName: randomTypename, AllowedClients: ['cp'] } },
       },
     });
-    console.log(RouterLinks.login);
     const result = await supertest(app)
       .post(RouterLinks.login)
       .set(commonHeaders(1, true))
       .send({
         email: 'testEmail',
         password: 'testPaswword',
+        keepLoggedIn: false,
+        encryptedClient: encrypt('cp'),
       })
       .expect(HTTPResponses.Success);
     expect(result.body.userInfo).toBeDefined();

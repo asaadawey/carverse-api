@@ -1,7 +1,9 @@
 import { tokens, Token } from 'interfaces/token.types';
 import { sign } from 'jsonwebtoken';
 
-export const generateToken = (payload: Omit<Token, 'timestamp' | 'name' | 'exp'>): string => {
+type SignToken = Omit<Token, 'previousExpiredTokens'> & { previousExpiredTokens: string };
+
+export const generateToken = (payload: Omit<Token, 'timestamp' | 'name'>): string => {
   const token = sign(
     {
       id: payload.id,
@@ -10,10 +12,10 @@ export const generateToken = (payload: Omit<Token, 'timestamp' | 'name' | 'exp'>
       providerId: payload.providerId,
       name: tokens.name,
       timestamp: new Date(),
-      exp: tokens.expiry,
-    } as Token,
+      authorisedEncryptedClient: payload.authorisedEncryptedClient,
+    } as SignToken,
     tokens.secret,
-    { expiresIn: tokens.expiry },
+    { expiresIn: (payload.exp as string) || tokens.expiry },
   );
 
   return token;
