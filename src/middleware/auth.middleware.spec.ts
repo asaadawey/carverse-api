@@ -4,7 +4,7 @@ import httpMocks from 'node-mocks-http';
 import { HttpException } from 'errors';
 import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 import envVars from 'config/environment';
-import { decode, sign, verify } from 'jsonwebtoken';
+import { decode, verify } from 'jsonwebtoken';
 import { DeepMockProxy } from 'jest-mock-extended';
 import { tokens } from 'interfaces/token.types';
 import { encrypt } from 'utils/encrypt';
