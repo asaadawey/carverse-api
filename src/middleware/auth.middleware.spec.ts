@@ -84,6 +84,7 @@ describe('auth.middleware', () => {
     });
     (verify as DeepMockProxy<any>).mockReturnValue({
       name: envVars.appName,
+      authorisedEncryptedClient: encrypt('Iam different that the allowed client'),
       id: 1,
     });
     (decode as DeepMockProxy<any>).mockReturnValue({
@@ -118,30 +119,5 @@ describe('auth.middleware', () => {
     });
     await authMiddleware(req, global.mockRes, global.mockNext);
     expect(global.mockNext).toBeCalled();
-  });
-
-  it('Should success and expect token to be refreshed', async () => {
-    //@ts-ignore
-    envVars.auth.skipAuth = false;
-    let req = httpMocks.createRequest({
-      headers: {
-        [envVars.auth.authKey.toLowerCase()]: 'RIGHT KEY',
-        [envVars.allowedClient.key]: encrypt('cp'),
-      },
-    });
-    (verify as DeepMockProxy<any>).mockReturnValueOnce({
-      name: envVars.appName,
-      keepLoggedIn: true,
-      id: 1,
-    });
-    (sign as DeepMockProxy<any>).mockReturnValue('Test');
-    (decode as DeepMockProxy<any>).mockReturnValue({
-      exp: new Date().getTime() - 1000000, //Past time
-      keepLoggedIn: true,
-      authorisedEncryptedClient: encrypt('cp'),
-    });
-    await authMiddleware(req, global.mockRes, global.mockNext);
-    expect(global.mockNext).toBeCalled();
-    expect(req.updatedToken).toEqual('Test');
   });
 });

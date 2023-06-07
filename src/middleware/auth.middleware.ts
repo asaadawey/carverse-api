@@ -64,7 +64,11 @@ const authMiddleware: RequestHandler<any, any, any, any> = async (req, res, next
       );
 
     //Token have been allowed for another client
-    if (decrypt(token.authorisedEncryptedClient || '') !== decrypt(req.header(envVars.allowedClient.key || '') || ''))
+    if (
+      token.authorisedEncryptedClient &&
+      req.header(envVars.allowedClient.key || '') &&
+      decrypt(token.authorisedEncryptedClient || '') !== decrypt(req.header(envVars.allowedClient.key || '') || '')
+    )
       throw new HttpException(
         HTTPResponses.Unauthorised,
         HTTPErrorString.UnauthorisedToken,
