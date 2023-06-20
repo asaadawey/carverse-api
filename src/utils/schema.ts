@@ -18,6 +18,6 @@ export const validate =
       });
       return next();
     } catch (error: any) {
-      createFailResponse(req, res, error, next, '', HTTPErrorString.BadRequest, HTTPResponses.ValidationError);
+      createFailResponse(req, res, error, next, HTTPResponses.ValidationError, HTTPErrorString.BadRequest, '');
     }
   };

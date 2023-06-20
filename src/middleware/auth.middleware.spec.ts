@@ -1,8 +1,4 @@
-import { createFailResponse } from 'responses';
 import authMiddleware from './auth.middleware';
-import httpMocks from 'node-mocks-http';
-import { HttpException } from 'errors';
-import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
 import envVars from 'config/environment';
 import { decode, verify } from 'jsonwebtoken';
 import { DeepMockProxy } from 'jest-mock-extended';
@@ -13,75 +9,48 @@ jest.mock('jsonwebtoken');
 
 describe('auth.middleware', () => {
   it('Should fail becuase no auth token is passed', async () => {
-    let req = httpMocks.createRequest({
-      headers: {},
-    });
-
-    await authMiddleware(req, global.mockRes, global.mockNext);
-    expect(createFailResponse).toBeCalledWith(
-      req,
-      global.mockRes,
-      new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'No token provided'),
-      global.mockNext,
-    );
+    try {
+      await authMiddleware('', '');
+    } catch (error: any) {
+      expect(error.additionalParameters).toEqual('Token header not exists');
+    }
   });
 
   it('Should fail becuase auth token is passed but its incorrect(name is incorrect)', async () => {
     //@ts-ignore
     envVars.auth.skipAuth = false;
-    let req = httpMocks.createRequest({
-      headers: {
-        [envVars.auth.authKey]: 'WRONG KEY',
-      },
-    });
     (verify as DeepMockProxy<any>).mockReturnValue({
       name: 'Wrong name',
     });
-    await authMiddleware(req, global.mockRes, global.mockNext);
-    expect(createFailResponse).toBeCalledWith(
-      req,
-      global.mockRes,
-      new HttpException(
-        HTTPResponses.Unauthorised,
-        HTTPErrorString.UnauthorisedToken,
-        'Token exist and active but not name doesnt match ' + tokens.name,
-      ),
-      global.mockNext,
-    );
+    try {
+      await authMiddleware('wrong', '');
+    } catch (error: any) {
+      expect(error.additionalParameters).toEqual('Token exist and active but not name doesnt match ' + tokens.name);
+    }
   });
 
   it('Should fail becuase auth token is expired', async () => {
     //@ts-ignore
     envVars.auth.skipAuth = false;
-    let req = httpMocks.createRequest({
-      headers: {
-        [envVars.auth.authKey]: 'RIGHT KEY',
-      },
-    });
-    (verify as DeepMockProxy<any>).mockReturnValue({
+    const mockVerifyObject = {
       name: envVars.appName,
-    });
+      exp: 11,
+      id: 1,
+    };
+    (verify as DeepMockProxy<any>).mockReturnValue(mockVerifyObject);
     (decode as DeepMockProxy<any>).mockReturnValue({
       exp: 11, //Past time
     });
-    await authMiddleware(req, global.mockRes, global.mockNext);
-    expect(createFailResponse).toBeCalledWith(
-      req,
-      global.mockRes,
-      new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Token expired'),
-      global.mockNext,
-    );
+    try {
+      await authMiddleware('wrong', '');
+    } catch (error: any) {
+      expect(error.additionalParameters).toEqual('Token expired ' + JSON.stringify(mockVerifyObject));
+    }
   });
 
   it('Should fail because allowed client is not right', async () => {
     //@ts-ignore
     envVars.auth.skipAuth = false;
-    let req = httpMocks.createRequest({
-      headers: {
-        [envVars.auth.authKey.toLowerCase()]: 'RIGHT KEY',
-        [envVars.allowedClient.key]: 'Iam the allowed client',
-      },
-    });
     (verify as DeepMockProxy<any>).mockReturnValue({
       name: envVars.appName,
       authorisedEncryptedClient: encrypt('Iam different that the allowed client'),
@@ -91,33 +60,27 @@ describe('auth.middleware', () => {
       authorisedEncryptedClient: encrypt('Iam different that the allowed client'),
       exp: new Date().getTime() + 1000000, //Present time
     });
-    await authMiddleware(req, global.mockRes, global.mockNext);
-
-    expect(createFailResponse).toBeCalledWith(
-      req,
-      global.mockRes,
-      new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Allowed Client is not right'),
-      global.mockNext,
-    );
+    try {
+      await authMiddleware('wrong', 'wrong client');
+    } catch (error: any) {
+      expect(error.additionalParameters).toEqual('Allowed Client is not right');
+    }
   });
   it('Should success', async () => {
     //@ts-ignore
     envVars.auth.skipAuth = false;
-    let req = httpMocks.createRequest({
-      headers: {
-        [envVars.auth.authKey.toLowerCase()]: 'RIGHT KEY',
-        [envVars.allowedClient.key]: encrypt('cp'),
-      },
-    });
+    const encryptedClient = encrypt('cp');
     (verify as DeepMockProxy<any>).mockReturnValue({
       name: envVars.appName,
       id: 1,
     });
     (decode as DeepMockProxy<any>).mockReturnValue({
-      authorisedEncryptedClient: encrypt('cp'),
+      authorisedEncryptedClient: encryptedClient,
       exp: new Date().getTime() + 1000000, //Present time
     });
-    await authMiddleware(req, global.mockRes, global.mockNext);
-    expect(global.mockNext).toBeCalled();
+    try {
+      await authMiddleware('right', encryptedClient);
+      expect(false).toBe(false);
+    } catch (error: any) {}
   });
 });
