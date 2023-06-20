@@ -5,6 +5,8 @@ import prismaClient from 'helpers/databaseHelpers/client';
 import { OrderHistory } from '../interfaces/enums';
 import schedule from 'node-schedule';
 import { addSeconds } from 'date-fns';
+import envVars from 'config/environment';
+import apiAuthMiddleware from 'middleware/apiAuth.middleware';
 
 //#region Enums & Interfaces
 enum ProviderStatus {
@@ -246,6 +248,18 @@ const setProviderOffline = (providerId: number, socket: CustomSocket) => {
   removeOnlineProvider(providerId, socket);
 };
 //#endregion
+
+// #region IO Auth
+io.use((socket, next) => {
+  try {
+    const apiValue = socket.handshake.auth[envVars.auth.apiKey];
+    apiAuthMiddleware(apiValue);
+    next();
+  } catch (error: any) {
+    console.log('[POST-SOCKET-ERROR] ');
+  }
+});
+// #endregion
 
 io.on('connection', (socket) => {
   socket.on('provider-online-start', (args) => {

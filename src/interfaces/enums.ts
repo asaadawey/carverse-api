@@ -31,6 +31,7 @@ export enum HTTPResponses {
   BusinessError = 422,
   ValidationError = 400,
   Unauthorised = 401,
+  InternalServerError = 500,
 }
 
 export enum AllowedClients {

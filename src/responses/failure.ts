@@ -6,9 +6,9 @@ const createFailResponse = (
   res: Response,
   error: any,
   next: NextFunction,
+  status: HTTPResponses = HTTPResponses.InternalServerError,
   message = '',
   additionalPramater: any = null,
-  status: HTTPResponses = HTTPResponses.ValidationError,
 ) => {
   console.error(
     `POST-LOG [${status}] [RESPONSE-FUNC] [${req.method}] ${req.url} ${JSON.stringify(error)} ${

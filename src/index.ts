@@ -12,6 +12,10 @@ import path from 'path';
 import { preLogmiddleware } from 'middleware/log.middleware';
 import helmet from 'helmet';
 
+import envVars from 'config/environment';
+import { createFailResponse } from 'responses';
+import { HTTPResponses } from 'interfaces/enums';
+
 const app = express();
 
 app.use(express.json());
@@ -19,7 +23,15 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 
-app.use(apiAuthMiddleware);
+// API Auth middleware
+app.use((req, res, next) => {
+  try {
+    apiAuthMiddleware(req.headers[envVars.auth.apiKey.toLowerCase()] as string);
+    next();
+  } catch (error: any) {
+    createFailResponse(req, res, error, next, HTTPResponses.Unauthorised);
+  }
+});
 
 // Inject websocket
 app.use((req, res, next) => {
