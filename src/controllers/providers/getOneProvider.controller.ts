@@ -1,7 +1,7 @@
-import prisma from 'helpers/databaseHelpers/client';
+import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
-import { createFailResponse, createSuccessResponse } from 'responses';
+import { createFailResponse, createSuccessResponse } from 'src/responses';
 import { colorGradiants } from '@prisma/client';
 //#region GetOneProvider
 type GetOneProviderParams = { id: string };

@@ -1,17 +1,4 @@
-import { Socket } from 'socket.io';
 import * as yup from 'yup';
-
-declare global {
-  namespace Express {
-    interface Request {
-      userId: number;
-      updatedToken: string | undefined;
-    }
-    interface Response {
-      io: Socket;
-    }
-  }
-}
 
 export type PaginatorQueryParamsProps = {
   take?: string;

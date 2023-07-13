@@ -1,4 +1,4 @@
-import { createFailResponse } from 'responses';
+import { createFailResponse } from 'src/responses';
 import { validate } from './schema';
 import * as yup from 'yup';
 describe('schema.ts', () => {

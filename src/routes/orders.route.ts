@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { RouterLinks } from 'constants/links';
+import { RouterLinks } from 'src/constants/links';
 
-import { addOrder, getOneOrder } from 'controllers/orders';
+import { addOrder, getOneOrder } from 'src/controllers/orders';
 
-import { validate } from 'utils/schema';
-import { addOrderSchema } from 'controllers/orders/addOrder.controller';
-import { getOneOrderSchema } from 'controllers/orders/getOneOrder.controller';
+import { validate } from 'src/utils/schema';
+import { addOrderSchema } from 'src/controllers/orders/addOrder.controller';
+import { getOneOrderSchema } from 'src/controllers/orders/getOneOrder.controller';
 
 const router = Router();
 

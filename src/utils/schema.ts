@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
-import createFailResponse from 'responses/failure';
+import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+import createFailResponse from 'src/responses/failure';
 import * as yup from 'yup';
 
 export const validate =

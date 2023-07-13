@@ -1,4 +1,4 @@
-import environmentSchema from 'config/schema';
+import environmentSchema from 'src/config/schema';
 import { config } from 'dotenv';
 
 config();

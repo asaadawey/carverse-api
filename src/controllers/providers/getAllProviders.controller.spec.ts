@@ -1,6 +1,6 @@
-import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
+import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
 import getAllProviders from './getAllProviders.controller';
-import { createSuccessResponse } from 'responses';
+import { createSuccessResponse } from 'src/responses';
 
 describe('providers/getAllProviders', () => {
   it('Should sucess and return all providers with no avg', async () => {

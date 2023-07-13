@@ -1,10 +1,10 @@
 //@ts-nocheck
 import { verify } from 'jsonwebtoken';
-import { HttpException } from 'errors';
-import envVars from 'config/environment';
-import { Token, tokens } from 'interfaces/token.types';
-import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
-import { decrypt } from 'utils/encrypt';
+import { HttpException } from 'src/errors';
+import envVars from 'src/config/environment';
+import { Token, tokens } from 'src/interfaces/token.types';
+import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+import { decrypt } from 'src/utils/encrypt';
 
 let declinedTokens = [];
 

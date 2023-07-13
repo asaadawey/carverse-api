@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { RouterLinks } from 'constants/links';
-import { getAllServices } from 'controllers/services';
-import { validate } from 'utils/schema';
-import { getAllServicesSchema } from 'controllers/services/getAllServices.controller';
+import { RouterLinks } from 'src/constants/links';
+import { getAllServices } from 'src/controllers/services';
+import { validate } from 'src/utils/schema';
+import { getAllServicesSchema } from 'src/controllers/services/getAllServices.controller';
 
 const router = Router();
 

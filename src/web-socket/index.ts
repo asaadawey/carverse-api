@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 import { Server, Socket } from 'socket.io';
 import * as _ from 'lodash';
-import prismaClient from 'helpers/databaseHelpers/client';
+import prismaClient from 'src/helpers/databaseHelpers/client';
 import { OrderHistory } from '../interfaces/enums';
 import schedule from 'node-schedule';
 import { addSeconds } from 'date-fns';
-import envVars from 'config/environment';
-import apiAuthMiddleware from 'middleware/apiAuth.middleware';
+import envVars from 'src/config/environment';
+import apiAuthMiddleware from 'src/middleware/apiAuth.middleware';
 
 //#region Enums & Interfaces
 enum ProviderStatus {
@@ -31,7 +31,7 @@ type ActiveOrders = {
   customerUuid: string;
 };
 
-interface ServerToClientEvents {
+export interface ServerToClientEvents {
   'provider-online-finish': (data: { result: boolean }) => void;
   'provider-offline-finish': (data: { result: boolean }) => void;
   'online-users': (data: ProviderSocket[]) => void;
@@ -51,7 +51,7 @@ interface ServerToClientEvents {
   'provider-to-customer-arrived': (data: { orderId: number }) => void;
 }
 
-interface ClientToServerEvents {
+export interface ClientToServerEvents {
   'provider-online-start': (data: ProviderSocket) => void;
   'provider-offline-start': (data: { id: number }) => void;
   'provider-arrived': (data: { orderId: number }) => void;
@@ -221,12 +221,22 @@ const removePendingOrder = async (
         ...order,
       });
     } else {
-      if (!ignoreNotifyOrderRemove)
-        socket.emit('notify-order-remove', {
-          customerUuid: order.customerUuid,
-          orderId,
-          providerUuid: order.providerUuid,
-        });
+      if (!ignoreNotifyOrderRemove) {
+        // Explicit case if order is rejected
+        if (reason === OrderHistory.Rejected) {
+          socket.emit('notify-order-remove', {
+            customerUuid: order.customerUuid,
+            orderId,
+            providerUuid: order.providerUuid,
+          });
+        } else {
+          socket.to(order.providerUuid).emit('notify-order-remove', {
+            customerUuid: order.customerUuid,
+            orderId,
+            providerUuid: order.providerUuid,
+          });
+        }
+      }
     }
   }
 };
@@ -324,6 +334,7 @@ io.on('connection', (socket) => {
       socket,
     );
 
+    // TEST = 5
     const dateAfter60Sec = addSeconds(new Date(), 60);
 
     //Order timeout schedule job
@@ -333,7 +344,7 @@ io.on('connection', (socket) => {
       if (selectedProvider.status !== ProviderStatus.HaveOrder) {
         socket.emit('order-timeout');
 
-        await removePendingOrder(args.orderId, socket, OrderHistory.Timeout);
+        await removePendingOrder(args.orderId, socket, OrderHistory.Timeout, { isOrderActive: false });
       }
     });
   });
@@ -364,6 +375,12 @@ io.on('connection', (socket) => {
       });
 
       socket.emit('set-active-order', { orderId: args.orderId });
+
+      // Add this emit to send the customer current provider location
+
+      socket.to(args.customerUuid).emit('provider-to-customer-location-change', {
+        ...provider,
+      });
     }
   });
 
@@ -388,7 +405,8 @@ io.on('connection', (socket) => {
         providerUuid: order.providerUuid,
       });
       // Below fallback if order is not found for any reason. Remove active order from provider so we don't block provider
-    } else if (args.providerId) {
+    }
+    if (args.providerId) {
       const provider = getOnlineProvider(args.providerId, 'providerId');
 
       addOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket, true);

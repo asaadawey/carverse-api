@@ -1,6 +1,6 @@
-import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
+import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
 import checkCarExist from './checkCarExist.controller';
-import { createSuccessResponse } from 'responses';
+import { createSuccessResponse } from 'src/responses';
 
 describe('cars/checkCarExist', () => {
   it('Should return car not exist', async () => {

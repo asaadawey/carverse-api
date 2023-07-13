@@ -1,4 +1,4 @@
-import createSuccessResponse from 'responses/success';
-import createFailResponse from 'responses/failure';
+import createSuccessResponse from 'src/responses/success';
+import createFailResponse from 'src/responses/failure';
 
 export { createSuccessResponse, createFailResponse };

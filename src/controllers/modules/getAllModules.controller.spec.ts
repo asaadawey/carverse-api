@@ -1,6 +1,6 @@
-import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
+import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
 import getAllModules from './getAllModules.controller';
-import { createSuccessResponse } from 'responses';
+import { createSuccessResponse } from 'src/responses';
 
 describe('modules/getAllModules', () => {
   it('Should succeed and return all modules', async () => {

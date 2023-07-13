@@ -1,4 +1,4 @@
-import envVars from 'config/environment';
+import envVars from 'src/config/environment';
 
 export interface Token {
   id: number;

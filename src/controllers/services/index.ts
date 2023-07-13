@@ -1,3 +1,3 @@
-import getAllServices from 'controllers/services/getAllServices.controller';
+import getAllServices from 'src/controllers/services/getAllServices.controller';
 
 export { getAllServices };

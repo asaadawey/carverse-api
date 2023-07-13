@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { RouterLinks } from 'constants/links';
-import { validate } from 'utils/schema';
-import { getAllProvidersSchema } from 'controllers/providers/getAllProviders.controller';
-import { getAllProviders, getOneProvider } from 'controllers/providers';
-import { getOneProviderSchema } from 'controllers/providers/getOneProvider.controller';
+import { RouterLinks } from 'src/constants/links';
+import { validate } from 'src/utils/schema';
+import { getAllProvidersSchema } from 'src/controllers/providers/getAllProviders.controller';
+import { getAllProviders, getOneProvider } from 'src/controllers/providers';
+import { getOneProviderSchema } from 'src/controllers/providers/getOneProvider.controller';
 
 const router = Router();
 

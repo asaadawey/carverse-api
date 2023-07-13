@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { RouterLinks } from 'constants/links';
-import { addCar, checkCarExist, getAllBodyTypes, getAllCars } from 'controllers/cars';
+import { RouterLinks } from 'src/constants/links';
+import { addCar, checkCarExist, getAllBodyTypes, getAllCars } from 'src/controllers/cars';
 
-import { validate } from 'utils/schema';
+import { validate } from 'src/utils/schema';
 
-import { getAllCarsSchema } from 'controllers/cars/getAllCars.controller';
-import { getAllBodyTypesSchema } from 'controllers/cars/getAllBodyTypes.controller';
-import { addCarSchema } from 'controllers/cars/addCar.controller';
-import { verifyCarNumberSchema } from 'controllers/cars/checkCarExist.controller';
+import { getAllCarsSchema } from 'src/controllers/cars/getAllCars.controller';
+import { getAllBodyTypesSchema } from 'src/controllers/cars/getAllBodyTypes.controller';
+import { addCarSchema } from 'src/controllers/cars/addCar.controller';
+import { verifyCarNumberSchema } from 'src/controllers/cars/checkCarExist.controller';
 
 const router = Router();
 
