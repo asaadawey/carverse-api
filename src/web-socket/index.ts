@@ -9,13 +9,13 @@ import envVars from 'src/config/environment';
 import apiAuthMiddleware from 'src/middleware/apiAuth.middleware';
 
 //#region Enums & Interfaces
-enum ProviderStatus {
+export enum ProviderStatus {
   Online = 'Online',
   Offline = 'Offline',
   HaveOrder = 'Have order',
 }
 
-type ProviderSocket = {
+export type ProviderSocket = {
   userId: number;
   providerId: number;
   longitude: number;
@@ -25,7 +25,7 @@ type ProviderSocket = {
   notifcationToken: string;
 };
 
-type ActiveOrders = {
+export type ActiveOrders = {
   orderId: number;
   providerUuid: string;
   customerUuid: string;
@@ -75,6 +75,8 @@ export interface ClientToServerEvents {
 }
 //#endregion
 
+const ORDER_TIMEOUT_SECONDS = Number(envVars.order.timeout);
+
 type CustomSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>({
@@ -109,7 +111,7 @@ const broadcastOnlineProvider = (socket: CustomSocket) => {
   socket.emit('online-users', filteredProviders);
 };
 
-const addOnlineProvider = (
+const addUpdateOnlineProvider = (
   { userId, providerId, longitude, latitude, uuid, notifcationToken, status }: ProviderSocket,
   socket: CustomSocket,
   isUpdate?: true,
@@ -266,19 +268,19 @@ io.use((socket, next) => {
     apiAuthMiddleware(apiValue);
     next();
   } catch (error: any) {
-    console.log('[POST-SOCKET-ERROR] ');
+    next(error);
   }
 });
 // #endregion
 
 io.on('connection', (socket) => {
   socket.on('provider-online-start', (args) => {
-    if (!socket.id && !args.uuid) {
+    if ((!socket.id && !args.uuid) || !args.userId || !args.providerId) {
       socket.emit('provider-online-finish', { result: false });
       return;
     }
 
-    addOnlineProvider(
+    addUpdateOnlineProvider(
       {
         userId: args.userId,
         providerId: args.providerId,
@@ -301,7 +303,7 @@ io.on('connection', (socket) => {
 
     provider = { ...provider, ...args };
 
-    addOnlineProvider({ ...provider }, socket, true);
+    addUpdateOnlineProvider({ ...provider }, socket, true);
 
     const order = getActiveOrders(provider.uuid, 'providerUuid');
     console.log('Provider location change');
@@ -335,12 +337,11 @@ io.on('connection', (socket) => {
     );
 
     // TEST = 5
-    const dateAfter60Sec = addSeconds(new Date(), 60);
+    const timeOutDate = addSeconds(new Date(), ORDER_TIMEOUT_SECONDS);
 
     //Order timeout schedule job
-    schedule.scheduleJob(dateAfter60Sec, async function () {
+    schedule.scheduleJob(timeOutDate, async function () {
       // Check if the provider has job so cancel timout
-      const selectedProvider = getOnlineProvider(args.providerId, 'providerId');
       if (selectedProvider.status !== ProviderStatus.HaveOrder) {
         socket.emit('order-timeout');
 
@@ -365,7 +366,7 @@ io.on('connection', (socket) => {
 
       const provider = getOnlineProvider(order.providerUuid, 'uuid');
 
-      addOnlineProvider({ ...provider, status: ProviderStatus.HaveOrder }, socket, true);
+      addUpdateOnlineProvider({ ...provider, status: ProviderStatus.HaveOrder }, socket, true);
 
       socket.to(args.customerUuid).emit('order-accepted', {
         result: true,
@@ -409,7 +410,7 @@ io.on('connection', (socket) => {
     if (args.providerId) {
       const provider = getOnlineProvider(args.providerId, 'providerId');
 
-      addOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket, true);
+      addUpdateOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket, true);
 
       socket
         .to(provider?.uuid || '')

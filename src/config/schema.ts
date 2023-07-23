@@ -3,7 +3,6 @@ import * as yup from 'yup';
 const environmentSchema = yup.object().shape({
   DATABASE_URL: yup.string().required(),
   HEROKU_POSTGRESQL_GREEN_URL: yup.string().required(),
-  ORDER_TIMEOUT: yup.string().required(),
   PORT: yup.string().required(),
   APP_SECRET: yup.string().required(),
   APP_NAME: yup.string().required(),
@@ -15,6 +14,7 @@ const environmentSchema = yup.object().shape({
   API_SALT: yup.string().required(),
   LOG_VERBOSE: yup.string().required(),
   ALLOWED_CLIENT_KEY: yup.string().required(),
+  ORDER_TIMEOUT_SECONDS: yup.string().required(),
 });
 
 export default environmentSchema;
