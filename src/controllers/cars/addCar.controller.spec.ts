@@ -1,6 +1,6 @@
-import { prismaMock } from 'helpers/testHelpers/unit-singeleton';
+import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
 import addCar from './addCar.controller';
-import { createSuccessResponse } from 'responses';
+import { createSuccessResponse } from 'src/responses';
 
 describe('cars/addCar', () => {
   it('Should succeed', async () => {

@@ -1,20 +1,20 @@
 /* eslint-disable no-console */
 import express from 'express';
-import errorMiddleware from 'middleware/error.middleware';
+import errorMiddleware from 'src/middleware/error.middleware';
 
-import apiAuthMiddleware from 'middleware/apiAuth.middleware';
-import routes from 'routes/index';
+import apiAuthMiddleware from 'src/middleware/apiAuth.middleware';
+import routes from 'src/routes/index';
 
-import io from 'web-socket/index';
+import io from 'src/web-socket/index';
 
 import path from 'path';
 
-import { preLogmiddleware } from 'middleware/log.middleware';
+import { preLogmiddleware } from 'src/middleware/log.middleware';
 import helmet from 'helmet';
 
-import envVars from 'config/environment';
-import { createFailResponse } from 'responses';
-import { HTTPResponses } from 'interfaces/enums';
+import envVars from 'src/config/environment';
+import { createFailResponse } from 'src/responses';
+import { HTTPResponses } from 'src/interfaces/enums';
 
 const app = express();
 

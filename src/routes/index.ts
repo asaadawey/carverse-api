@@ -1,23 +1,23 @@
-import express from 'express';
+import express, { Request } from 'express';
 
-import providerRouter from 'routes/provider.route';
-import carRouter from 'routes/cars.routes';
-import orderRouter from 'routes/orders.route';
-import userRouter from 'routes/users.route';
-import moduleRouter from 'routes/modules.route';
-import serviceRouter from 'routes/service.route';
-import packageRouter from 'routes/package.route';
-import authMiddleware from 'middleware/auth.middleware';
-import { createFailResponse } from 'responses';
-import { HTTPResponses } from 'interfaces/enums';
-import envVars from 'config/environment';
+import providerRouter from 'src/routes/provider.route';
+import carRouter from 'src/routes/cars.routes';
+import orderRouter from 'src/routes/orders.route';
+import userRouter from 'src/routes/users.route';
+import moduleRouter from 'src/routes/modules.route';
+import serviceRouter from 'src/routes/service.route';
+import packageRouter from 'src/routes/package.route';
+import authMiddleware from 'src/middleware/auth.middleware';
+import { createFailResponse } from 'src/responses';
+import { HTTPResponses } from 'src/interfaces/enums';
+import envVars from 'src/config/environment';
 
 const router = express.Router();
 
 // Users (login/register) don't need auth
 router.use(userRouter);
 
-router.use(async (req, res, next) => {
+router.use(async (req: Request, res, next) => {
   try {
     if (res.headersSent) {
       next();

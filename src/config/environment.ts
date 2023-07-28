@@ -1,4 +1,4 @@
-import environmentSchema from 'config/schema';
+import environmentSchema from 'src/config/schema';
 import { config } from 'dotenv';
 
 config();
@@ -24,6 +24,9 @@ export default {
   },
   allowedClient: {
     key: values.ALLOWED_CLIENT_KEY,
+  },
+  order: {
+    timeout: values.ORDER_TIMEOUT_SECONDS,
   },
   logVerbose: values.LOG_VERBOSE,
 };

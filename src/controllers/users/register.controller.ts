@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
-import prisma from 'helpers/databaseHelpers/client';
-import { createSuccessResponse, createFailResponse } from 'responses';
+import prisma from 'src/helpers/databaseHelpers/client';
+import { createSuccessResponse, createFailResponse } from 'src/responses';
 
 //#region Register
 type RegisterRequestQuery = {};

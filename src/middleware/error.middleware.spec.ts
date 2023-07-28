@@ -1,6 +1,6 @@
 import errorMiddleware from './error.middleware';
-import { HttpException } from 'errors';
-import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
+import { HttpException } from 'src/errors';
+import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
 
 describe('error.middleware', () => {
   it('Should success and call res.json', () => {

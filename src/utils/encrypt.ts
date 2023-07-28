@@ -1,4 +1,4 @@
-import envVars from 'config/environment';
+import envVars from 'src/config/environment';
 import CryptoJS from 'crypto-js';
 
 export const encrypt = (text: string, key = envVars.auth.apiSalt): string => {

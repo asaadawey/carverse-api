@@ -1,11 +1,11 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'constants/links';
-import { commonHeaders } from 'helpers/testHelpers/defaults';
-import prisma from 'helpers/databaseHelpers/client';
+import { RouterLinks } from 'src/constants/links';
+import { commonHeaders } from 'src/helpers/testHelpers/defaults';
+import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
-import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from 'interfaces/enums';
-import { encrypt } from 'utils/encrypt';
+import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+import { encrypt } from 'src/utils/encrypt';
 
 describe('Integration users/login', () => {
   it('Should fail if username and password is incorrect', async () => {

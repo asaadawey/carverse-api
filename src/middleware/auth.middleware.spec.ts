@@ -1,9 +1,9 @@
 import authMiddleware from './auth.middleware';
-import envVars from 'config/environment';
+import envVars from 'src/config/environment';
 import { decode, verify } from 'jsonwebtoken';
 import { DeepMockProxy } from 'jest-mock-extended';
-import { tokens } from 'interfaces/token.types';
-import { encrypt } from 'utils/encrypt';
+import { tokens } from 'src/interfaces/token.types';
+import { encrypt } from 'src/utils/encrypt';
 
 jest.mock('jsonwebtoken');
 

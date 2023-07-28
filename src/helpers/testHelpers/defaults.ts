@@ -1,5 +1,5 @@
-import envVars from 'config/environment';
-// import { encrypt } from 'utils/encrypt';
+import envVars from 'src/config/environment';
+// import { encrypt } from 'src/utils/encrypt';
 
 export const commonHeaders = (userId: number = 1, disableAuth = false) => ({
   [envVars.auth.apiKey]: envVars.auth.apiValue,

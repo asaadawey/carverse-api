@@ -1,7 +1,7 @@
-import prisma from 'helpers/databaseHelpers/client';
+import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
-import { ResultResponse } from 'interfaces/express.types';
-import { createFailResponse, createSuccessResponse } from 'responses';
+import { ResultResponse } from 'src/interfaces/express.types';
+import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
 //#region AddCar
 type AddCarLinkQuery = {};

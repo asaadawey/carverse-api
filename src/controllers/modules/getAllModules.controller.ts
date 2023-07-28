@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 import { RequestHandler } from 'express';
-import prisma from 'helpers/databaseHelpers/client';
-import { createFailResponse, createSuccessResponse } from 'responses';
-import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'interfaces/express.types';
+import prisma from 'src/helpers/databaseHelpers/client';
+import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
 
 //#region GetModules
 

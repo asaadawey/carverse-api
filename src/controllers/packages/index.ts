@@ -1,3 +1,3 @@
-import getAllPackages from 'controllers/packages/getAllPackages.controller';
+import getAllPackages from 'src/controllers/packages/getAllPackages.controller';
 
 export { getAllPackages };

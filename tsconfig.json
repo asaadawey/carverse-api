@@ -1,35 +1,24 @@
 {
   "ts-node": {
     // Do not forget to `npm i -D tsconfig-paths`
-    "require": ["tsconfig-paths/register"]
+    "require": ["tsconfig-paths/register"],
+
+    "files": true
   },
 
   "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "src/types", "types"],
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
     "resolveJsonModule": true,
-    "allowUmdGlobalAccess": true,
     "rootDir": "./src",
+    "baseUrl": ".",
+    "allowUmdGlobalAccess": true,
+    "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
-    "baseUrl": "./src",
     "paths": {
-      // "*": ["*", "node_modules/*"],
-      "databaseHelpers/client": ["helpers/databaseHelpers/client.ts"],
-      "constants": ["constants/*"],
-      "controllers": ["controllers/*"],
-      "errors": ["errors/index.ts"],
-      "errors/*": ["errors/*"],
-      "interfaces": ["interfaces/*"],
-      "interfaces/*": ["interfaces/*"],
-      "middleware": ["middleware/*"],
-      "routes": ["routes/*"],
-      "web-socket": ["web-socket/*"],
-      "helpers": ["helpers/*"],
-      "responses": ["responses/index.ts"],
-      "responses/*": ["responses/*"],
-      "@responses": ["responses/*"],
-      "config": ["config/*"],
-      "@prismaMock": ["./singeleton.ts"],
-      "app": ["./index.ts"]
+      // This needs to be mirrored in babel.config.js
+      "src/*": ["src/*"],
+      "assets/*": ["assets/*"]
     },
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */

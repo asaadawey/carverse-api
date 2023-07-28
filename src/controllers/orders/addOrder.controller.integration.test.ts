@@ -1,10 +1,10 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'constants/links';
-import { commonHeaders } from 'helpers/testHelpers/defaults';
-import prisma from 'helpers/databaseHelpers/client';
+import { RouterLinks } from 'src/constants/links';
+import { commonHeaders } from 'src/helpers/testHelpers/defaults';
+import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
-import { HTTPErrorString, HTTPResponses } from 'interfaces/enums';
+import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
 
 describe('Integration orders/addOrder', () => {
   let customerId: number;

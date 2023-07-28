@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { RouterLinks } from 'constants/links';
-import { loginSchema } from 'controllers/users/login.controller';
-import { registerSchema } from 'controllers/users/register.controller';
-import { validate } from 'utils/schema';
-import { loginController, registerController, checkUserExistController } from 'controllers/users';
-import { checkUserExistSchema } from 'controllers/users/checkUserExist.controller';
+import { RouterLinks } from 'src/constants/links';
+import { loginSchema } from 'src/controllers/users/login.controller';
+import { registerSchema } from 'src/controllers/users/register.controller';
+import { validate } from 'src/utils/schema';
+import { loginController, registerController, checkUserExistController } from 'src/controllers/users';
+import { checkUserExistSchema } from 'src/controllers/users/checkUserExist.controller';
 
 const router = Router();
 

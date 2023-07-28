@@ -1,7 +1,7 @@
-import prisma from 'helpers/databaseHelpers/client';
+import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
-import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'interfaces/express.types';
-import { createFailResponse, createSuccessResponse } from 'responses';
+import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
+import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
 //#region GetAllCars
 type GetAllCarsLinkQuery = {};

@@ -1,5 +1,5 @@
 import { PrismaClient } from '.prisma/client';
-import { AllowedClients, OrderHistory, PaymentMethods } from 'interfaces/enums';
+import { AllowedClients, OrderHistory, PaymentMethods } from 'src/interfaces/enums';
 
 const prisma = new PrismaClient();
 

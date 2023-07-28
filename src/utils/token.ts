@@ -1,4 +1,4 @@
-import { tokens, Token } from 'interfaces/token.types';
+import { tokens, Token } from 'src/interfaces/token.types';
 import { sign } from 'jsonwebtoken';
 
 type SignToken = Omit<Token, 'previousExpiredTokens'> & { previousExpiredTokens: string };

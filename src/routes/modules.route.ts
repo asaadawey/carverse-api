@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { getAllModulesSchema } from 'controllers/modules/getAllModules.controller';
-import { getAllModules } from 'controllers/modules';
-import { RouterLinks } from 'constants/links';
-import { validate } from 'utils/schema';
+import { getAllModulesSchema } from 'src/controllers/modules/getAllModules.controller';
+import { getAllModules } from 'src/controllers/modules';
+import { RouterLinks } from 'src/constants/links';
+import { validate } from 'src/utils/schema';
 
 const router = Router();
 
