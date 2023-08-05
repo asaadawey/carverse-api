@@ -27,6 +27,7 @@ export default {
   },
   order: {
     timeout: values.ORDER_TIMEOUT_SECONDS,
+    locationThreshold: values.CUTOMER_PROVIDER_LOCATION_THERSHOLD,
   },
   logVerbose: values.LOG_VERBOSE,
 };

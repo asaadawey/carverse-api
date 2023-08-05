@@ -43,9 +43,7 @@ const getAllProviders: RequestHandler<
       ...(ids
         ? {
             where: {
-              id: {
-                in: ids.split(',').map(Number),
-              },
+              users: { id: { in: ids.split(',').map(Number) } },
             },
           }
         : {}),

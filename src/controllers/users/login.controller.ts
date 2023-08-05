@@ -33,6 +33,8 @@ type LoginResponse = {
   userInfo: {
     FirstName: string;
     LastName: string;
+    MobileNumber: string;
+    Email: string;
     id: number;
     customerId?: number;
     providerId?: number;
@@ -57,6 +59,7 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         Password: true,
         FirstName: true,
         LastName: true,
+        PhoneNumber: true,
         id: true,
         userTypes: {
           select: {
@@ -117,6 +120,8 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
           customerId: user.customer?.id,
           providerId: user.provider?.id,
           LastName: user.LastName,
+          Email: user.Email,
+          MobileNumber: user.PhoneNumber,
           UserTypeName: user.userTypes?.TypeName,
         },
       },

@@ -7,6 +7,7 @@ import schedule from 'node-schedule';
 import { addSeconds } from 'date-fns';
 import envVars from 'src/config/environment';
 import apiAuthMiddleware from 'src/middleware/apiAuth.middleware';
+import sendNotification from 'src/utils/sendNotification';
 
 //#region Enums & Interfaces
 export enum ProviderStatus {
@@ -135,29 +136,32 @@ export const addUpdateOnlineProvider = (
 ) => {
   console.log('[SOCKET - Add/Update providers] Updating online providers, Provider User ID : ' + userId);
   console.log('[SOCKET - Add/Update providers] Received new statuss ' + status);
-  const filteredOnlineProviders = onlineProviders.filter((provider) => provider.userId !== userId);
-  onlineProviders = _.uniqBy(
-    [
-      ...filteredOnlineProviders,
-      {
-        userId,
-        providerId,
-        longitude,
-        latitude,
-        uuid,
-        notifcationToken,
-        status,
-      },
-    ],
-    (a) => a.userId,
-  );
-  console.log('[SOCKET - Add/Update providers] New online providers : ', onlineProviders);
+  const provider = onlineProviders.find((provider) => provider.userId === userId);
+  if ((provider && isUpdate) || !isUpdate) {
+    const filteredOnlineProviders = onlineProviders.filter((provider) => provider.userId !== userId);
+    onlineProviders = _.uniqBy(
+      [
+        ...filteredOnlineProviders,
+        {
+          userId,
+          providerId,
+          longitude,
+          latitude,
+          uuid,
+          notifcationToken,
+          status,
+        },
+      ],
+      (a) => a.userId,
+    );
+    console.log('[SOCKET - Add/Update providers] New online providers : ', onlineProviders);
 
-  broadcastOnlineProvider(socket);
+    broadcastOnlineProvider(socket);
 
-  if (!isUpdate) {
-    socket.emit('provider-online-finish', { result: true });
-    socket.join('providers');
+    if (!isUpdate) {
+      socket.emit('provider-online-finish', { result: true });
+      socket.join('providers');
+    }
   }
 };
 
@@ -323,7 +327,7 @@ io.on('connection', (socket) => {
     addUpdateOnlineProvider({ ...provider }, socket, true);
 
     const order = getActiveOrders(provider.uuid, 'providerUuid');
-    console.log('Provider location change');
+    console.log('Provider location change', order);
     //Provider have an active order;
     if (order) {
       console.log('Order found');
@@ -356,10 +360,18 @@ io.on('connection', (socket) => {
     // TEST = 5
     const timeOutDate = addSeconds(new Date(), ORDER_TIMEOUT_SECONDS);
 
+    sendNotification({
+      data: {},
+      description: 'You have received a new order',
+      expoToken: selectedProvider.notifcationToken,
+      title: 'New order',
+    });
+
     //Order timeout schedule job
     schedule.scheduleJob(timeOutDate, async function () {
+      const selectedProviderTimeout = getOnlineProvider(args.providerId, 'providerId');
       // Check if the provider has job so cancel timout
-      if (selectedProvider.status !== ProviderStatus.HaveOrder) {
+      if (selectedProviderTimeout && selectedProviderTimeout?.status !== ProviderStatus.HaveOrder) {
         socket.emit('order-timeout');
 
         await removePendingOrder(args.orderId, socket, OrderHistory.Timeout, { isOrderActive: false });
@@ -430,9 +442,9 @@ io.on('connection', (socket) => {
       addUpdateOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket, true);
 
       socket.to(provider?.uuid || '').emit('notify-active-order-remove', {
-        customerUuid: socket.id,
-        orderId: order.orderId,
-        providerUuid: provider.uuid,
+        customerUuid: socket?.id,
+        orderId: order?.orderId,
+        providerUuid: provider?.uuid,
       });
     }
   });
