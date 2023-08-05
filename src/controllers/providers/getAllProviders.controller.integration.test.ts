@@ -194,6 +194,7 @@ describe('Integration providers/getAllProviders', () => {
       },
       select: {
         id: true,
+        UserID: true,
       },
     });
   });
@@ -211,7 +212,7 @@ describe('Integration providers/getAllProviders', () => {
 
   it('Should success with no average and only return providers with givin ids', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getAllProviders}?ids=${createdProvider.id}`)
+      .get(`${RouterLinks.getAllProviders}?ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);

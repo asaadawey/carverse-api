@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTPResponses } from 'src/interfaces/enums';
 
-const createSuccessResponse = (
+const createSuccessResponse = <T>(
   req: Request,
-  res: Response,
-  body: any,
+  res: Response<T>,
+  body: T,
   next: NextFunction,
   status: HTTPResponses = HTTPResponses.Success,
 ) => {

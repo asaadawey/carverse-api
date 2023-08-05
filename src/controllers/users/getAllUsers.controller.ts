@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 import { RequestHandler } from 'express';
-import prisma from 'src/helpers/databaseHelpers/client';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
-import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
+// import prisma from 'src/helpers/databaseHelpers/client';
+import { createFailResponse } from 'src/responses';
+import { PaginatorQueryParamsProps, paginationSchema } from 'src/interfaces/express.types';
 
 //#region GetAllUsers
 
@@ -33,23 +33,24 @@ const getAllUsers: RequestHandler<
   GetAllUsersQueryParams
 > = async (req, res, next) => {
   try {
-    const users = await prisma.users.findMany({
-      ...spreadPaginationParams(req.query),
-      select: {
-        id: true,
-        Email: true,
-        PhoneNumber: true,
-        FirstName: true,
-        ModifiedOn: true,
-        Nationality: true,
-        userTypes: {
-          select: {
-            TypeName: true,
-          },
-        },
-      },
-    });
-    createSuccessResponse(req, res, users, next);
+    //WIP
+    // const users = await prisma.users.findMany({
+    //   ...spreadPaginationParams(req.query),
+    //   select: {
+    //     id: true,
+    //     Email: true,
+    //     PhoneNumber: true,
+    //     FirstName: true,
+    //     ModifiedOn: true,
+    //     Nationality: true,
+    //     userTypes: {
+    //       select: {
+    //         TypeName: true,
+    //       },
+    //     },
+    //   },
+    // });
+    // createSuccessResponse(req, res, users, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

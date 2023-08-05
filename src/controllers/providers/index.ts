@@ -1,4 +1,5 @@
-import getAllProviders from 'src/controllers/providers/getAllProviders.controller';
-import getOneProvider from 'src/controllers/providers/getOneProvider.controller';
+import getAllProviders from './getAllProviders.controller';
+import getOneProvider from './getOneProvider.controller';
+import addProviderService from './addProviderService.controller';
 
-export { getAllProviders, getOneProvider };
+export { getAllProviders, getOneProvider, addProviderService };

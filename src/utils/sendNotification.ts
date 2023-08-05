@@ -24,12 +24,13 @@ export default async (args: SendNotificationArgs): Promise<SendNotificationResul
     const result = await expo.sendPushNotificationsAsync([
       { to: args.expoToken, body: args.description, title: args.title },
     ]);
-
+    console.log({ result, args });
     return {
       result: result[0].status === 'ok',
       message: '',
     };
   } catch (e) {
+    console.log({ e });
     return {
       message: e as any,
       result: false,

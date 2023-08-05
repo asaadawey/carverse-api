@@ -10,7 +10,7 @@ type AddOrderRequestBody = {
   customerId: number;
   orderServices: {
     carId: number;
-    serviceId: number;
+    providerServiceId: number;
   }[];
   orderAmount: number;
   longitude: number;
@@ -33,7 +33,7 @@ export const addOrderSchema: yup.SchemaOf<{ body: AddOrderRequestBody }> = yup.o
       .of(
         yup.object({
           carId: yup.number().min(1).required('Car id is required'),
-          serviceId: yup.number().min(1).required('Service id is required'),
+          providerServiceId: yup.number().min(1).required('Service id is required'),
         }),
       )
       .test({
@@ -74,7 +74,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
         orderServices: {
           create: req.body.orderServices?.map((service) => ({
             CarID: service.carId,
-            ServiceID: service.serviceId,
+            ProviderServiceID: service.providerServiceId,
           })),
         },
       },

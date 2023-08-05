@@ -5,7 +5,6 @@
 //   updateOne: (where: TWhereUnique, update: TUpdate) => Promise<boolean>;
 // };
 
-export type ResultResponse = { result: boolean };
 /*
 type a = Prisma.usersSelect
 

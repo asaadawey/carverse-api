@@ -15,7 +15,7 @@ type GetOneProvidersResponse = {
     FirstName: string;
     LastName: string;
   };
-  ordersCount: number;
+  ordersCount?: number | undefined;
   providerServices: {
     services: {
       ServiceName: string;
@@ -70,7 +70,7 @@ const getOneProvider: RequestHandler<
         where: { ProviderID: Number(id) },
       }),
     ]);
-
+    //@ts-ignore
     createSuccessResponse(req, res, { ...provider, ...(provider ? { ordersCount } : {}) }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);

@@ -31,6 +31,8 @@ router.use(async (req: Request, res, next) => {
         req.headers[envVars.auth.authKey] as string,
         req.headers[envVars.allowedClient.key] as string,
       );
+
+      // req.providerId = Number(req.headers['providerId']) || -1;
     }
 
     next();

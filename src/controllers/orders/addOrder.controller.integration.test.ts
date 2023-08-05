@@ -12,32 +12,6 @@ describe('Integration orders/addOrder', () => {
   let createdCarId: number;
   let createdServiceId: number;
   beforeAll(async () => {
-    const createService = await prisma.services.create({
-      data: {
-        ServiceDescription: 'Test',
-        ServiceIconLink: '/',
-        ServiceName: 'Test',
-        colorGradiants: {
-          create: {
-            ColorEnd: 'r',
-            ColorName: randomstring.generate(7),
-            ColorMainText: randomstring.generate(7),
-            ColorSecondaryText: 'e',
-            ColorStart: 'T',
-          },
-        },
-        modules: {
-          create: {
-            ModuleName: randomstring.generate(7),
-            ModuleDescription: 'f',
-            ModuleIconLink: 'd',
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
     const createdUser = await prisma.$transaction([
       prisma.users.create({
         data: {
@@ -94,9 +68,41 @@ describe('Integration orders/addOrder', () => {
         where: { HistoryName: 'Pending' },
       }),
     ]);
-
     customerId = createdUser[0].customer?.id || 0;
     providerId = createdUser[1].provider?.id || 0;
+    const createService = await prisma.providerServices.create({
+      data: {
+        provider: { connect: { id: providerId } },
+        services: {
+          create: {
+            ServiceDescription: 'Test',
+            ServiceIconLink: '/',
+            ServiceName: 'Test',
+            colorGradiants: {
+              create: {
+                ColorEnd: 'r',
+                ColorName: randomstring.generate(7),
+                ColorMainText: randomstring.generate(7),
+                ColorSecondaryText: 'e',
+                ColorStart: 'T',
+              },
+            },
+            modules: {
+              create: {
+                ModuleName: randomstring.generate(7),
+                ModuleDescription: 'f',
+                ModuleIconLink: 'd',
+              },
+            },
+          },
+        },
+      },
+
+      select: {
+        id: true,
+      },
+    });
+
     createdCarId = createdUser[0].cars[0].id;
     createdServiceId = createService.id;
   });
@@ -114,7 +120,7 @@ describe('Integration orders/addOrder', () => {
         orderServices: [
           {
             carId: createdCarId,
-            serviceId: createdServiceId,
+            providerServiceId: createdServiceId,
           },
         ],
         orderAmount: 400,
@@ -144,7 +150,7 @@ describe('Integration orders/addOrder', () => {
         orderServices: [
           {
             carId: createdCarId,
-            serviceId: createdServiceId,
+            providerServiceId: createdServiceId,
           },
         ],
         longitude: 12,

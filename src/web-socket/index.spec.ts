@@ -13,6 +13,7 @@ import http from 'http';
 // import { Server } from 'socket.io';
 import envVars from 'src/config/environment';
 describe('web-socket/index.ts [Socket logic]', () => {
+  jest.mock('src/utils/sendNotification.ts');
   jest.setTimeout(90000);
 
   let socketClientCustomer: Socket<ServerToClientEvents, ClientToServerEvents>;

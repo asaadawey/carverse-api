@@ -10,9 +10,9 @@ export type GetAllPackagesParams = { moduleId: string };
 export type GetAllPackagesRequest = {};
 
 export type GetAllPackagesResponse = {} & (Omit<packages, 'CreatedOn' | 'GradiantID'> & {
-  colorGradiants: colorGradiants;
+  colorGradiants?: colorGradiants | null;
   packageServices: {
-    services: services & { colorGradiants: colorGradiants };
+    services: services & { colorGradiants?: colorGradiants | null };
   }[];
 })[];
 

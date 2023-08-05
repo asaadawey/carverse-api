@@ -11,9 +11,11 @@ export enum RouterLinks {
   //#region Providers
   getAllProviders = '/providers',
   getOneProvider = '/providers/one/:id',
+  addProviderService = '/providers/services/create/:moduleId',
   //#endregion
   //#region Services
-  getAllServices = '/services/:moduleId/:providerId',
+  getAllProviderServices = '/services/:moduleId/:providerId',
+  getAllServices = '/services/:moduleId',
   //#endregion
   //#region Users
   login = '/login',

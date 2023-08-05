@@ -82,7 +82,7 @@ const getAllProviders: RequestHandler<
         i++;
       }
     }
-    createSuccessResponse(req, res, providers, next);
+    createSuccessResponse(req, res, [...providers], next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }
