@@ -15,6 +15,7 @@ const environmentSchema = yup.object().shape({
   LOG_VERBOSE: yup.string().required(),
   ALLOWED_CLIENT_KEY: yup.string().required(),
   ORDER_TIMEOUT_SECONDS: yup.string().required(),
+  CUTOMER_PROVIDER_LOCATION_THERSHOLD: yup.string().required(),
 });
 
 export default environmentSchema;
