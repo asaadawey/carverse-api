@@ -8,6 +8,11 @@ describe('providers/addProviderServices', () => {
     await addProviderServices(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
-    expect(createSuccessResponse).toHaveBeenCalledWith(global.mockReq, global.mockRes, { id: 1 }, global.mockNext);
+    expect(createSuccessResponse).toHaveBeenCalledWith(
+      global.mockReq,
+      global.mockRes,
+      { result: true },
+      global.mockNext,
+    );
   });
 });

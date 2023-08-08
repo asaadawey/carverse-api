@@ -114,19 +114,19 @@ const main = async () => {
   //#endregion
   //#region Customers
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Customer', AllowedClients: AllowedClients.MobileApp },
+    create: { TypeName: 'Customer', AllowedClients: [AllowedClients.MobileApp] },
     where: { TypeName: 'Customer' },
-    update: { AllowedClients: AllowedClients.MobileApp },
+    update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Provider', AllowedClients: AllowedClients.MobileApp },
+    create: { TypeName: 'Provider', AllowedClients: [AllowedClients.MobileApp] },
     where: { TypeName: 'Provider' },
-    update: { AllowedClients: AllowedClients.MobileApp },
+    update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Admin', AllowedClients: AllowedClients.CP },
+    create: { TypeName: 'Admin', AllowedClients: [AllowedClients.CP] },
     where: { TypeName: 'Admin' },
-    update: { AllowedClients: AllowedClients.MobileApp },
+    update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   //#endregion
   //#region Users
@@ -243,6 +243,66 @@ const main = async () => {
     where: { HistoryName: OrderHistory.CustomerCancelled },
   });
 
+  //#endregion
+
+  //#region AttachmentsTypes
+  await prisma.attachmentTypes.upsert({
+    create: {
+      TypeName: 'Provider',
+    },
+    where: {
+      TypeName: 'Provider',
+    },
+    update: {},
+  });
+  //#endregion
+
+  //#region Attachments
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Emirates id',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Provider',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 1,
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Profile image',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Provider',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 2,
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Car registration',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Provider',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 3,
+    },
+  });
   //#endregion
 };
 

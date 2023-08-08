@@ -23,6 +23,7 @@ export type ProviderSocket = {
   latitude: number;
   uuid: string;
   status: ProviderStatus;
+  moduleId: number;
   notifcationToken: string;
 };
 
@@ -88,7 +89,7 @@ export interface ClientToServerEvents {
     userId: number;
     customerNotificationToken: string;
   }) => void;
-  'all-online-providers': () => void;
+  'all-online-providers': (moduleId: number) => void;
   'provider-accept-order': (data: { orderId: number; customerUuid: string }) => void;
   'provider-reject-order': (data: { orderId: number; customerUuid: string }) => void;
   'customer-reject-inprogress-order': (data: { orderId: number; providerId: number }) => void;
@@ -125,8 +126,10 @@ export const addOrderHistory = async (orderId: number, reason: OrderHistory) => 
   });
 };
 
-export const broadcastOnlineProvider = (socket: CustomSocket) => {
-  const filteredProviders = onlineProviders.filter((provider) => provider.status === ProviderStatus.Online);
+export const broadcastOnlineProvider = (socket: CustomSocket, moduleId?: number) => {
+  const filteredProviders = onlineProviders.filter(
+    (provider) => provider.status === ProviderStatus.Online && (moduleId ? provider.moduleId === moduleId : true),
+  );
   console.log(
     '[SOCKET - Broadcast online providers] Broadcasting online providers, Total Online Providers : ' +
       filteredProviders.length,
@@ -136,7 +139,7 @@ export const broadcastOnlineProvider = (socket: CustomSocket) => {
 };
 
 export const addUpdateOnlineProvider = (
-  { userId, providerId, longitude, latitude, uuid, notifcationToken, status }: ProviderSocket,
+  { userId, providerId, longitude, latitude, uuid, notifcationToken, status, moduleId }: ProviderSocket,
   socket: CustomSocket,
   isUpdate?: true,
 ) => {
@@ -156,6 +159,7 @@ export const addUpdateOnlineProvider = (
           uuid,
           notifcationToken,
           status,
+          moduleId,
         },
       ],
       (a) => a.userId,
@@ -312,6 +316,7 @@ io.on('connection', (socket) => {
         notifcationToken: args.notifcationToken,
         uuid: socket.id,
         status: ProviderStatus.Online,
+        moduleId: args.moduleId,
       },
       socket,
     );
@@ -382,8 +387,8 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('all-online-providers', () => {
-    broadcastOnlineProvider(socket);
+  socket.on('all-online-providers', (moduleId) => {
+    broadcastOnlineProvider(socket, moduleId);
   });
 
   socket.on('provider-accept-order', async (args) => {
@@ -539,7 +544,7 @@ io.on('connection', (socket) => {
             expoToken: provider.notifcationToken,
           });
         }
-
+        addUpdateOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket);
         socket.to(order.providerUuid).emit('customer-to-provider-finished-order', args);
 
         socket.emit('provider-to-customer-finished-confirmation', { orderId: args.orderId });

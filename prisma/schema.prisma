@@ -24,6 +24,7 @@ model users {
   customer    customer?
   provider    provider?
   userTypes   userTypes     @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
+  uploadedFiles uploadedFiles[]
 }
 
 model customer {
@@ -226,4 +227,32 @@ model orderHistoryItems {
   id           Int            @id @default(autoincrement())
   HistoryName  String         @unique
   orderHistory orderHistory[]
+}
+
+model attachmentTypes {
+    id           Int            @id @default(autoincrement())
+    TypeName    String @unique
+    attachments attachments[]
+}
+
+model attachments {
+    id           Int            @id @default(autoincrement())
+    TypeID  Int
+    Name  String
+    Description String
+    attachmentType attachmentTypes @relation(fields: [TypeID], references: [id])
+    uploadedFiles uploadedFiles[]
+}
+
+model uploadedFiles {
+  id Int @id @default(autoincrement())
+  AttachmentID Int
+  UserID Int
+  FileName String @unique
+  AWSEtag String?
+  CreatedAt DateTime @default(now())
+  JsonData Json?
+  UploadedAt DateTime?
+  user users @relation(fields: [UserID],references: [id])
+  attachment  attachments @relation(fields: [AttachmentID], references: [id])
 }

@@ -1,4 +1,9 @@
 export enum RouterLinks {
+  //#region Attachments
+  getAllAttachmentTypes = '/attachments/getTypes',
+  getListOfAttachments = '/attachments/getListOfAttachments/:typeName',
+  uploadAttachments = '/attachments/upload/:userId/:attachmentTypeId',
+  //#endregion
   //#region Assets
   addAssets = '/assets/add',
   //#endregion

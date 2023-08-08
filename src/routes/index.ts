@@ -7,6 +7,7 @@ import userRouter from 'src/routes/users.route';
 import moduleRouter from 'src/routes/modules.route';
 import serviceRouter from 'src/routes/service.route';
 import packageRouter from 'src/routes/package.route';
+import attachments from 'src/routes/attachments.routes';
 import authMiddleware from 'src/middleware/auth.middleware';
 import { createFailResponse } from 'src/responses';
 import { HTTPResponses } from 'src/interfaces/enums';
@@ -16,6 +17,7 @@ const router = express.Router();
 
 // Users (login/register) don't need auth
 router.use(userRouter);
+router.use(attachments);
 
 router.use(async (req: Request, res, next) => {
   try {

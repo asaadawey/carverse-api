@@ -98,19 +98,24 @@ describe('Integration providers/addProviderServices', () => {
   });
 
   it('Should success when passing new service details', async () => {
+    const name = randomstring.generate(7);
     await supertest(app)
       .post(RouterLinks.addProviderService.replace(':moduleId', '' + createdModuleId))
       .set(commonHeaders(providerUserId))
       .send({
         servicePrice: 40,
-        serviceName: randomstring.generate(7),
+        serviceName: name,
         serviceDescription: 'Mangoa',
       })
       .expect(HTTPResponses.Success);
 
     const createdProviderService = await prisma.providerServices.findFirst({
       where: {
-        AND: [{ ProviderID: { equals: providerId } }, { services: { ModuleID: { equals: createdModuleId } } }],
+        AND: [
+          { ProviderID: { equals: providerId } },
+          { services: { ModuleID: { equals: createdModuleId } } },
+          { services: { ServiceName: { equals: name } } },
+        ],
       },
       select: { id: true, ServiceID: true },
     });

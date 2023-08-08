@@ -103,7 +103,7 @@ const getOneOrder: RequestHandler<
     });
     // if (!order) throw new HttpException(422, `No order found with id ${req.params.id}`);
     //@ts-ignore
-    createSuccessResponse(req, res, order, next);
+    createSuccessResponse(req, res, order || {}, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

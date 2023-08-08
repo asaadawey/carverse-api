@@ -55,7 +55,7 @@ const addProviderService: RequestHandler<
         services: {
           connectOrCreate: {
             where: {
-              id: serviceId,
+              id: serviceId || -1,
             },
             create: {
               ServiceDescription: serviceDescription || '',

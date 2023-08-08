@@ -23,7 +23,7 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
     } else if (error instanceof yup.ValidationError) {
       message = 'Bad request';
       status = 400;
-      additionalData = error.message || (error as any) || additionalData;
+      additionalData = error.errors[0] || error.message || (error as any) || additionalData;
     }
     console.log(`ERROR-BUILDER [${req.method}] ${req.path} ${status}, ${message}`);
     console.log({
