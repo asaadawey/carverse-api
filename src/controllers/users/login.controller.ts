@@ -67,6 +67,7 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
             AllowedClients: true,
           },
         },
+        isActive: true,
         customer: { select: { id: true } },
         provider: { select: { id: true } },
       },
@@ -100,6 +101,9 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         decryptedClient,
         userClient: user.userTypes.AllowedClients,
       });
+
+    if (!user.isActive)
+      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.AccountInactive, { id: user.id });
 
     const token = generateToken({
       id: user.id,

@@ -75,6 +75,31 @@ describe('users/login', () => {
     );
   });
 
+  it('Should return fail because account is in active', async () => {
+    //@ts-ignore
+    prismaMock.users.findFirst.mockResolvedValue({
+      id: 1,
+      Email: '1',
+      Password: '1',
+      userTypes: {
+        AllowedClients: ['cp'],
+      },
+      isActive: false,
+    });
+    global.mockReq.body = { email: '1', password: '1', encryptedClient: encrypt('cp') };
+
+    await login(global.mockReq, global.mockRes, global.mockNext);
+
+    expect(createFailResponse).toHaveBeenCalledTimes(1);
+    expect(createFailResponse).toHaveBeenCalledWith(
+      global.mockReq,
+      global.mockRes,
+
+      new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.AccountInactive, expect.any(Object)),
+      global.mockNext,
+    );
+  });
+
   it('Should succeed', async () => {
     //@ts-ignore
     prismaMock.users.findFirst.mockResolvedValue({
@@ -84,6 +109,7 @@ describe('users/login', () => {
       userTypes: {
         AllowedClients: ['cp'],
       },
+      isActive: true,
     });
     global.mockReq.body = { email: '1', password: '1', encryptedClient: encrypt('cp') };
 

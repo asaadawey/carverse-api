@@ -1,5 +1,5 @@
 import { PrismaClient } from '.prisma/client';
-import { AllowedClients, OrderHistory, PaymentMethods } from 'src/interfaces/enums';
+import { AllowedClients, Constants, OrderHistory, PaymentMethods } from 'src/interfaces/enums';
 
 const prisma = new PrismaClient();
 
@@ -301,6 +301,41 @@ const main = async () => {
     update: {},
     where: {
       id: 3,
+    },
+  });
+  //#endregion
+  //#region Constants
+  await prisma.constants.upsert({
+    create: {
+      Type: 'Percentage',
+      Name: Constants.VAT,
+      Value: 5,
+    },
+    update: {},
+    where: {
+      Name: Constants.VAT,
+    },
+  });
+  await prisma.constants.upsert({
+    create: {
+      Type: 'Amount',
+      Name: Constants.ServiceCharges,
+      Value: 3,
+    },
+    update: {},
+    where: {
+      Name: Constants.ServiceCharges,
+    },
+  });
+  await prisma.constants.upsert({
+    create: {
+      Type: 'Percentage',
+      Name: Constants.OnlinePaymentCharges,
+      Value: 6,
+    },
+    update: {},
+    where: {
+      Name: Constants.OnlinePaymentCharges,
     },
   });
   //#endregion

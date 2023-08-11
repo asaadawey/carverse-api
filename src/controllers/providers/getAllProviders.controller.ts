@@ -24,7 +24,7 @@ export const getAllProvidersSchema: yup.SchemaOf<{}> = yup.object({
     .object()
     .shape({
       avg: yup.string().optional().oneOf(['true', 'false'], 'Wrong value passed to avg'),
-      ids: yup.string().optional(),
+      ids: yup.string().required(),
     })
     .concat(paginationSchema),
 });

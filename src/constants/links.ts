@@ -30,6 +30,9 @@ export enum RouterLinks {
   //#region Values
   getValues = '/values',
   //#endregion
+  //#region Payment methods
+  getAllPaymentMethods = '/payment/methods',
+  //#endregion
   //#region Cars
   getCars = '/cars',
   getOneCar = '/cars/one',
@@ -41,5 +44,10 @@ export enum RouterLinks {
   //#region Orders
   addOrder = '/orders/add',
   getOneOrder = '/orders/one/:id',
+  getOrderTotalAmountStatements = '/orders/getOrderStatements',
+  //#endregion
+  //#region Constants
+  getAllConstants = '/constants',
+  modifyConstant = '/constants/update',
   //#endregion
 }

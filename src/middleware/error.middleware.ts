@@ -4,11 +4,12 @@ import { NextFunction, Request, Response } from 'express';
 import { HttpException } from 'src/errors';
 import * as yup from 'yup';
 import envVars from 'src/config/environment';
+import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
 
 const errorMiddleware = (error: HttpException | any, req: Request, res: Response, next: NextFunction) => {
   try {
-    let status: number = error.status || 500;
-    let message: string = error.message || 'Something went wrong';
+    let status: number = error.status || HTTPResponses.InternalServerError;
+    let message: string = error.message || HTTPErrorString.SomethingWentWrong;
     let additionalData = error.additionalData;
 
     if (error instanceof Prisma.PrismaClientUnknownRequestError || (error.clientVersion && !error.code)) {

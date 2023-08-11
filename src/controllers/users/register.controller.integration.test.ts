@@ -30,6 +30,39 @@ describe('Integration users/register', () => {
     expect(result.body.result).toEqual(true);
   });
 
+  it('Should success and make provider initially inactive until verification', async () => {
+    const generatedFirstName = randomstring.generate(7);
+    const generatedLastName = randomstring.generate(7);
+    await prisma.userTypes.deleteMany({});
+
+    await prisma.userTypes.create({
+      data: {
+        TypeName: 'Provider',
+      },
+    });
+    const result = await supertest(app)
+      .post(RouterLinks.register)
+      .set(commonHeaders())
+      .send({
+        FirstName: generatedFirstName,
+        LastName: generatedLastName,
+        Email: 'Email test2',
+        Password: 'Password test2',
+        Nationality: 'Nationality test',
+        PhoneNumber: 'PhoneNumber test2',
+        UserTypeName: 'Provider',
+      })
+      .expect(HTTPResponses.Success);
+    expect(result.body.result).toEqual(true);
+
+    const createdUser = await prisma.users.findFirst({
+      where: { AND: [{ FirstName: { equals: generatedFirstName } }, { LastName: { equals: generatedLastName } }] },
+      select: { isActive: true },
+    });
+
+    expect(createdUser?.isActive).toBe(false);
+  });
+
   it('Should fail because of schema validation', async () => {
     console.log(RouterLinks.register);
     const result = await supertest(app)

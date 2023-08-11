@@ -9,22 +9,23 @@ datasource db {
 }
 
 model users {
-  id          Int           @id @default(autoincrement())
-  UserTypeID  Int
-  FirstName   String
-  LastName    String
-  Password    String
-  Email       String        @unique
-  PhoneNumber String        @unique
-  Nationality String
-  CreatedOn   DateTime      @default(now())
-  ModifiedOn  DateTime      @updatedAt
-  cars        cars[]
-  creditCards creditCards[]
-  customer    customer?
-  provider    provider?
-  userTypes   userTypes     @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
+  id            Int             @id @default(autoincrement())
+  UserTypeID    Int
+  FirstName     String
+  LastName      String
+  Password      String
+  Email         String          @unique
+  PhoneNumber   String          @unique
+  Nationality   String
+  CreatedOn     DateTime        @default(now())
+  ModifiedOn    DateTime        @updatedAt
+  isActive      Boolean         @default(true)
+  cars          cars[]
+  creditCards   creditCards[]
+  customer      customer?
+  provider      provider?
   uploadedFiles uploadedFiles[]
+  userTypes     userTypes       @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
 }
 
 model customer {
@@ -63,7 +64,7 @@ model services {
   GradientID         Int?
   packageServices    packageServices[]
   providerServices   providerServices[]
-  colorGradiants     colorGradiants?     @relation(fields: [GradientID], references: [id], onDelete: Cascade)
+  colorGradiants     colorGradiants?    @relation(fields: [GradientID], references: [id], onDelete: Cascade)
   modules            modules            @relation(fields: [ModuleID], references: [id], onDelete: Cascade)
 }
 
@@ -77,6 +78,7 @@ model orders {
   Longitude                Float
   Latitude                 Float
   AddressString            String
+  orderAmountStatements    orderAmountStatements[]
   orderCreditCardsPurchase orderCreditCardsPurchase[]
   orderHistory             orderHistory[]
   orderServices            orderServices[]
@@ -153,6 +155,7 @@ model providerServices {
   CreatedOn     String?
   Rating        Decimal         @default(0)
   orderServices orderServices[]
+  orderTotalAmount orderAmountStatements[]
   provider      provider?       @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
   services      services?       @relation(fields: [ServiceID], references: [id], onDelete: Cascade)
 }
@@ -168,7 +171,7 @@ model packages {
   PackageIconLink      String
   CreatedOn            DateTime          @default(now())
   packageServices      packageServices[]
-  colorGradiants       colorGradiants?    @relation(fields: [GradiantID], references: [id], onDelete: Cascade)
+  colorGradiants       colorGradiants?   @relation(fields: [GradiantID], references: [id], onDelete: Cascade)
   modules              modules           @relation(fields: [ModuleID], references: [id], onDelete: Cascade)
 }
 
@@ -230,29 +233,59 @@ model orderHistoryItems {
 }
 
 model attachmentTypes {
-    id           Int            @id @default(autoincrement())
-    TypeName    String @unique
-    attachments attachments[]
+  id          Int           @id @default(autoincrement())
+  TypeName    String        @unique
+  attachments attachments[]
 }
 
 model attachments {
-    id           Int            @id @default(autoincrement())
-    TypeID  Int
-    Name  String
-    Description String
-    attachmentType attachmentTypes @relation(fields: [TypeID], references: [id])
-    uploadedFiles uploadedFiles[]
+  id             Int             @id @default(autoincrement())
+  TypeID         Int
+  Name           String
+  Description    String
+  attachmentType attachmentTypes @relation(fields: [TypeID], references: [id])
+  uploadedFiles  uploadedFiles[]
 }
 
 model uploadedFiles {
-  id Int @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   AttachmentID Int
-  UserID Int
-  FileName String @unique
-  AWSEtag String?
-  CreatedAt DateTime @default(now())
-  JsonData Json?
-  UploadedAt DateTime?
-  user users @relation(fields: [UserID],references: [id])
-  attachment  attachments @relation(fields: [AttachmentID], references: [id])
+  UserID       Int
+  FileName     String      @unique
+  AWSEtag      String?
+  CreatedAt    DateTime    @default(now())
+  UploadedAt   DateTime?
+  JsonData     Json?
+  attachment   attachments @relation(fields: [AttachmentID], references: [id])
+  user         users       @relation(fields: [UserID], references: [id])
+}
+
+model constants {
+  id                    Int                     @id @default(autoincrement())
+  Value                 Decimal                 @default(0)
+  Type                  ConstantType
+  CreatedAt             DateTime                @default(now())
+  UpdatedAt             DateTime                @updatedAt
+  Name                  String                  @unique
+  isActive              Boolean                 @default(true)
+  orderAmountStatements orderAmountStatements[]
+}
+
+model orderAmountStatements {
+  id                Int        @id @default(autoincrement())
+  OrderID           Int
+  RelatedConstantID Int?
+  RelatedProviderServiceID Int?
+  Name              String?
+  Amount            Decimal
+  CreatedAt         DateTime   @default(now())
+  orders            orders     @relation(fields: [OrderID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  constants         constants? @relation(fields: [RelatedConstantID], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  providerService   providerServices? @relation(fields: [RelatedProviderServiceID],references: [id]) 
+}
+
+enum ConstantType {
+  Amount
+  Percentage
+  Numeric
 }

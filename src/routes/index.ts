@@ -8,6 +8,8 @@ import moduleRouter from 'src/routes/modules.route';
 import serviceRouter from 'src/routes/service.route';
 import packageRouter from 'src/routes/package.route';
 import attachments from 'src/routes/attachments.routes';
+import paymentMethods from 'src/routes/paymentMethods.routes';
+import constants from 'src/routes/constants.routes';
 import authMiddleware from 'src/middleware/auth.middleware';
 import { createFailResponse } from 'src/responses';
 import { HTTPResponses } from 'src/interfaces/enums';
@@ -49,5 +51,7 @@ router.use(packageRouter);
 router.use(providerRouter);
 router.use(carRouter);
 router.use(orderRouter);
+router.use(paymentMethods);
+router.use(constants);
 
 export default router;

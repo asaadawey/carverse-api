@@ -201,12 +201,12 @@ describe('Integration providers/getAllProviders', () => {
 
   it('Should success with no average', async () => {
     const result = await supertest(app)
-      .get(RouterLinks.getAllProviders)
+      .get(`${RouterLinks.getAllProviders}?ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
     expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(2);
+    expect(result.body.length).toBe(1);
     expect(result.body[0].NumberOfOrders).toBe(231);
   });
 
@@ -223,18 +223,18 @@ describe('Integration providers/getAllProviders', () => {
 
   it('Should success with average', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getAllProviders}?avg=true`)
+      .get(`${RouterLinks.getAllProviders}?avg=true&ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
     expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(2);
+    expect(result.body.length).toBe(1);
     expect(result.body[0].avg).toBe((15 + 30) / 2);
   });
 
   it('Should success and return 0 length because take pagination is zero', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getAllProviders}?take=0`)
+      .get(`${RouterLinks.getAllProviders}?take=0&ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -244,7 +244,7 @@ describe('Integration providers/getAllProviders', () => {
 
   it('Should fail because wrong value passed to average', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getAllProviders}?avg=wrong`)
+      .get(`${RouterLinks.getAllProviders}?avg=wrong&ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.ValidationError);

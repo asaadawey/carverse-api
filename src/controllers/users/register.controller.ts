@@ -48,7 +48,11 @@ const registerUser: RequestHandler<
     const { UserTypeName, ...rest } = req.body;
 
     const createdUser = await prisma.users.create({
-      data: { ...rest, userTypes: { connect: { TypeName: UserTypeName } } },
+      data: {
+        ...rest,
+        userTypes: { connect: { TypeName: UserTypeName } },
+        isActive: UserTypeName.toLowerCase() === 'customr',
+      },
       select: { id: true },
     });
 
