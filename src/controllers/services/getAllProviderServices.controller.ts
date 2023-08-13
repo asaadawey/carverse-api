@@ -1,4 +1,4 @@
-import { colorGradiants, providerServices, services } from '@prisma/client';
+import { providerServices, services } from '@prisma/client';
 import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
@@ -13,11 +13,7 @@ type GetAllProviderServicesParams = {
 type GetAllProviderServicesRequestBody = {};
 
 type GetAllProviderServicesResponse = (providerServices & {
-  services:
-    | (services & {
-        colorGradiants: colorGradiants | null;
-      })
-    | null;
+  services: services | null;
 })[];
 
 type GetAllProviderServicesQuery = {
@@ -50,7 +46,7 @@ const getAllProviderServices: RequestHandler<
       },
       ...spreadPaginationParams(req.query),
       include: {
-        services: { include: { colorGradiants: true } },
+        services: true,
       },
     });
 

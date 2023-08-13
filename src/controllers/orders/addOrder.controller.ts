@@ -6,8 +6,9 @@ import * as _ from 'lodash';
 import { Statements } from './getOrderTotalAmountStatements.controller';
 import { decrypt } from 'src/utils/encrypt';
 import { HttpException } from 'src/errors';
-import { HTTPResponses } from 'src/interfaces/enums';
+import { Constants, HTTPResponses, OrderHistory, PaymentMethods } from 'src/interfaces/enums';
 import { Decimal } from '@prisma/client/runtime/library';
+import { createAndGetIntent } from 'src/utils/payment';
 //#region AddOrder
 type AddOrderQuery = {};
 
@@ -28,11 +29,12 @@ type AddOrderRequestBody = {
 
 type AddOrderResponse = {
   id: number;
+  clientSecret?: string | null;
 };
 
-type AddOrderParams = {};
+type AddOrderParams = { skipCardPayment: string };
 
-export const addOrderSchema: yup.SchemaOf<{ body: AddOrderRequestBody }> = yup.object({
+export const addOrderSchema: yup.SchemaOf<{ body: AddOrderRequestBody; query: AddOrderParams }> = yup.object({
   body: yup.object({
     providerId: yup.number().min(1).required('Provider id is required'),
     customerId: yup.number().min(1).required('customer id is required'),
@@ -73,6 +75,12 @@ export const addOrderSchema: yup.SchemaOf<{ body: AddOrderRequestBody }> = yup.o
     latitude: yup.number().required('latitude is required'),
     addressString: yup.string().required('address is required'),
   }),
+  query: yup
+    .object()
+    .shape({
+      skipCardPayment: yup.string().optional().oneOf(['true', 'false']),
+    })
+    .optional(),
 });
 
 const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestBody, AddOrderParams> = async (
@@ -91,6 +99,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
     providerId,
     paymentMethodName,
   } = req.body;
+  let createdOrderId: number | undefined;
   try {
     orderTotalAmountStatement = orderTotalAmountStatement.map((statement) => ({
       ...statement,
@@ -121,7 +130,12 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
         provider: { connect: { id: providerId } },
         orderHistory: {
           create: {
-            orderHistoryItems: { connect: { HistoryName: 'Pending' } },
+            orderHistoryItems: {
+              connect: {
+                HistoryName:
+                  paymentMethodName === PaymentMethods.Credit ? OrderHistory.PendingPayment : OrderHistory.Pending,
+              },
+            },
           },
         },
         OrderTotalAmount: orderAmount,
@@ -139,9 +153,39 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
       },
       select: { id: true },
     });
-    createSuccessResponse(req, res, { id: createOrderResult.id }, next);
+
+    createdOrderId = createOrderResult.id;
+
+    let clientSecret: string | null;
+    if (paymentMethodName === PaymentMethods.Credit && !req.query.skipCardPayment) {
+      const companyFees = [Constants.OnlinePaymentCharges, Constants.VAT, Constants.ServiceCharges];
+
+      const agreedFees = orderTotalAmountStatement.filter((statement) =>
+        companyFees.includes(statement.name as Constants),
+      );
+
+      const totalCompanyFeesAed = _.sumBy(agreedFees, (fee) => Number(fee.encryptedValue as string));
+
+      const providerServiceFees = orderTotalAmountStatement.filter((statement) => statement.relatedProviderServiceId);
+
+      const totalOrderFees = _.sumBy(providerServiceFees, (fee) => Number(fee.encryptedValue as string));
+
+      const intent = await createAndGetIntent(totalCompanyFeesAed + totalOrderFees);
+
+      clientSecret = intent.clientSecret;
+
+      await prisma.orders.update({
+        where: { id: createOrderResult.id },
+        data: {
+          PaymentIntentID: intent.paymentIntentId,
+        },
+      });
+    }
+    //@ts-ignore
+    createSuccessResponse(req, res, { id: createOrderResult.id, clientSecret }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
+    if (createdOrderId) await prisma.orders.delete({ where: { id: createdOrderId } });
   }
 };
 //#endregion

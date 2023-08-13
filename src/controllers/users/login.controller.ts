@@ -80,7 +80,9 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         'No user found',
       );
 
-    const isValid = crypto.timingSafeEqual(Buffer.from(password), Buffer.from(user.Password));
+    const isValid =
+      password.length === user.Password.length &&
+      crypto.timingSafeEqual(Buffer.from(password), Buffer.from(user.Password));
 
     if (!isValid)
       throw new HttpException(

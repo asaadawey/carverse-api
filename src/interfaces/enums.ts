@@ -1,5 +1,8 @@
 export enum OrderHistory {
   Pending = 'Pending',
+  PendingPayment = 'Pending payment capture',
+  PaymentCaptureCancelled = 'Payment cancellled',
+  PaymentCaptured = 'Payment captured',
   Rejected = 'Rejected',
   Accepted = 'Accepted',
   Cancelled = 'Cancelled',
@@ -13,6 +16,7 @@ export enum Constants {
   ServiceCharges = 'Service charges',
   VAT = 'VAT',
   OnlinePaymentCharges = 'Online payment charges',
+  ProviderKMThershold = 'Provider KM Thershold',
 }
 
 export enum PaymentMethods {

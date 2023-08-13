@@ -184,6 +184,11 @@ const main = async () => {
     update: {},
     where: { MethodName: PaymentMethods.Cash },
   });
+  await prisma.paymentMethods.upsert({
+    create: { MethodName: PaymentMethods.Credit, MethodDescription: '' },
+    update: {},
+    where: { MethodName: PaymentMethods.Credit },
+  });
   //#endregion
   //#region OrderHistoryItems
   await prisma.orderHistoryItems.upsert({
@@ -192,6 +197,27 @@ const main = async () => {
     },
     update: {},
     where: { HistoryName: OrderHistory.Pending },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.PendingPayment,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.PendingPayment },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.PaymentCaptureCancelled,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.PaymentCaptureCancelled },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.PaymentCaptured,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.PaymentCaptured },
   });
   await prisma.orderHistoryItems.upsert({
     create: {
@@ -255,6 +281,15 @@ const main = async () => {
     },
     update: {},
   });
+  await prisma.attachmentTypes.upsert({
+    create: {
+      TypeName: 'Orders Finished',
+    },
+    where: {
+      TypeName: 'Orders Finished',
+    },
+    update: {},
+  });
   //#endregion
 
   //#region Attachments
@@ -303,6 +338,36 @@ const main = async () => {
       id: 3,
     },
   });
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Car from front',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Orders Finished',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 4,
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Car from back',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Orders Finished',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 5,
+    },
+  });
   //#endregion
   //#region Constants
   await prisma.constants.upsert({
@@ -336,6 +401,17 @@ const main = async () => {
     update: {},
     where: {
       Name: Constants.OnlinePaymentCharges,
+    },
+  });
+  await prisma.constants.upsert({
+    create: {
+      Type: 'Numeric',
+      Name: Constants.ProviderKMThershold,
+      Value: 1,
+    },
+    update: {},
+    where: {
+      Name: Constants.ProviderKMThershold,
     },
   });
   //#endregion

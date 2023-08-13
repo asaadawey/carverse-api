@@ -29,7 +29,7 @@ export const uploadAttachmentsSchema: yup.SchemaOf<{
     attachmentTypeId: yup.string().required(),
   }),
   query: yup.object().shape({
-    json: yup.object().optional(),
+    json: yup.string().optional(),
   }),
 });
 
@@ -50,7 +50,7 @@ const uploadAttachments: RequestHandler<
         FileName: constructFileName,
         UserID: Number(userId),
         AttachmentID: Number(attachmentTypeId),
-        JsonData: req.query?.json && JSON.parse(req.query.json),
+        JsonData: req.query?.json && JSON.parse(decodeURIComponent(req.query.json)),
       },
       select: {
         id: true,

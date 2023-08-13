@@ -8,7 +8,7 @@ const createSuccessResponse = <T>(
   next: NextFunction,
   status: HTTPResponses = HTTPResponses.Success,
 ) => {
-  console.log(`[POST-LOG] SUCCESS [${status}] ${JSON.stringify(body)}`);
+  console.log(`[POST-LOG] SUCCESS [${status}] ${JSON.stringify(body)}\n`);
   res.status(status).json(body);
   next();
 };

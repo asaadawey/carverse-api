@@ -15,9 +15,13 @@ type GetAllConstantsResponse = {
   Type: string;
 }[];
 
-type GetAllConstantsQueryParams = {};
+type GetAllConstantsQueryParams = { name?: string };
 
-export const getAllConstantsSchema: yup.SchemaOf<{}> = yup.object({});
+export const getAllConstantsSchema: yup.SchemaOf<{ query: GetAllConstantsQueryParams }> = yup.object({
+  query: yup.object().shape({
+    name: yup.string().optional(),
+  }),
+});
 
 const getAllConstants: RequestHandler<
   GetAllConstantsLinkQuery,
@@ -26,8 +30,9 @@ const getAllConstants: RequestHandler<
   GetAllConstantsQueryParams
 > = async (req, res, next) => {
   try {
+    const { name } = req.query;
     const constants = await prisma.constants.findMany({
-      where: { isActive: { equals: true } },
+      where: { isActive: { equals: true }, ...(name && { Name: { in: name.split(',') } }) },
       select: { Name: true, Value: true, Type: true },
     });
     createSuccessResponse(req, res, constants, next);

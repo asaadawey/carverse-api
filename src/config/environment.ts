@@ -34,4 +34,7 @@ export default {
     s3BucketName: values.AWS_S3_BUCKET_NAME,
     s3Region: values.AWS_S3_REGION,
   },
+  stripe: {
+    secret: values.STRIPE_API_KEY,
+  },
 };

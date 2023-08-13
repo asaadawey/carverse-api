@@ -8,6 +8,7 @@ import { addSeconds } from 'date-fns';
 import envVars from 'src/config/environment';
 import apiAuthMiddleware from 'src/middleware/apiAuth.middleware';
 import sendNotification from 'src/utils/sendNotification';
+import { cancelOnHoldPayment, capturePayment } from 'src/utils/payment';
 
 //#region Enums & Interfaces
 export enum ProviderStatus {
@@ -95,6 +96,7 @@ export interface ClientToServerEvents {
   'customer-reject-inprogress-order': (data: { orderId: number; providerId: number }) => void;
   'provider-finished-order': (data: OrderDetails) => void;
   'customer-confirms-finished-order': (data: OrderDetails & Result) => void;
+  'force-provider-disconnect': (providerId: number) => void;
   disconnect: any;
 }
 //#endregion
@@ -183,7 +185,7 @@ export const removeOnlineProvider = (id: number, socket: CustomSocket) => {
   socket.leave('providers');
 };
 
-export const getActiveOrders = (id: any, searchKey: keyof ActiveOrders = 'orderId') => {
+export const getOrder = (id: any, searchKey: keyof ActiveOrders = 'orderId') => {
   const order = activeOrders.find((order) => order[searchKey] === id) as ActiveOrders;
   return order;
 };
@@ -227,7 +229,7 @@ export const removePendingOrder = async (
     ignoreArrayRemove?: boolean;
   } = {},
 ) => {
-  const order = getActiveOrders(orderId);
+  const order = getOrder(orderId);
   if (order) {
     if (!ignoreArrayRemove) activeOrders = activeOrders.filter((order) => order.orderId !== orderId);
 
@@ -270,7 +272,7 @@ export const removePendingOrder = async (
   }
 };
 
-export const getOnlineProvider = (id: any, searchKey: keyof ProviderSocket = 'userId') => {
+export const getProvider = (id: any, searchKey: keyof ProviderSocket = 'userId') => {
   const provider = onlineProviders.find((provider) => provider[searchKey] === id) as ProviderSocket;
   return provider;
 };
@@ -307,6 +309,13 @@ io.on('connection', (socket) => {
       return;
     }
 
+    // Check if provider is already online0
+    const online = getProvider(args.providerId, 'providerId');
+    if (online) {
+      socket.emit('provider-offline-finish', { result: false, message: 'You are already logged in on other device' });
+      return;
+    }
+
     addUpdateOnlineProvider(
       {
         userId: args.userId,
@@ -322,18 +331,28 @@ io.on('connection', (socket) => {
     );
   });
 
+  socket.on('force-provider-disconnect', async (providerId) => {
+    const provider = getProvider(providerId, 'providerId');
+
+    const sockets = await io.in([provider.uuid]).fetchSockets();
+
+    for (const socket of sockets) {
+      socket.disconnect(true);
+    }
+  });
+
   socket.on('provider-offline-start', (args) => {
     setProviderOffline(args.id, socket);
   });
 
   socket.on('provider-online-location-change', (args) => {
-    let provider = getOnlineProvider(args.userId);
+    let provider = getProvider(args.userId);
 
     provider = { ...provider, ...args };
 
     addUpdateOnlineProvider({ ...provider }, socket, true);
 
-    const order = getActiveOrders(provider.uuid, 'providerUuid');
+    const order = getOrder(provider.uuid, 'providerUuid');
     console.log('Provider location change', order);
     //Provider have an active order;
     if (order) {
@@ -348,9 +367,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('new-order', (args) => {
-    const selectedProvider = getOnlineProvider(args.providerId, 'providerId');
+    const selectedProvider = getProvider(args.providerId, 'providerId');
 
     if (!selectedProvider) {
+      cancelOnHoldPayment(args.orderId);
       socket.emit('order-timeout');
       return;
     }
@@ -377,12 +397,14 @@ io.on('connection', (socket) => {
 
     //Order timeout schedule job
     schedule.scheduleJob(timeOutDate, async function () {
-      const selectedProviderTimeout = getOnlineProvider(args.providerId, 'providerId');
+      const selectedProviderTimeout = getProvider(args.providerId, 'providerId');
       // Check if the provider has job so cancel timout
       if (selectedProviderTimeout && selectedProviderTimeout?.status !== ProviderStatus.HaveOrder) {
         socket.emit('order-timeout');
 
         await removePendingOrder(args.orderId, socket, OrderHistory.Timeout, { isOrderActive: false });
+
+        cancelOnHoldPayment(args.orderId);
       }
     });
   });
@@ -392,7 +414,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('provider-accept-order', async (args) => {
-    const order = getActiveOrders(args.orderId);
+    const order = getOrder(args.orderId);
 
     if (order) {
       console.log('[SOCKET] Order found , OrderID : ' + order.orderId);
@@ -401,7 +423,7 @@ io.on('connection', (socket) => {
         ignoreArrayRemove: true,
       });
 
-      const provider = getOnlineProvider(order.providerUuid, 'uuid');
+      const provider = getProvider(order.providerUuid, 'uuid');
 
       addUpdateOnlineProvider({ ...provider, status: ProviderStatus.HaveOrder }, socket, true);
 
@@ -431,7 +453,7 @@ io.on('connection', (socket) => {
 
   socket.on('provider-reject-order', async (args) => {
     await removePendingOrder(args.orderId, socket, OrderHistory.Rejected);
-    const order = getActiveOrders(args.orderId, 'orderId');
+    const order = getOrder(args.orderId, 'orderId');
     sendNotification({
       data: {},
       description: 'Order Rejected',
@@ -439,13 +461,15 @@ io.on('connection', (socket) => {
       expoToken: order?.customerNotificationToken,
     });
 
+    cancelOnHoldPayment(args.orderId);
+
     socket.to(args.customerUuid).emit('order-rejected', { result: false, orderId: args.orderId });
   });
 
   socket.on('customer-reject-inprogress-order', async (args) => {
-    const order = getActiveOrders(args?.orderId, 'orderId');
+    const order = getOrder(args?.orderId, 'orderId');
 
-    const provider = getOnlineProvider(args.providerId, 'providerId');
+    const provider = getProvider(args.providerId, 'providerId');
 
     if (order) {
       console.log('[SOCKET] Order found ', order.orderId);
@@ -465,8 +489,10 @@ io.on('connection', (socket) => {
         data: {},
         description: 'Order rejected by customer',
         title: 'Unfortunatly, Customer have rejected the order',
-        expoToken: provider.notifcationToken,
+        expoToken: provider?.notifcationToken,
       });
+
+      cancelOnHoldPayment(order.orderId);
 
       // Below fallback if order is not found for any reason. Remove active order from provider so we don't block provider
     }
@@ -484,9 +510,9 @@ io.on('connection', (socket) => {
 
   socket.on('provider-arrived', async (args) => {
     //Get order
-    const order = getActiveOrders(args.orderId);
+    const order = getOrder(args.orderId);
 
-    const provider = getOnlineProvider(order.providerUuid, 'uuid');
+    const provider = getProvider(order.providerUuid, 'uuid');
 
     if (order && provider) {
       // Should check if provider arrived within radius
@@ -498,7 +524,7 @@ io.on('connection', (socket) => {
         data: {},
         description: 'Provider arrived',
         title: 'Provider have confirmed that he have arrived to your car !',
-        expoToken: order.customerNotificationToken,
+        expoToken: order?.customerNotificationToken,
       });
 
       // Notify customer
@@ -507,17 +533,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on('provider-finished-order', (args) => {
-    const order = getActiveOrders(args.orderId, 'orderId');
+    const order = getOrder(args.orderId, 'orderId');
 
     if (order) {
-      const provider = getOnlineProvider(order.providerUuid, 'uuid');
+      const provider = getProvider(order.providerUuid, 'uuid');
 
       if (provider) {
         sendNotification({
           data: {},
           description: 'Provider finsihed order',
           title: 'Provider have finished your order. Please confirm by clicking here !',
-          expoToken: order.customerNotificationToken,
+          expoToken: order?.customerNotificationToken,
         });
 
         socket.to(order.customerUuid).emit('provider-to-customer-finished-confirmation', args);
@@ -526,10 +552,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('customer-confirms-finished-order', async (args) => {
-    const order = getActiveOrders(args.orderId, 'orderId');
+    const order = getOrder(args.orderId, 'orderId');
 
     if (order) {
-      const provider = getOnlineProvider(order.providerUuid, 'uuid');
+      const provider = getProvider(order.providerUuid, 'uuid');
 
       if (provider) {
         if (args.result) {
@@ -541,33 +567,61 @@ io.on('connection', (socket) => {
             data: {},
             description: 'Order finished',
             title: 'Customer have confirmed that order is finished',
-            expoToken: provider.notifcationToken,
+            expoToken: provider?.notifcationToken,
           });
-        }
-        addUpdateOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket);
-        socket.to(order.providerUuid).emit('customer-to-provider-finished-order', args);
 
-        socket.emit('provider-to-customer-finished-confirmation', { orderId: args.orderId });
+          sendNotification({
+            data: {},
+            description: 'Order finished',
+            title: 'Order finished ! Thank you for using our services',
+            expoToken: order?.customerNotificationToken,
+          });
+          await capturePayment(order.orderId);
+          addUpdateOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket);
+          socket.to(order.providerUuid).emit('customer-to-provider-finished-order', args);
+          socket.emit('provider-to-customer-finished-confirmation', { orderId: args.orderId });
+        }
       }
     }
   });
 
   socket.on('disconnect', async () => {
-    const provider = getOnlineProvider(socket.id, 'uuid');
+    const provider = getProvider(socket.id, 'uuid');
     if (provider) {
       // Check if provider have any active order
-      const order = getActiveOrders(provider.uuid, 'providerUuid');
+      const order = getOrder(provider.uuid, 'providerUuid');
       if (order) {
         await removePendingOrder(order.orderId, socket, OrderHistory.Cancelled, { isOrderActive: true });
+
+        cancelOnHoldPayment(order.orderId);
+
+        sendNotification({
+          data: {},
+          description:
+            'Unfortuantly, Provider have unexpectedly disconnected. You can choose another provider by pressing her',
+          title: 'Provider disconnected',
+          expoToken: order.customerNotificationToken,
+        });
 
         socket.to(order.customerUuid).emit('provider-offline-finish', { result: true });
       }
       setProviderOffline(provider.userId, socket);
     }
     // For any reasons if customer logged out
-    const order = getActiveOrders(socket.id, 'customerUuid');
+    const order = getOrder(socket.id, 'customerUuid');
     if (order) {
       await removePendingOrder(order.orderId, socket, OrderHistory.Cancelled, { isOrderActive: true });
+
+      cancelOnHoldPayment(order.orderId);
+
+      const provider = getProvider(order.providerUuid, 'uuid');
+
+      sendNotification({
+        data: {},
+        description: 'Unfortuanlty, Customer have unexpectedly disconnected.',
+        title: 'Customer disconnected',
+        expoToken: provider?.notifcationToken,
+      });
 
       socket.to(order.providerUuid).emit('notify-active-order-remove', order);
     }
