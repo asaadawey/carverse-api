@@ -3,33 +3,35 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("HEROKU_POSTGRESQL_GREEN_URL")
 }
 
 model users {
-  id          Int           @id @default(autoincrement())
-  UserTypeID  Int
-  FirstName   String
-  LastName    String
-  Password    String
-  Email       String        @unique
-  PhoneNumber String        @unique
-  Nationality String
-  CreatedOn   DateTime      @default(now())
-  ModifiedOn  DateTime      @updatedAt
-  userTypes   userTypes     @relation(fields: [UserTypeID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  cars        cars[]
-  creditCards creditCards[]
-  customer    customer?
-  provider    provider?
+  id            Int             @id @default(autoincrement())
+  UserTypeID    Int
+  FirstName     String
+  LastName      String
+  Password      String
+  Email         String          @unique
+  PhoneNumber   String          @unique
+  Nationality   String
+  CreatedOn     DateTime        @default(now())
+  ModifiedOn    DateTime        @updatedAt
+  isActive      Boolean         @default(true)
+  cars          cars[]
+  creditCards   creditCards[]
+  customer      customer?
+  provider      provider?
+  uploadedFiles uploadedFiles[]
+  userTypes     userTypes       @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
 }
 
 model customer {
   id     Int      @id @default(autoincrement())
   UserID Int      @unique
-  users  users    @relation(fields: [UserID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  users  users    @relation(fields: [UserID], references: [id], onDelete: Cascade)
   orders orders[]
 }
 
@@ -37,8 +39,8 @@ model provider {
   id               Int                @id @default(autoincrement())
   UserID           Int                @unique
   NumberOfOrders   Int                @default(0)
-  users            users              @relation(fields: [UserID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   orders           orders[]
+  users            users              @relation(fields: [UserID], references: [id], onDelete: Cascade)
   providerServices providerServices[]
 }
 
@@ -59,12 +61,11 @@ model services {
   CreatedOn          DateTime           @default(now())
   ModifiedOn         DateTime           @updatedAt
   ModuleID           Int
-  GradientID         Int
-  colorGradiants     colorGradiants     @relation(fields: [GradientID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  modules            modules            @relation(fields: [ModuleID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  orderServices      orderServices[]
+  GradientID         Int?
   packageServices    packageServices[]
   providerServices   providerServices[]
+  colorGradiants     colorGradiants?    @relation(fields: [GradientID], references: [id], onDelete: Cascade)
+  modules            modules            @relation(fields: [ModuleID], references: [id], onDelete: Cascade)
 }
 
 model orders {
@@ -77,23 +78,25 @@ model orders {
   Longitude                Float
   Latitude                 Float
   AddressString            String
-  customer                 customer                   @relation(fields: [CustomerID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  paymentMethods           paymentMethods             @relation(fields: [PaymentMethodID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  provider                 provider                   @relation(fields: [ProviderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  PaymentIntentID           String?  @unique
+  orderAmountStatements    orderAmountStatements[]
   orderCreditCardsPurchase orderCreditCardsPurchase[]
   orderHistory             orderHistory[]
   orderServices            orderServices[]
+  customer                 customer                   @relation(fields: [CustomerID], references: [id], onDelete: Cascade)
+  paymentMethods           paymentMethods             @relation(fields: [PaymentMethodID], references: [id], onDelete: Cascade)
+  provider                 provider                   @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
 }
 
 model orderServices {
-  id        Int       @id @default(autoincrement())
-  ServiceID Int
-  OrderID   Int
-  CarID     Int
-  CreatedOn DateTime? @default(now()) @db.Timestamptz(6)
-  cars      cars      @relation(fields: [CarID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  orders    orders    @relation(fields: [OrderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  services  services  @relation(fields: [ServiceID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  id                Int              @id @default(autoincrement())
+  ProviderServiceID Int
+  OrderID           Int
+  CarID             Int
+  CreatedOn         DateTime?        @default(now()) @db.Timestamptz(6)
+  cars              cars             @relation(fields: [CarID], references: [id], onDelete: Cascade)
+  orders            orders           @relation(fields: [OrderID], references: [id], onDelete: Cascade)
+  providerServices  providerServices @relation(fields: [ProviderServiceID], references: [id], onDelete: Cascade, map: "orderServices_ServiceID_fkey")
 }
 
 model orderCreditCardsPurchase {
@@ -102,8 +105,8 @@ model orderCreditCardsPurchase {
   OrderID     Int
   TotalAmount Float
   CreatedOn   DateTime    @default(now())
-  creditCards creditCards @relation(fields: [CardID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  orders      orders      @relation(fields: [OrderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  creditCards creditCards @relation(fields: [CardID], references: [id], onDelete: Cascade)
+  orders      orders      @relation(fields: [OrderID], references: [id], onDelete: Cascade)
 }
 
 model creditCards {
@@ -114,7 +117,7 @@ model creditCards {
   ExpiryDate               String
   IsActive                 Boolean                    @default(true)
   CreatedOn                DateTime                   @default(now())
-  users                    users                      @relation(fields: [UserID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  users                    users                      @relation(fields: [UserID], references: [id], onDelete: Cascade)
   orderCreditCardsPurchase orderCreditCardsPurchase[]
 }
 
@@ -127,11 +130,11 @@ model paymentMethods {
 }
 
 model userTypes {
-  id        Int      @id @default(autoincrement())
-  TypeName  String   @unique
+  id             Int      @id @default(autoincrement())
+  TypeName       String   @unique
+  CreatedOn      DateTime @default(now())
   AllowedClients String[]
-  CreatedOn DateTime @default(now())
-  users     users[]
+  users          users[]
 }
 
 model modules {
@@ -145,30 +148,32 @@ model modules {
 }
 
 model providerServices {
-  id         Int       @id @default(autoincrement())
-  ProviderID Int?
-  ServiceID  Int?
-  Pofeciency String?
-  Price      Decimal   @default(0)
-  CreatedOn  String?
-  Rating     Decimal   @default(0)
-  provider   provider? @relation(fields: [ProviderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  services   services? @relation(fields: [ServiceID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  id            Int             @id @default(autoincrement())
+  ProviderID    Int?
+  ServiceID     Int?
+  Pofeciency    String?
+  Price         Decimal         @default(0)
+  CreatedOn     String?
+  Rating        Decimal         @default(0)
+  orderServices orderServices[]
+  orderTotalAmount orderAmountStatements[]
+  provider      provider?       @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
+  services      services?       @relation(fields: [ServiceID], references: [id], onDelete: Cascade)
 }
 
 model packages {
   id                   Int               @id @default(autoincrement())
   ModuleID             Int
-  GradiantID           Int
+  GradiantID           Int?
   PackageName          String
   PackageDescription   String
   PackagePrice         Float
   PackageOriginalPrice Float
   PackageIconLink      String
   CreatedOn            DateTime          @default(now())
-  colorGradiants       colorGradiants    @relation(fields: [GradiantID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  modules              modules           @relation(fields: [ModuleID], references: [id], onUpdate: Cascade, onDelete: Cascade)
   packageServices      packageServices[]
+  colorGradiants       colorGradiants?   @relation(fields: [GradiantID], references: [id], onDelete: Cascade)
+  modules              modules           @relation(fields: [ModuleID], references: [id], onDelete: Cascade)
 }
 
 model bodyTypes {
@@ -188,8 +193,8 @@ model cars {
   CreatedOn     DateTime        @default(now())
   ModifiedOn    DateTime        @updatedAt
   PlateCity     String?
-  bodyTypes     bodyTypes       @relation(fields: [BodyTypeID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  users         users           @relation(fields: [UserID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  bodyTypes     bodyTypes       @relation(fields: [BodyTypeID], references: [id], onDelete: Cascade)
+  users         users           @relation(fields: [UserID], references: [id], onDelete: Cascade)
   orderServices orderServices[]
 }
 
@@ -207,8 +212,8 @@ model colorGradiants {
 model packageServices {
   PackageID Int
   ServiceID Int
-  packages  packages @relation(fields: [PackageID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  services  services @relation(fields: [ServiceID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  packages  packages @relation(fields: [PackageID], references: [id], onDelete: Cascade)
+  services  services @relation(fields: [ServiceID], references: [id], onDelete: Cascade)
 
   @@id([PackageID, ServiceID])
 }
@@ -218,12 +223,70 @@ model orderHistory {
   OrderID           Int
   HistoryItemID     Int
   CreatedOn         DateTime          @default(now())
-  orderHistoryItems orderHistoryItems @relation(fields: [HistoryItemID], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  orders            orders            @relation(fields: [OrderID], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  orderHistoryItems orderHistoryItems @relation(fields: [HistoryItemID], references: [id], onDelete: Cascade)
+  orders            orders            @relation(fields: [OrderID], references: [id], onDelete: Cascade)
 }
 
 model orderHistoryItems {
   id           Int            @id @default(autoincrement())
   HistoryName  String         @unique
   orderHistory orderHistory[]
+}
+
+model attachmentTypes {
+  id          Int           @id @default(autoincrement())
+  TypeName    String        @unique
+  attachments attachments[]
+}
+
+model attachments {
+  id             Int             @id @default(autoincrement())
+  TypeID         Int
+  Name           String
+  Description    String
+  attachmentType attachmentTypes @relation(fields: [TypeID], references: [id])
+  uploadedFiles  uploadedFiles[]
+}
+
+model uploadedFiles {
+  id           Int         @id @default(autoincrement())
+  AttachmentID Int
+  UserID       Int
+  FileName     String      @unique
+  AWSEtag      String?
+  CreatedAt    DateTime    @default(now())
+  UploadedAt   DateTime?
+  JsonData     Json?
+  attachment   attachments @relation(fields: [AttachmentID], references: [id])
+  user         users       @relation(fields: [UserID], references: [id])
+}
+
+model constants {
+  id                    Int                     @id @default(autoincrement())
+  Value                 Decimal                 @default(0)
+  Type                  ConstantType
+  CreatedAt             DateTime                @default(now())
+  UpdatedAt             DateTime                @updatedAt
+  Name                  String                  @unique
+  isActive              Boolean                 @default(true)
+  orderAmountStatements orderAmountStatements[]
+}
+
+model orderAmountStatements {
+  id                Int        @id @default(autoincrement())
+  OrderID           Int
+  RelatedConstantID Int?
+  RelatedProviderServiceID Int?
+  Name              String?
+  Amount            Decimal
+  CreatedAt         DateTime   @default(now())
+  orders            orders     @relation(fields: [OrderID], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  constants         constants? @relation(fields: [RelatedConstantID], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  providerService   providerServices? @relation(fields: [RelatedProviderServiceID],references: [id]) 
+}
+
+enum ConstantType {
+  Amount
+  Percentage
+  Numeric
 }

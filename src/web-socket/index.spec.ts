@@ -13,6 +13,8 @@ import http from 'http';
 // import { Server } from 'socket.io';
 import envVars from 'src/config/environment';
 describe('web-socket/index.ts [Socket logic]', () => {
+  jest.mock('src/utils/sendNotification.ts');
+  jest.mock('src/utils/payment.ts');
   jest.setTimeout(90000);
 
   let socketClientCustomer: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -75,6 +77,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
         status: ProviderStatus.Online,
         userId: 1,
         uuid: socketClientCustomer.id,
+        moduleId: 1,
       };
       isCustomerDone = true;
       if (isCustomerDone && isProviderDone) done();
@@ -158,7 +161,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
       expect(online.length).toEqual(0);
       done();
     });
-    socketClientCustomer.emit('all-online-providers');
+    socketClientCustomer.emit('all-online-providers', 1);
   });
 
   it('[Provider-offline] remove provider from online users', (done) => {
@@ -282,7 +285,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
 
     socketClientProvider.emit('provider-accept-order', { customerUuid: socketClientCustomer.id, orderId });
 
-    socketClientCustomer.emit('all-online-providers');
+    socketClientCustomer.emit('all-online-providers', 1);
 
     socketClientCustomer.on('online-users', (args) => {
       receivedOnlineUsers = args;

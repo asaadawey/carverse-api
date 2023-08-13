@@ -2,6 +2,7 @@ import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
+import { Prisma } from '@prisma/client';
 
 //#region GetOneOrder
 type GetOneOrderParams = { id: string };
@@ -9,19 +10,28 @@ type GetOneOrderParams = { id: string };
 type GetOneOrderRequestBody = {};
 
 type GetOneOrderResponse = {
-  OrderTotalAmount: number;
-  OrderCreatedDate: Date;
+  id: number;
   Longitude: number;
   Latitude: number;
   AddressString: string;
+  OrderTotalAmount: Prisma.Decimal;
+  OrderCreatedDate: Date;
   customer: {
-    id: number;
+    id: Prisma.Decimal;
     users: {
       FirstName: string;
       LastName: string;
     };
   };
   orderServices: {
+    providerServices: {
+      Price: Prisma.Decimal;
+      services: {
+        ServiceName: string;
+        ServicePrice: Prisma.Decimal;
+        ServiceDescription: string;
+      } | null;
+    } | null;
     cars: {
       PlateNumber: string;
       Manufacturer: string;
@@ -29,10 +39,10 @@ type GetOneOrderResponse = {
       bodyTypes: {
         TypeName: string;
       };
+      PlateCity: string;
     };
   }[];
-  id: number;
-};
+} | null;
 
 type GetOneOrderQuery = {};
 
@@ -59,11 +69,23 @@ const getOneOrder: RequestHandler<
         id: true,
         orderServices: {
           select: {
+            providerServices: {
+              select: {
+                services: {
+                  select: {
+                    ServiceDescription: true,
+                    ServiceName: true,
+                  },
+                },
+                Price: true,
+              },
+            },
             cars: {
               select: {
                 PlateNumber: true,
                 bodyTypes: { select: { TypeName: true } },
                 Manufacturer: true,
+                PlateCity: true,
                 Model: true,
               },
             },
@@ -80,6 +102,7 @@ const getOneOrder: RequestHandler<
       },
     });
     // if (!order) throw new HttpException(422, `No order found with id ${req.params.id}`);
+    //@ts-ignore
     createSuccessResponse(req, res, order || {}, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);

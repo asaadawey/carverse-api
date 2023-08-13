@@ -7,6 +7,9 @@ import userRouter from 'src/routes/users.route';
 import moduleRouter from 'src/routes/modules.route';
 import serviceRouter from 'src/routes/service.route';
 import packageRouter from 'src/routes/package.route';
+import attachments from 'src/routes/attachments.routes';
+import paymentMethods from 'src/routes/paymentMethods.routes';
+import constants from 'src/routes/constants.routes';
 import authMiddleware from 'src/middleware/auth.middleware';
 import { createFailResponse } from 'src/responses';
 import { HTTPResponses } from 'src/interfaces/enums';
@@ -16,6 +19,7 @@ const router = express.Router();
 
 // Users (login/register) don't need auth
 router.use(userRouter);
+router.use(attachments);
 
 router.use(async (req: Request, res, next) => {
   try {
@@ -31,6 +35,8 @@ router.use(async (req: Request, res, next) => {
         req.headers[envVars.auth.authKey] as string,
         req.headers[envVars.allowedClient.key] as string,
       );
+
+      // req.providerId = Number(req.headers['providerId']) || -1;
     }
 
     next();
@@ -45,5 +51,7 @@ router.use(packageRouter);
 router.use(providerRouter);
 router.use(carRouter);
 router.use(orderRouter);
+router.use(paymentMethods);
+router.use(constants);
 
 export default router;

@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 });
 
 // Inject websocket
-app.use((req, res, next) => {
+app.use(({}, res, next) => {
   //@ts-ignore
   res.io = io;
   next();

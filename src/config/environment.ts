@@ -27,6 +27,14 @@ export default {
   },
   order: {
     timeout: values.ORDER_TIMEOUT_SECONDS,
+    locationThreshold: values.CUTOMER_PROVIDER_LOCATION_THERSHOLD,
   },
   logVerbose: values.LOG_VERBOSE,
+  aws: {
+    s3BucketName: values.AWS_S3_BUCKET_NAME,
+    s3Region: values.AWS_S3_REGION,
+  },
+  stripe: {
+    secret: values.STRIPE_API_KEY,
+  },
 };

@@ -7,7 +7,7 @@ export default class HttpException extends Error {
 
   constructor(
     status: HTTPResponses,
-    message: HTTPErrorString | HTTPErrorMessages,
+    message: HTTPErrorString | HTTPErrorMessages | '',
     additionalParameters: string | any = null,
   ) {
     super(message);

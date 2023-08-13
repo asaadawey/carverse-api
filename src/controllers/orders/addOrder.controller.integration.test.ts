@@ -5,39 +5,18 @@ import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
 import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+// import { ConstantType } from '@prisma/client';
+import { Statements } from './getOrderTotalAmountStatements.controller';
+import { encrypt } from 'src/utils/encrypt';
 
 describe('Integration orders/addOrder', () => {
   let customerId: number;
   let providerId: number;
   let createdCarId: number;
   let createdServiceId: number;
+  // let createdConstantId: number;
+  // const vatPerc = 5;
   beforeAll(async () => {
-    const createService = await prisma.services.create({
-      data: {
-        ServiceDescription: 'Test',
-        ServiceIconLink: '/',
-        ServiceName: 'Test',
-        colorGradiants: {
-          create: {
-            ColorEnd: 'r',
-            ColorName: randomstring.generate(7),
-            ColorMainText: randomstring.generate(7),
-            ColorSecondaryText: 'e',
-            ColorStart: 'T',
-          },
-        },
-        modules: {
-          create: {
-            ModuleName: randomstring.generate(7),
-            ModuleDescription: 'f',
-            ModuleIconLink: 'd',
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
     const createdUser = await prisma.$transaction([
       prisma.users.create({
         data: {
@@ -94,17 +73,60 @@ describe('Integration orders/addOrder', () => {
         where: { HistoryName: 'Pending' },
       }),
     ]);
-
     customerId = createdUser[0].customer?.id || 0;
     providerId = createdUser[1].provider?.id || 0;
+    const createService = await prisma.providerServices.create({
+      data: {
+        provider: { connect: { id: providerId } },
+        services: {
+          create: {
+            ServiceDescription: 'Test',
+            ServiceIconLink: '/',
+            ServiceName: randomstring.generate(7),
+            colorGradiants: {
+              create: {
+                ColorEnd: 'r',
+                ColorName: randomstring.generate(7),
+                ColorMainText: randomstring.generate(7),
+                ColorSecondaryText: 'e',
+                ColorStart: 'T',
+              },
+            },
+            modules: {
+              create: {
+                ModuleName: randomstring.generate(7),
+                ModuleDescription: 'f',
+                ModuleIconLink: 'd',
+              },
+            },
+          },
+        },
+      },
+
+      select: {
+        id: true,
+      },
+    });
+
     createdCarId = createdUser[0].cars[0].id;
     createdServiceId = createService.id;
+
+    // const constant = await prisma.constants.create({
+    //   data: {
+    //     Name: randomstring.generate(7),
+    //     Type: ConstantType.Percentage,
+    //     Value: vatPerc,
+    //   },
+    //   select: {
+    //     id: true,
+    //   },
+    // });
+
+    // createdConstantId = constant.id;
   });
+
   it('Should success', async () => {
-    console.log({
-      carId: createdCarId,
-      serviceId: createdServiceId,
-    });
+    await prisma.orders.deleteMany();
     const result = await supertest(app)
       .post(RouterLinks.addOrder)
       .set(commonHeaders())
@@ -114,13 +136,21 @@ describe('Integration orders/addOrder', () => {
         orderServices: [
           {
             carId: createdCarId,
-            serviceId: createdServiceId,
+            providerServiceId: createdServiceId,
           },
         ],
         orderAmount: 400,
         longitude: 12,
         latitude: 13,
         addressString: 'Bateen',
+        paymentMethodName: 'Cash',
+        orderTotalAmountStatement: [
+          {
+            name: 'service fees',
+            encryptedValue: encrypt(String(400)),
+            relatedProviderServiceId: createdServiceId,
+          },
+        ] as Statements[],
       })
       .expect(HTTPResponses.Success);
 
@@ -134,6 +164,37 @@ describe('Integration orders/addOrder', () => {
     expect(result.body.id).toBe(createdOrder?.id);
   });
 
+  it("Should fail because the total amount sent is incorrect and doesn't match", async () => {
+    const result = await supertest(app)
+      .post(RouterLinks.addOrder)
+      .set(commonHeaders())
+      .send({
+        providerId,
+        customerId,
+        orderServices: [
+          {
+            carId: createdCarId,
+            providerServiceId: createdServiceId,
+          },
+        ],
+        orderAmount: 400,
+        longitude: 12,
+        latitude: 13,
+        addressString: 'Bateen',
+        paymentMethodName: 'Cash',
+        orderTotalAmountStatement: [
+          {
+            name: 'service fees',
+            encryptedValue: encrypt(String(60000000000000)),
+            relatedProviderServiceId: createdServiceId,
+          },
+        ] as Statements[],
+      })
+      .expect(HTTPResponses.BusinessError);
+
+    expect(result.body.message).toBe(HTTPErrorString.SomethingWentWrong);
+  });
+
   it('Should be false because schema is incorrect', async () => {
     const result = await supertest(app)
       .post(RouterLinks.addOrder)
@@ -144,7 +205,7 @@ describe('Integration orders/addOrder', () => {
         orderServices: [
           {
             carId: createdCarId,
-            serviceId: createdServiceId,
+            providerServiceId: createdServiceId,
           },
         ],
         longitude: 12,

@@ -71,6 +71,6 @@ describe('Integration orders/getOneOrder', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Object.keys(result.body).length).toBe(0);
+    expect(Object.keys(result.body || {}).length).toBe(0);
   });
 });

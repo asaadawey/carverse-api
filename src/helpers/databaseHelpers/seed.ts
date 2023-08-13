@@ -1,5 +1,5 @@
 import { PrismaClient } from '.prisma/client';
-import { AllowedClients, OrderHistory, PaymentMethods } from 'src/interfaces/enums';
+import { AllowedClients, Constants, OrderHistory, PaymentMethods } from 'src/interfaces/enums';
 
 const prisma = new PrismaClient();
 
@@ -114,19 +114,19 @@ const main = async () => {
   //#endregion
   //#region Customers
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Customer', AllowedClients: AllowedClients.MobileApp },
+    create: { TypeName: 'Customer', AllowedClients: [AllowedClients.MobileApp] },
     where: { TypeName: 'Customer' },
-    update: { AllowedClients: AllowedClients.MobileApp },
+    update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Provider', AllowedClients: AllowedClients.MobileApp },
+    create: { TypeName: 'Provider', AllowedClients: [AllowedClients.MobileApp] },
     where: { TypeName: 'Provider' },
-    update: { AllowedClients: AllowedClients.MobileApp },
+    update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Admin', AllowedClients: AllowedClients.CP },
+    create: { TypeName: 'Admin', AllowedClients: [AllowedClients.CP] },
     where: { TypeName: 'Admin' },
-    update: { AllowedClients: AllowedClients.MobileApp },
+    update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   //#endregion
   //#region Users
@@ -184,6 +184,11 @@ const main = async () => {
     update: {},
     where: { MethodName: PaymentMethods.Cash },
   });
+  await prisma.paymentMethods.upsert({
+    create: { MethodName: PaymentMethods.Credit, MethodDescription: '' },
+    update: {},
+    where: { MethodName: PaymentMethods.Credit },
+  });
   //#endregion
   //#region OrderHistoryItems
   await prisma.orderHistoryItems.upsert({
@@ -192,6 +197,27 @@ const main = async () => {
     },
     update: {},
     where: { HistoryName: OrderHistory.Pending },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.PendingPayment,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.PendingPayment },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.PaymentCaptureCancelled,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.PaymentCaptureCancelled },
+  });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.PaymentCaptured,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.PaymentCaptured },
   });
   await prisma.orderHistoryItems.upsert({
     create: {
@@ -243,6 +269,151 @@ const main = async () => {
     where: { HistoryName: OrderHistory.CustomerCancelled },
   });
 
+  //#endregion
+
+  //#region AttachmentsTypes
+  await prisma.attachmentTypes.upsert({
+    create: {
+      TypeName: 'Provider',
+    },
+    where: {
+      TypeName: 'Provider',
+    },
+    update: {},
+  });
+  await prisma.attachmentTypes.upsert({
+    create: {
+      TypeName: 'Orders Finished',
+    },
+    where: {
+      TypeName: 'Orders Finished',
+    },
+    update: {},
+  });
+  //#endregion
+
+  //#region Attachments
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Emirates id',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Provider',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 1,
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Profile image',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Provider',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 2,
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Car registration',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Provider',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 3,
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Car from front',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Orders Finished',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 4,
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      Name: 'Car from back',
+      Description: 'Used for verification purposes',
+      attachmentType: {
+        connect: {
+          TypeName: 'Orders Finished',
+        },
+      },
+    },
+    update: {},
+    where: {
+      id: 5,
+    },
+  });
+  //#endregion
+  //#region Constants
+  await prisma.constants.upsert({
+    create: {
+      Type: 'Percentage',
+      Name: Constants.VAT,
+      Value: 5,
+    },
+    update: {},
+    where: {
+      Name: Constants.VAT,
+    },
+  });
+  await prisma.constants.upsert({
+    create: {
+      Type: 'Amount',
+      Name: Constants.ServiceCharges,
+      Value: 3,
+    },
+    update: {},
+    where: {
+      Name: Constants.ServiceCharges,
+    },
+  });
+  await prisma.constants.upsert({
+    create: {
+      Type: 'Percentage',
+      Name: Constants.OnlinePaymentCharges,
+      Value: 6,
+    },
+    update: {},
+    where: {
+      Name: Constants.OnlinePaymentCharges,
+    },
+  });
+  await prisma.constants.upsert({
+    create: {
+      Type: 'Numeric',
+      Name: Constants.ProviderKMThershold,
+      Value: 1,
+    },
+    update: {},
+    where: {
+      Name: Constants.ProviderKMThershold,
+    },
+  });
   //#endregion
 };
 

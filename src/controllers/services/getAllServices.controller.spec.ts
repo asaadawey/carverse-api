@@ -1,10 +1,10 @@
 import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
-import getAllServices from './getAllServices.controller';
 import { createSuccessResponse } from 'src/responses';
+import getAllServices from './getAllServices.controller';
 
 describe('services/getAllServices', () => {
   it('Should succeed and return all modules', async () => {
-    prismaMock.providerServices.findMany.mockResolvedValue([
+    prismaMock.services.findMany.mockResolvedValue([
       {
         test: 'test',
       },

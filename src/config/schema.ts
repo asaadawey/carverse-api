@@ -15,6 +15,10 @@ const environmentSchema = yup.object().shape({
   LOG_VERBOSE: yup.string().required(),
   ALLOWED_CLIENT_KEY: yup.string().required(),
   ORDER_TIMEOUT_SECONDS: yup.string().required(),
+  CUTOMER_PROVIDER_LOCATION_THERSHOLD: yup.string().required(),
+  AWS_S3_BUCKET_NAME: yup.string().required(),
+  AWS_S3_REGION: yup.string().required(),
+  STRIPE_API_KEY: yup.string().required(),
 });
 
 export default environmentSchema;

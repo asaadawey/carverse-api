@@ -24,7 +24,7 @@ export const getAllProvidersSchema: yup.SchemaOf<{}> = yup.object({
     .object()
     .shape({
       avg: yup.string().optional().oneOf(['true', 'false'], 'Wrong value passed to avg'),
-      ids: yup.string().optional(),
+      ids: yup.string().required(),
     })
     .concat(paginationSchema),
 });
@@ -43,9 +43,7 @@ const getAllProviders: RequestHandler<
       ...(ids
         ? {
             where: {
-              id: {
-                in: ids.split(',').map(Number),
-              },
+              users: { id: { in: ids.split(',').map(Number) } },
             },
           }
         : {}),
@@ -84,7 +82,7 @@ const getAllProviders: RequestHandler<
         i++;
       }
     }
-    createSuccessResponse(req, res, providers, next);
+    createSuccessResponse(req, res, [...providers], next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

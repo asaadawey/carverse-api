@@ -1,4 +1,9 @@
 export enum RouterLinks {
+  //#region Attachments
+  getAllAttachmentTypes = '/attachments/getTypes',
+  getListOfAttachments = '/attachments/getListOfAttachments/:typeName',
+  uploadAttachments = '/attachments/upload/:userId/:attachmentTypeId',
+  //#endregion
   //#region Assets
   addAssets = '/assets/add',
   //#endregion
@@ -11,9 +16,11 @@ export enum RouterLinks {
   //#region Providers
   getAllProviders = '/providers',
   getOneProvider = '/providers/one/:id',
+  addProviderService = '/providers/services/create/:moduleId',
   //#endregion
   //#region Services
-  getAllServices = '/services/:moduleId/:providerId',
+  getAllProviderServices = '/services/:moduleId/:providerId',
+  getAllServices = '/services/:moduleId',
   //#endregion
   //#region Users
   login = '/login',
@@ -22,6 +29,9 @@ export enum RouterLinks {
   //#endregion
   //#region Values
   getValues = '/values',
+  //#endregion
+  //#region Payment methods
+  getAllPaymentMethods = '/payment/methods',
   //#endregion
   //#region Cars
   getCars = '/cars',
@@ -34,5 +44,10 @@ export enum RouterLinks {
   //#region Orders
   addOrder = '/orders/add',
   getOneOrder = '/orders/one/:id',
+  getOrderTotalAmountStatements = '/orders/getOrderStatements',
+  //#endregion
+  //#region Constants
+  getAllConstants = '/constants',
+  modifyConstant = '/constants/update',
   //#endregion
 }

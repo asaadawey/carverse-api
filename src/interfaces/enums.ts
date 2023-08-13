@@ -1,5 +1,8 @@
 export enum OrderHistory {
   Pending = 'Pending',
+  PendingPayment = 'Pending payment capture',
+  PaymentCaptureCancelled = 'Payment cancellled',
+  PaymentCaptured = 'Payment captured',
   Rejected = 'Rejected',
   Accepted = 'Accepted',
   Cancelled = 'Cancelled',
@@ -7,6 +10,13 @@ export enum OrderHistory {
   CustomerCancelled = 'Customer Cancelled',
   ProviderArrived = 'Provider arrived',
   ServiceFinished = 'Service finished',
+}
+
+export enum Constants {
+  ServiceCharges = 'Service charges',
+  VAT = 'VAT',
+  OnlinePaymentCharges = 'Online payment charges',
+  ProviderKMThershold = 'Provider KM Thershold',
 }
 
 export enum PaymentMethods {
@@ -18,11 +28,13 @@ export enum HTTPErrorString {
   BadRequest = 'Bad request',
   UnauthorisedAPI = 'Unauthorised',
   UnauthorisedToken = 'Unauthorised',
+  SomethingWentWrong = 'Something went wrong',
 }
 
 export enum HTTPErrorMessages {
   InvalidUsernameOrPassowrd = 'Invalid username or password',
   NoSufficientPermissions = 'No sufficient permission',
+  AccountInactive = 'Your account is still inactive/under processing',
 }
 
 export enum HTTPResponses {

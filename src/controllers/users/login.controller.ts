@@ -33,6 +33,8 @@ type LoginResponse = {
   userInfo: {
     FirstName: string;
     LastName: string;
+    MobileNumber: string;
+    Email: string;
     id: number;
     customerId?: number;
     providerId?: number;
@@ -57,6 +59,7 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         Password: true,
         FirstName: true,
         LastName: true,
+        PhoneNumber: true,
         id: true,
         userTypes: {
           select: {
@@ -64,6 +67,7 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
             AllowedClients: true,
           },
         },
+        isActive: true,
         customer: { select: { id: true } },
         provider: { select: { id: true } },
       },
@@ -76,7 +80,9 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         'No user found',
       );
 
-    const isValid = crypto.timingSafeEqual(Buffer.from(password), Buffer.from(user.Password));
+    const isValid =
+      password.length === user.Password.length &&
+      crypto.timingSafeEqual(Buffer.from(password), Buffer.from(user.Password));
 
     if (!isValid)
       throw new HttpException(
@@ -98,6 +104,9 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         userClient: user.userTypes.AllowedClients,
       });
 
+    if (!user.isActive)
+      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.AccountInactive, { id: user.id });
+
     const token = generateToken({
       id: user.id,
       customerId: user.customer?.id,
@@ -117,6 +126,8 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
           customerId: user.customer?.id,
           providerId: user.provider?.id,
           LastName: user.LastName,
+          Email: user.Email,
+          MobileNumber: user.PhoneNumber,
           UserTypeName: user.userTypes?.TypeName,
         },
       },

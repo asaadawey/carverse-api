@@ -38,6 +38,7 @@ describe('web-socket/index.ts [Socket functions]', () => {
     jest.spyOn(socketFunctions, 'broadcastOnlineProvider');
     socketFunctions.addUpdateOnlineProvider(
       {
+        moduleId: 1,
         latitude: 123,
         longitude: 123,
         notifcationToken: '123',
@@ -59,6 +60,7 @@ describe('web-socket/index.ts [Socket functions]', () => {
     jest.spyOn(socketFunctions, 'broadcastOnlineProvider');
     socketFunctions.addUpdateOnlineProvider(
       {
+        moduleId: 1,
         latitude: 123,
         longitude: 123,
         notifcationToken: '123',

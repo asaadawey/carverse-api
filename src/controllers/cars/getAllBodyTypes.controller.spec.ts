@@ -3,7 +3,7 @@ import getAllBodyTypes from './getAllBodyTypes.controller';
 import { createSuccessResponse } from 'src/responses';
 
 describe('cars/getAllBodyTypes', () => {
-  it('Should return user not exist', async () => {
+  it('Should return body types', async () => {
     prismaMock.bodyTypes.findMany.mockResolvedValue([]);
     await getAllBodyTypes(global.mockReq, global.mockRes, global.mockNext);
 

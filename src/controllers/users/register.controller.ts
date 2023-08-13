@@ -8,6 +8,7 @@ type RegisterRequestQuery = {};
 
 type RegisterResponse = {
   result: boolean;
+  id: number;
 };
 
 type RegisterRequestBody = {
@@ -46,11 +47,16 @@ const registerUser: RequestHandler<
   try {
     const { UserTypeName, ...rest } = req.body;
 
-    await prisma.users.create({
-      data: { ...rest, userTypes: { connect: { TypeName: UserTypeName } } },
+    const createdUser = await prisma.users.create({
+      data: {
+        ...rest,
+        userTypes: { connect: { TypeName: UserTypeName } },
+        isActive: UserTypeName.toLowerCase() === 'customr',
+      },
+      select: { id: true },
     });
 
-    createSuccessResponse(req, res, { result: true }, next);
+    createSuccessResponse(req, res, { result: true, id: createdUser.id }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

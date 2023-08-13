@@ -1,3 +1,4 @@
-import getAllServices from 'src/controllers/services/getAllServices.controller';
+import getAllProviderServices from 'src/controllers/services/getAllProviderServices.controller';
+import getAllServices from './getAllServices.controller';
 
-export { getAllServices };
+export { getAllProviderServices, getAllServices };

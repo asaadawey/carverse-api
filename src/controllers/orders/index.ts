@@ -1,4 +1,5 @@
-import getOneOrder from 'src/controllers/orders/getOneOrder.controller';
-import addOrder from 'src/controllers/orders/addOrder.controller';
+import getOneOrder from './getOneOrder.controller';
+import addOrder from './addOrder.controller';
+import getOrderTotalAmountStatements from './getOrderTotalAmountStatements.controller';
 
-export { getOneOrder, addOrder };
+export { getOneOrder, addOrder, getOrderTotalAmountStatements };
