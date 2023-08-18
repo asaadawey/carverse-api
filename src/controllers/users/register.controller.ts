@@ -51,7 +51,7 @@ const registerUser: RequestHandler<
       data: {
         ...rest,
         userTypes: { connect: { TypeName: UserTypeName } },
-        isActive: UserTypeName.toLowerCase() === 'customr',
+        isActive: UserTypeName.toLowerCase() === 'customer',
       },
       select: { id: true },
     });

@@ -19,7 +19,7 @@ type AddOrderRequestBody = {
     carId: number;
     providerServiceId: number;
   }[];
-  orderTotalAmountStatement: Statements[];
+  orderTotalAmountStatement: Omit<Statements, 'label'>[];
   paymentMethodName: string;
   orderAmount: number;
   longitude: number;

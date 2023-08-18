@@ -374,6 +374,7 @@ const main = async () => {
     create: {
       Type: 'Percentage',
       Name: Constants.VAT,
+      Label: 'VAT (5%)',
       Value: 5,
     },
     update: {},
@@ -385,6 +386,7 @@ const main = async () => {
     create: {
       Type: 'Amount',
       Name: Constants.ServiceCharges,
+      Label: 'Service charges',
       Value: 3,
     },
     update: {},
@@ -395,6 +397,7 @@ const main = async () => {
   await prisma.constants.upsert({
     create: {
       Type: 'Percentage',
+      Label: 'Online payment charges',
       Name: Constants.OnlinePaymentCharges,
       Value: 6,
     },
@@ -406,6 +409,7 @@ const main = async () => {
   await prisma.constants.upsert({
     create: {
       Type: 'Numeric',
+      Label: '',
       Name: Constants.ProviderKMThershold,
       Value: 1,
     },

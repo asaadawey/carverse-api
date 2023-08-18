@@ -26,6 +26,7 @@ const getAllPaymentMethods: RequestHandler<
 > = async (req, res, next) => {
   try {
     const paymentMethods = await prisma.paymentMethods.findMany({
+      where: { isActive: { equals: true } },
       select: { MethodName: true, id: true, MethodDescription: true },
     });
     createSuccessResponse(req, res, paymentMethods, next);

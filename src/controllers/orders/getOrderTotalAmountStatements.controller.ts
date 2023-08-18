@@ -12,6 +12,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 //#region GetOrderTotalAmountStatements
 export type Statements = {
   name: string;
+  label: string;
   encryptedValue: string | Decimal;
   relatedProviderServiceId?: number;
   relatedConstantId?: number;
@@ -70,6 +71,7 @@ const getOrderTotalAmountStatements: RequestHandler<
     statements = statements.concat(
       providerServices.map((service) => ({
         name: service.services?.ServiceName || '',
+        label: service.services?.ServiceName || '',
         encryptedValue: encrypt(String(getAmount(service.Price, ConstantType.Amount, new Decimal(totalAmount)))),
         relatedProviderServiceId: service.id,
       })),
@@ -80,13 +82,19 @@ const getOrderTotalAmountStatements: RequestHandler<
 
     const constants = await prisma.constants.findMany({
       where: {
-        Name: {
-          in: constantsToGet,
-        },
+        AND: [
+          {
+            Name: {
+              in: constantsToGet,
+            },
+          },
+          { isActive: { equals: true } },
+        ],
       },
       select: {
         id: true,
         Name: true,
+        Label: true,
         Value: true,
         Type: true,
       },
@@ -97,6 +105,7 @@ const getOrderTotalAmountStatements: RequestHandler<
     totalAmount = _.sumBy(statements, (statement) => Number(decrypt(statement.encryptedValue as string)));
     statements = statements.concat({
       name: vat?.Name || '',
+      label: vat?.Label,
       encryptedValue: encrypt(String(getAmount(vat?.Value, vat?.Type, new Decimal(totalAmount)))),
       relatedConstantId: vat?.id,
     });
@@ -107,6 +116,7 @@ const getOrderTotalAmountStatements: RequestHandler<
     statements = statements.concat(
       [serviceCharges, onlineCharges].filter(Boolean).map((value: any) => ({
         name: value?.Name || '',
+        label: value?.Label,
         encryptedValue: encrypt(String(getAmount(value?.Value || 0, value?.Type, new Decimal(totalAmount)))),
         relatedConstantId: value.id,
       })),
