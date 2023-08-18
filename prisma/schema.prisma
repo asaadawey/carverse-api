@@ -126,6 +126,7 @@ model paymentMethods {
   MethodName        String   @unique
   MethodDescription String
   CreatedOn         DateTime @default(now())
+  isActive          Boolean  @default(true)
   orders            orders[]
 }
 
@@ -265,6 +266,7 @@ model constants {
   id                    Int                     @id @default(autoincrement())
   Value                 Decimal                 @default(0)
   Type                  ConstantType
+  Label                 String
   CreatedAt             DateTime                @default(now())
   UpdatedAt             DateTime                @updatedAt
   Name                  String                  @unique
