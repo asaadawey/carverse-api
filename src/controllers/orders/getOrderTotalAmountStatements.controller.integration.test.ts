@@ -84,6 +84,7 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
     const vatConstant = await prisma.constants.create({
       data: {
         Name: Constants.VAT,
+        Label: 'VAT 5',
         Type: ConstantType.Percentage,
         Value: new Decimal(vatPerc),
       },
@@ -97,6 +98,7 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
       data: {
         Name: Constants.ServiceCharges,
         Type: ConstantType.Amount,
+        Label: 'Service',
         Value: new Decimal(serviceFees),
       },
       select: {
