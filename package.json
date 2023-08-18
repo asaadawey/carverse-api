@@ -47,6 +47,7 @@
     "stripe": "^12.18.0",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^1.1.8",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.6",
     "uuid": "^9.0.0",
     "yup": "^0.32.9"
@@ -82,7 +83,6 @@
     "socket.io-client": "^4.6.2",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
-    "tsconfig-paths": "^4.1.1",
     "yarn": "1.22.19"
   }
 }
