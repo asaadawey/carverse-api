@@ -2,7 +2,7 @@ import * as yup from 'yup';
 
 const environmentSchema = yup.object().shape({
   DATABASE_URL: yup.string().required(),
-  HEROKU_POSTGRESQL_GREEN_URL: yup.string().required(),
+  // HEROKU_POSTGRESQL_GREEN_URL: yup.string().required(),
   PORT: yup.string().required(),
   APP_SECRET: yup.string().required(),
   APP_NAME: yup.string().required(),
