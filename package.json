@@ -9,7 +9,7 @@
     "build": "yarn prisma generate && yarn tsc",
     "lint": "yarn eslint . --ext .ts --fix",
     "prisma:migrate": "dotenv -e .env_local -- yarn prisma migrate dev",
-    "start": "ts-node ./src/bin/index",
+    "start": "yarn prisma db push --force-reset --accept-data-loss && yarn seed && ts-node ./src/bin/index",
     "dev": "dotenv -e .env -- ts-node-dev -r tsconfig-paths/register ./src/bin/index.ts",
     "seed": "ts-node ./src/helpers/databaseHelpers/seed.ts --exit",
     "seed:local": "dotenv -e .env_local -- ts-node ./src/helpers/databaseHelpers/seed.ts --exit",
