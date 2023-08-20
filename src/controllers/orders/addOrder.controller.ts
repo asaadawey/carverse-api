@@ -25,6 +25,7 @@ type AddOrderRequestBody = {
   longitude: number;
   latitude: number;
   addressString: string;
+  additionalAddressData: any;
 };
 
 type AddOrderResponse = {
@@ -74,6 +75,7 @@ export const addOrderSchema: yup.SchemaOf<{ body: AddOrderRequestBody; query: Ad
     longitude: yup.number().required('longitude is required'),
     latitude: yup.number().required('latitude is required'),
     addressString: yup.string().required('address is required'),
+    additionalAddressData: yup.object().optional(),
   }),
   query: yup
     .object()
@@ -98,7 +100,9 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
     orderTotalAmountStatement,
     providerId,
     paymentMethodName,
+    additionalAddressData,
   } = req.body;
+
   let createdOrderId: number | undefined;
   try {
     orderTotalAmountStatement = orderTotalAmountStatement.map((statement) => ({
@@ -138,6 +142,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
             },
           },
         },
+        AdditionalAddressData: additionalAddressData || {},
         OrderTotalAmount: orderAmount,
         paymentMethods: {
           connect: {

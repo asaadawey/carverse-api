@@ -5,7 +5,7 @@ export const preLogmiddleware: RequestHandler<any, any, any, any> = (req, res, n
     `[PRE-LOG] [${req.method}] ${req.url} ${JSON.stringify({
       date: new Date().toLocaleTimeString(),
       body: req.body,
-      // headers: req.headers,
+      headers: req.headers,
       // ip: req.ip,
     })}`,
   );

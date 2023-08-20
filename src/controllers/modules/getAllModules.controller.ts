@@ -29,6 +29,7 @@ const getAllModules: RequestHandler<
   try {
     const modules = await prisma.modules.findMany({
       ...spreadPaginationParams(req.query),
+      where: { isActive: { equals: true } },
       select: { id: true, ModuleName: true, ModuleDescription: true, ModuleIconLink: true },
     });
     createSuccessResponse(req, res, modules, next);
