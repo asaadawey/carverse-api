@@ -53,7 +53,7 @@ jobs:
         with:
           node-version:  ${{ env.NODE_VERSION }}
 
-      - name: npm install, build, and test
+      - name: npm install, build, and test,
         run: |
           npm install -g yarn@1.22.19
           yarn
