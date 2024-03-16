@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 });
 
 // Inject websocket
-app.use(({}, res, next) => {
+app.use(({ }, res, next) => {
   //@ts-ignore
   res.io = io;
   next();
@@ -47,5 +47,7 @@ app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))])
 app.use(routes);
 
 app.use(errorMiddleware);
+
+app.get('/health', (req, res) => { res.json({ status: 200, message: "OK" }) })
 
 export default app;
