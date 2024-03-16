@@ -48,6 +48,9 @@ app.use(routes);
 
 app.use(errorMiddleware);
 
-app.get('/health', (req, res) => { res.json({ status: 200, message: "OK" }) })
+app.get('/health', (req, res) => {
+  console.log("Health")
+  res.json({ status: 200, message: "OK" })
+})
 
 export default app;
