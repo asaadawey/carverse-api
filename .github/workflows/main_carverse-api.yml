@@ -58,6 +58,7 @@ jobs:
           npm install -g yarn@1.22.19
           yarn
           yarn build
+          rm -rf node_modules
           # npm run test --if-present
 
       - name: Zip artifact for deployment
