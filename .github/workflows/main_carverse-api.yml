@@ -1,105 +1,39 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Build and deploy Node.js app to Azure Web App - carverse-api
+name: Node.js CI
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
-
-env:
-  AZURE_WEBAPP_NAME: carverse-api    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '20.x'                # set this to the node version to use
+    branches: ['main']
+  pull_request:
+    branches: ['main']
 
 jobs:
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Use Node.js ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
-  #     - run: npm i -g yarn@1.22.19    
-  #     - run: yarn
-  #     - run: yarn lint
-  # test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Build the stack
-  #       run: docker-compose up -d
-  #     - name: Install dependancies
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
-  #     - run: npm i -g yarn@1.22.19    
-  #     - run: yarn
-  #     - name: Test
-  #       run: yarn test:all --silent --coverage
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node.js version
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version:  ${{ env.NODE_VERSION }}
-
-      - name: npm install, build, and test,
-        run: |
-          npm install -g yarn@1.22.19
-          yarn
-          yarn build
-          rm -rf node_modules
-          # npm run test --if-present
-
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-          name: node-app
-          path: release.zip
-
-  deploy:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+      - run: yarn
+      - run: yarn lint
+      - run: yarn build
+      # - run: yarn test
+  test:
     runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
-
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v3
+      - name: Build the stack
+        run: docker-compose up -d
+      - name: Install dependancies
+        uses: actions/setup-node@v3
         with:
-          name: node-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-      
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AF7A6A90260A44929177F88F3D974D9B }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A4C6747DD3344CFC8207D495CA29537E }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4B89A4B210F446ADBDDE51C0F8AC6D50 }}
-
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'carverse-api'
-          slot-name: 'Production'
-          package: .
-          
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+      - run: yarn
+      - name: Test
+        run: yarn test:all --silent --coverage
