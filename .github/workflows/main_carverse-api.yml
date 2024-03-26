@@ -12,32 +12,11 @@ env:
   REGISTRY_PATH: ${{ github.workspace }}/registry
 
 jobs:
-  # dependancies:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Cache dependencies
-  #       id: cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ./node_modules
-  #         key: modules-${{ hashFiles('yarn.lock') }}
-  #     - name: Install dependencies
-  #       if: steps.cache.outputs.cache-hit != 'true'
-  #       run: npm i -g yarn@1.22.19 && yarn
-
-
-  test:
+  unit-tests:
     runs-on: ubuntu-latest
-    # needs: dependancies
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
       - name: Cache yarn dependencies
         uses: actions/cache@v2
@@ -60,13 +39,13 @@ jobs:
       - name: Build the stack
         run: docker-compose up -d
       - name: Test
-        run: yarn test:all --silent --coverage
-  build:
+        run: yarn test --silent --coverage 
+  integration-tests:
     runs-on: ubuntu-latest
-    needs: test
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Cache yarn dependencies
         uses: actions/cache@v2
         with:
@@ -85,6 +64,34 @@ jobs:
 
       - name: Install dependencies
         run: yarn
+      - name: Test
+        run: yarn test:integration --silent --coverage
+  build:
+    runs-on: ubuntu-latest
+    needs: [integration-tests,unit-tests]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        with:
+          path: '~/.npm'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: yarn
+
       - name: Build
         run: yarn build
       # - run: yarn test
