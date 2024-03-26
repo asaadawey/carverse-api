@@ -20,8 +20,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn
-      - name: Build the stack
-        run: docker-compose up -d
       - name: Test
         run: yarn test --silent --coverage 
   integration-tests:
