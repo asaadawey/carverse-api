@@ -49,7 +49,7 @@ app.use(routes);
 app.use(errorMiddleware);
 
 app.get('/health', (req, res) => {
-  console.log("Health ")
+  console.log("Health")
   res.json({ status: 200, message: "OK" })
 })
 
