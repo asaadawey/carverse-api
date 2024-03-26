@@ -12,25 +12,25 @@ env:
   REGISTRY_PATH: ${{ github.workspace }}/registry
 
 jobs:
-  dependancies:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: ./node_modules
-          key: modules-${{ hashFiles('yarn.lock') }}
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i -g yarn@1.22.19 && yarn
+  # dependancies:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Cache dependencies
+  #       id: cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ./node_modules
+  #         key: modules-${{ hashFiles('yarn.lock') }}
+  #     - name: Install dependencies
+  #       if: steps.cache.outputs.cache-hit != 'true'
+  #       run: npm i -g yarn@1.22.19 && yarn
 
 
   test:
     runs-on: ubuntu-latest
-    needs: dependancies
+    # needs: dependancies
     steps:
       - name: Cache dependencies
         id: cache
