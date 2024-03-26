@@ -11,6 +11,7 @@
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
     "resolveJsonModule": true,
     "rootDir": "./src",
+    "noImplicitAny": false,
     "baseUrl": ".",
     "allowUmdGlobalAccess": true,
     "allowSyntheticDefaultImports": true,
