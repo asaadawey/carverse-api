@@ -19,9 +19,6 @@
     "jest:integration": "yarn dotenv -e .env_test -- yarn seed && yarn dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --silent --runInBand",
     "test:integration": "yarn docker:up && yarn deploy:docker && yarn jest:integration && yarn docker:down"
   },
-  "engines": {
-    "yarn": "1.22.19"
-  },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.386.0",
     "@prisma/client": "^5.1.1",
