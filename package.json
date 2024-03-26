@@ -15,7 +15,7 @@
     "seed:local": "dotenv -e .env_local -- ts-node ./src/helpers/databaseHelpers/seed.ts --exit",
     "test": "dotenv -e .env_test -- jest",
     "test:all": "yarn test:integration",
-    "deploy:docker": "dotenv -e .env_test -- npx prisma db push",
+    "deploy:docker": "yarn dotenv -e .env_test -- npx prisma db push",
     "jest:integration": "yarn dotenv -e .env_test -- yarn seed && yarn dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --silent --runInBand",
     "test:integration": "yarn docker:up && yarn deploy:docker && yarn jest:integration && yarn docker:down"
   },
