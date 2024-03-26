@@ -1,7 +1,7 @@
 node_modules
 # yarn.lock
 .env
-prisma/migrations/**/*
+# prisma/migrations/**/*
 dist/**/*
 yarn-error.log
 coverage
