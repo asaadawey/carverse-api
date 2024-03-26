@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "ConstantType" AS ENUM ('Amount', 'Percentage', 'Numeric');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
@@ -10,6 +13,7 @@ CREATE TABLE "users" (
     "Nationality" TEXT NOT NULL,
     "CreatedOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "ModifiedOn" TIMESTAMP(3) NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -52,7 +56,7 @@ CREATE TABLE "services" (
     "CreatedOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "ModifiedOn" TIMESTAMP(3) NOT NULL,
     "ModuleID" INTEGER NOT NULL,
-    "GradientID" INTEGER NOT NULL,
+    "GradientID" INTEGER,
 
     CONSTRAINT "services_pkey" PRIMARY KEY ("id")
 );
@@ -68,6 +72,8 @@ CREATE TABLE "orders" (
     "Longitude" DOUBLE PRECISION NOT NULL,
     "Latitude" DOUBLE PRECISION NOT NULL,
     "AddressString" TEXT NOT NULL,
+    "PaymentIntentID" TEXT,
+    "AdditionalAddressData" JSONB,
 
     CONSTRAINT "orders_pkey" PRIMARY KEY ("id")
 );
@@ -75,7 +81,7 @@ CREATE TABLE "orders" (
 -- CreateTable
 CREATE TABLE "orderServices" (
     "id" SERIAL NOT NULL,
-    "ServiceID" INTEGER NOT NULL,
+    "ProviderServiceID" INTEGER NOT NULL,
     "OrderID" INTEGER NOT NULL,
     "CarID" INTEGER NOT NULL,
     "CreatedOn" TIMESTAMPTZ(6) DEFAULT CURRENT_TIMESTAMP,
@@ -113,6 +119,7 @@ CREATE TABLE "paymentMethods" (
     "MethodName" TEXT NOT NULL,
     "MethodDescription" TEXT NOT NULL,
     "CreatedOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "paymentMethods_pkey" PRIMARY KEY ("id")
 );
@@ -122,6 +129,7 @@ CREATE TABLE "userTypes" (
     "id" SERIAL NOT NULL,
     "TypeName" TEXT NOT NULL,
     "CreatedOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "AllowedClients" TEXT[],
 
     CONSTRAINT "userTypes_pkey" PRIMARY KEY ("id")
 );
@@ -133,6 +141,7 @@ CREATE TABLE "modules" (
     "ModuleDescription" TEXT NOT NULL,
     "ModuleIconLink" TEXT NOT NULL,
     "CreatedOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "modules_pkey" PRIMARY KEY ("id")
 );
@@ -154,7 +163,7 @@ CREATE TABLE "providerServices" (
 CREATE TABLE "packages" (
     "id" SERIAL NOT NULL,
     "ModuleID" INTEGER NOT NULL,
-    "GradiantID" INTEGER NOT NULL,
+    "GradiantID" INTEGER,
     "PackageName" TEXT NOT NULL,
     "PackageDescription" TEXT NOT NULL,
     "PackagePrice" DOUBLE PRECISION NOT NULL,
@@ -227,6 +236,65 @@ CREATE TABLE "orderHistoryItems" (
     CONSTRAINT "orderHistoryItems_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "attachmentTypes" (
+    "id" SERIAL NOT NULL,
+    "TypeName" TEXT NOT NULL,
+
+    CONSTRAINT "attachmentTypes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "attachments" (
+    "id" SERIAL NOT NULL,
+    "TypeID" INTEGER NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NOT NULL,
+
+    CONSTRAINT "attachments_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "uploadedFiles" (
+    "id" SERIAL NOT NULL,
+    "AttachmentID" INTEGER NOT NULL,
+    "UserID" INTEGER NOT NULL,
+    "FileName" TEXT NOT NULL,
+    "AWSEtag" TEXT,
+    "CreatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "UploadedAt" TIMESTAMP(3),
+    "JsonData" JSONB,
+
+    CONSTRAINT "uploadedFiles_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "constants" (
+    "id" SERIAL NOT NULL,
+    "Value" DECIMAL(65,30) NOT NULL DEFAULT 0,
+    "Type" "ConstantType" NOT NULL,
+    "Label" TEXT NOT NULL,
+    "CreatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "UpdatedAt" TIMESTAMP(3) NOT NULL,
+    "Name" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "constants_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "orderAmountStatements" (
+    "id" SERIAL NOT NULL,
+    "OrderID" INTEGER NOT NULL,
+    "RelatedConstantID" INTEGER,
+    "RelatedProviderServiceID" INTEGER,
+    "Name" TEXT,
+    "Amount" DECIMAL(65,30) NOT NULL,
+    "CreatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "orderAmountStatements_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_Email_key" ON "users"("Email");
 
@@ -246,6 +314,9 @@ CREATE UNIQUE INDEX "additionalFees_FeeName_key" ON "additionalFees"("FeeName");
 CREATE UNIQUE INDEX "services_ServiceName_key" ON "services"("ServiceName");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "orders_PaymentIntentID_key" ON "orders"("PaymentIntentID");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "paymentMethods_MethodName_key" ON "paymentMethods"("MethodName");
 
 -- CreateIndex
@@ -262,6 +333,15 @@ CREATE UNIQUE INDEX "colorGradiants_ColorName_key" ON "colorGradiants"("ColorNam
 
 -- CreateIndex
 CREATE UNIQUE INDEX "orderHistoryItems_HistoryName_key" ON "orderHistoryItems"("HistoryName");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "attachmentTypes_TypeName_key" ON "attachmentTypes"("TypeName");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "uploadedFiles_FileName_key" ON "uploadedFiles"("FileName");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "constants_Name_key" ON "constants"("Name");
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_UserTypeID_fkey" FOREIGN KEY ("UserTypeID") REFERENCES "userTypes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -294,7 +374,7 @@ ALTER TABLE "orderServices" ADD CONSTRAINT "orderServices_CarID_fkey" FOREIGN KE
 ALTER TABLE "orderServices" ADD CONSTRAINT "orderServices_OrderID_fkey" FOREIGN KEY ("OrderID") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "orderServices" ADD CONSTRAINT "orderServices_ServiceID_fkey" FOREIGN KEY ("ServiceID") REFERENCES "services"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "orderServices" ADD CONSTRAINT "orderServices_ServiceID_fkey" FOREIGN KEY ("ProviderServiceID") REFERENCES "providerServices"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "orderCreditCardsPurchase" ADD CONSTRAINT "orderCreditCardsPurchase_CardID_fkey" FOREIGN KEY ("CardID") REFERENCES "creditCards"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -334,3 +414,22 @@ ALTER TABLE "orderHistory" ADD CONSTRAINT "orderHistory_HistoryItemID_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "orderHistory" ADD CONSTRAINT "orderHistory_OrderID_fkey" FOREIGN KEY ("OrderID") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "attachments" ADD CONSTRAINT "attachments_TypeID_fkey" FOREIGN KEY ("TypeID") REFERENCES "attachmentTypes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "uploadedFiles" ADD CONSTRAINT "uploadedFiles_AttachmentID_fkey" FOREIGN KEY ("AttachmentID") REFERENCES "attachments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "uploadedFiles" ADD CONSTRAINT "uploadedFiles_UserID_fkey" FOREIGN KEY ("UserID") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "orderAmountStatements" ADD CONSTRAINT "orderAmountStatements_OrderID_fkey" FOREIGN KEY ("OrderID") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "orderAmountStatements" ADD CONSTRAINT "orderAmountStatements_RelatedConstantID_fkey" FOREIGN KEY ("RelatedConstantID") REFERENCES "constants"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "orderAmountStatements" ADD CONSTRAINT "orderAmountStatements_RelatedProviderServiceID_fkey" FOREIGN KEY ("RelatedProviderServiceID") REFERENCES "providerServices"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
