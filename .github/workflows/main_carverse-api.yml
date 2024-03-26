@@ -65,16 +65,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
+      - name: Cache yarn dependencies
+        uses: actions/cache@v2
         with:
-          path: ./node_modules
-          key: modules-${{ hashFiles('yarn.lock') }}
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        with:
+          path: '~/.npm'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm i -g yarn@1.22.19 && yarn
+        run: yarn
       - name: Build
         run: yarn build
       # - run: yarn test
