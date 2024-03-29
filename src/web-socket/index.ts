@@ -134,7 +134,7 @@ export const broadcastOnlineProvider = (socket: CustomSocket, moduleId?: number)
   );
   console.log(
     '[SOCKET - Broadcast online providers] Broadcasting online providers, Total Online Providers : ' +
-      filteredProviders.length,
+    filteredProviders.length,
   );
   socket.broadcast.emit('online-users', filteredProviders);
   socket.emit('online-users', filteredProviders);
@@ -186,7 +186,7 @@ export const removeOnlineProvider = (id: number, socket: CustomSocket) => {
 };
 
 export const getOrder = (id: any, searchKey: keyof ActiveOrders = 'orderId') => {
-  const order = activeOrders.find((order) => order[searchKey] === id) as ActiveOrders;
+  const order = activeOrders.find((order) => order[String(searchKey)] === id) as ActiveOrders;
   return order;
 };
 
@@ -237,13 +237,13 @@ export const removePendingOrder = async (
 
     console.log(
       '[SOCKET - Remove new order] Remove pending order. OrderID : ' +
-        orderId +
-        ' Reason : ' +
-        reason.toString() +
-        ' Provider Uuid : ' +
-        order?.providerUuid +
-        ' New pending orders : ' +
-        activeOrders,
+      orderId +
+      ' Reason : ' +
+      reason.toString() +
+      ' Provider Uuid : ' +
+      order?.providerUuid +
+      ' New pending orders : ' +
+      activeOrders,
     );
     if (isOrderActive) {
       socket.to(order?.providerUuid || '').emit('notify-active-order-remove', {
@@ -273,7 +273,7 @@ export const removePendingOrder = async (
 };
 
 export const getProvider = (id: any, searchKey: keyof ProviderSocket = 'userId') => {
-  const provider = onlineProviders.find((provider) => provider[searchKey] === id) as ProviderSocket;
+  const provider = onlineProviders.find((provider) => provider[String(searchKey)] === id) as ProviderSocket;
   return provider;
 };
 

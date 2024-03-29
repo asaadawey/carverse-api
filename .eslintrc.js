@@ -51,12 +51,12 @@ module.exports = {
     '@typescript-eslint/type-annotation-spacing': 'error',
     '@typescript-eslint/unified-signatures': 'error',
 
-    'no-console': [
-      'warn',
-      {
-        allow: ['warn', 'error', 'info'],
-      },
-    ],
+    //   'no-console': [
+    //     'warn',
+    //     {
+    //       allow: ['warn', 'error', 'info'],
+    //     },
+    // ],
     // "prefer-destructuring": ["error", { object: true, array: false }],
 
     // "prettier/prettier": [

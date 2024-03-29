@@ -6,7 +6,7 @@ async function cleanDatabase() {
   for (let model of modelNames) {
     try {
       //@ts-ignore
-      await prisma[model].deleteMany();
+      await prisma[String(model)].deleteMany();
     } catch (e) {
       console.error({ e });
     }

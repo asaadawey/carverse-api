@@ -1,3 +1,5 @@
+/*eslint-disable security/detect-non-literal-fs-filename */
+
 import fs from 'fs';
 import path from 'path';
 import schema from './schema';
@@ -7,7 +9,7 @@ describe('config/environment.ts', () => {
     const envFile = fs.readFileSync(path.resolve(__dirname, '..', '..', '.env_test'), 'utf8');
     var env: any = {};
     envFile.replace(/(\w+)=(.+)/g, function ($0, $1, $2) {
-      env[$1] = $2;
+      env[String($1)] = $2;
       return '';
     });
     const func = () => {

@@ -42,10 +42,10 @@ const getAllProviders: RequestHandler<
       ...spreadPaginationParams(req.query),
       ...(ids
         ? {
-            where: {
-              users: { id: { in: ids.split(',').map(Number) } },
-            },
-          }
+          where: {
+            users: { id: { in: ids.split(',').map(Number) } },
+          },
+        }
         : {}),
       select: {
         id: true,
@@ -75,7 +75,7 @@ const getAllProviders: RequestHandler<
           },
         });
         const sum = _.sumBy(providerServices, (a) => Number(a.Price) as any);
-        providers[i] = {
+        providers[Number(i)] = {
           ...provider,
           avg: sum / providerServices.length,
         };
