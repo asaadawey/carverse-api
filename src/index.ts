@@ -11,17 +11,30 @@ import path from 'path';
 
 import { preLogmiddleware } from 'src/middleware/log.middleware';
 import helmet from 'helmet';
+import csrf from 'csurf';
+import cookieParser from 'cookie-parser';
 
 import envVars from 'src/config/environment';
 import { createFailResponse } from 'src/responses';
 import { HTTPResponses } from 'src/interfaces/enums';
 
+import os from 'os';
+
 const app = express();
+
+const csrfProtection = csrf({ cookie: true })
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
+app.use(cookieParser())
+app.use(csrfProtection);
+
+app.get('/health', ({ }, res) => {
+  console.log("Health")
+  return res.json({ status: 200, message: "OK", hostname: os.hostname(), version: process.env['HEROKU_RELEASE_VERSION'] })
+})
 
 // API Auth middleware
 app.use((req, res, next) => {
@@ -48,9 +61,5 @@ app.use(routes);
 
 app.use(errorMiddleware);
 
-app.get('/health', (req, res) => {
-  console.log("Health")
-  res.json({ status: 200, message: "OK" })
-})
 
 export default app;
