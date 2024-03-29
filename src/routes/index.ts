@@ -13,7 +13,7 @@ import constants from 'src/routes/constants.routes';
 import authMiddleware from 'src/middleware/auth.middleware';
 import { createFailResponse } from 'src/responses';
 import { HTTPResponses } from 'src/interfaces/enums';
-import envVars from 'src/config/environment';
+import envVars, { isDev, isTest } from 'src/config/environment';
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.use(async (req: Request, res, next) => {
       return;
     }
     // For testing
-    if ((envVars.mode === 'development' || envVars.mode === 'test') && envVars.auth.skipAuth === 'true') {
+    if ((isDev || isTest) && envVars.auth.skipAuth === 'true') {
       req.userId = Number(req.headers['userid']);
     } else {
       req.userId = await authMiddleware(
