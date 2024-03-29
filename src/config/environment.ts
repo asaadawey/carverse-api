@@ -7,6 +7,9 @@ const variables: Record<string, any> = { ...process.env };
 
 const { ...values } = environmentSchema.validateSync(variables);
 
+export const isDev = values.NODE_ENV === 'development';
+export const isTest = values.NODE_ENV === 'test';
+
 export default {
   mode: values.NODE_ENV,
   appSecret: values.APP_SECRET,
@@ -37,4 +40,8 @@ export default {
   stripe: {
     secret: values.STRIPE_API_KEY,
   },
+  cookies: {
+    secret: values.COOKIE_SECRET,
+    key: values.COOKIE_KEY
+  }
 };

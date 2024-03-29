@@ -19,6 +19,8 @@ const environmentSchema = yup.object().shape({
   AWS_S3_BUCKET_NAME: yup.string().required(),
   AWS_S3_REGION: yup.string().required(),
   STRIPE_API_KEY: yup.string().required(),
+  COOKIE_KEY: yup.string().required(),
+  COOKIE_SECRET: yup.string().required(),
 });
 
 export default environmentSchema;

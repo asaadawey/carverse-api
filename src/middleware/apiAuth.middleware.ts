@@ -1,6 +1,7 @@
 import envVars from 'src/config/environment';
 import { HttpException } from 'src/errors';
 import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+import { createFailResponse } from 'src/responses';
 
 const apiAuthMiddleware = (gapiValue: string): boolean => {
   if (!gapiValue)
@@ -19,5 +20,14 @@ const apiAuthMiddleware = (gapiValue: string): boolean => {
   }
   return true;
 };
+
+export const apiAuthRoute = (req, res, next) => {
+  try {
+    apiAuthMiddleware(req.headers[envVars.auth.apiKey.toLowerCase()] as string);
+    next();
+  } catch (error: any) {
+    createFailResponse(req, res, error, next, HTTPResponses.Unauthorised);
+  }
+}
 
 export default apiAuthMiddleware;

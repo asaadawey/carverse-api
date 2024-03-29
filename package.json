@@ -15,9 +15,9 @@
     "seed:local": "dotenv -e .env_local -- ts-node ./src/helpers/databaseHelpers/seed.ts --exit",
     "test": "dotenv -e .env_test -- jest",
     "test:all": "yarn test:integration && yarn test",
-    "deploy:docker": "dotenv -e .env_test -- npx prisma db push",
-    "jest:integration": "dotenv -e .env_test -- yarn seed && dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --silent --runInBand",
-    "test:integration": "yarn docker:up && yarn deploy:docker && yarn jest:integration && yarn docker:down"
+    "push:seed" : "dotenv -e .env_test -- prisma db push --force-reset --accept-data-loss && dotenv -e .env_test -- yarn seed",
+    "jest:integration": "yarn push:seed && dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --silent --runInBand",
+    "test:integration": "yarn docker:up && yarn push:seed && yarn jest:integration && yarn docker:down"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.386.0",
@@ -29,7 +29,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
-    "csurf": "^1.11.0",
+    "csrf-csrf": "^3.0.3",
     "date-fns": "^2.28.0",
     "dotenv": "^16.0.3",
     "eslint": "^8.29.0",
@@ -54,7 +54,6 @@
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",
     "@types/crypto-js": "^4.1.1",
-    "@types/csurf": "^1.11.5",
     "@types/express": "^4.17.13",
     "@types/jest": "^29.2.4",
     "@types/mime-db": "^1.43.1",
