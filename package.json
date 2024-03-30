@@ -17,7 +17,7 @@
     "test:all": "yarn test:integration && yarn test",
     "push:seed" : "dotenv -e .env_test -- npx prisma db push --force-reset --accept-data-loss && dotenv -e .env_test -- yarn seed",
     "jest:integration": "yarn push:seed && dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --silent --runInBand",
-    "test:integration": "yarn docker:up && yarn push:seed && yarn jest:integration && yarn docker:down"
+    "test:integration": "yarn docker:up && yarn jest:integration && yarn docker:down"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.386.0",
