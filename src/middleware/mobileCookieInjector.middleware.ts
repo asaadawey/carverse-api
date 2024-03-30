@@ -11,7 +11,7 @@ const mobileCookieInjector: RequestHandler = (req, res, next) => {
         const headerCookie = req.header("cookies");
         try {
             if (headerCookie)
-                req.cookies = JSON.parse(headerCookie)
+                req.cookies = { ...req.cookies, ...JSON.parse(headerCookie) }
         } catch { }
     }
     next();

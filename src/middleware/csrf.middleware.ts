@@ -10,19 +10,21 @@ export const {
 } = doubleCsrf({
     getSecret: () => envVars.cookies.secret,
     cookieName: envVars.cookies.key,
-    cookieOptions: { sameSite: !isDev, secure: !isDev, signed: !isDev },
+    cookieOptions: { sameSite: !isDev, secure: !isDev, signed: false },
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
 });
 
 export const getCsrfRoute = (req, res) => {
     let fullToken = "";
     // The following will override the res.cookie function so it can be used inside mobile
+    // const currentResCookie = res.cookie;
     // @ts-ignore
     res.cookie = (name, val) => {
         if (name === envVars.cookies.key) {
             // Will be in
             fullToken = val;
         }
+        // currentResCookie(name, val)
     }
     const token = req.csrfToken();
     const allowedClient = getAllowedClient(req);
