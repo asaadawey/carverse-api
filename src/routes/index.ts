@@ -41,7 +41,7 @@ router.use(async (req: Request, res, next) => {
 
     next();
   } catch (error: any) {
-    createFailResponse(req, res, error, next, error.message, error.additionalPramater, HTTPResponses.Unauthorised);
+    createFailResponse(req, res, error, next, HTTPResponses.Unauthorised, error.message, error.additionalPramater, HTTPResponses.Unauthorised);
   }
 });
 
