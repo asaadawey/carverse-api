@@ -17,6 +17,7 @@ router.get(RouterLinks.getAllAttachmentTypes, validate(getAllAttachmentTypesSche
 router.get(RouterLinks.getListOfAttachments, validate(getListOfAttachmentsSchema), getListOfAttachments);
 router.post(
   RouterLinks.uploadAttachments,
+  // apiAuthMiddleware,/  // No auth because  it can be  used during registration
   memoryStorage.single('image'),
   validate(uploadAttachmentsSchema),
   uploadAttachments,

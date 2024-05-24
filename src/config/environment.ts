@@ -22,7 +22,7 @@ export default {
     apiKey: values.API_KEY,
     apiSalt: values.API_SALT,
     apiValue: values.API_VALUE,
-    skipAuth: values.SKIP_AUTH,
+    skipAuth: values.SKIP_AUTH === 'true',
     authKey: values.AUTH_KEY,
   },
   allowedClient: {

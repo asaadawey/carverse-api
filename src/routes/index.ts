@@ -1,4 +1,4 @@
-import express, { Request } from 'express';
+import express from 'express';
 
 import providerRouter from 'src/routes/provider.route';
 import carRouter from 'src/routes/cars.routes';
@@ -10,10 +10,7 @@ import packageRouter from 'src/routes/package.route';
 import attachments from 'src/routes/attachments.routes';
 import paymentMethods from 'src/routes/paymentMethods.routes';
 import constants from 'src/routes/constants.routes';
-import authMiddleware from 'src/middleware/auth.middleware';
-import { createFailResponse } from 'src/responses';
-import { HTTPResponses } from 'src/interfaces/enums';
-import envVars, { isDev, isTest } from 'src/config/environment';
+import { authRoute } from 'src/middleware/auth.middleware';
 
 const router = express.Router();
 
@@ -21,29 +18,7 @@ const router = express.Router();
 router.use(userRouter);
 router.use(attachments);
 
-router.use(async (req: Request, res, next) => {
-  try {
-    if (res.headersSent) {
-      next();
-      return;
-    }
-    // For testing
-    if ((isDev || isTest) && envVars.auth.skipAuth === 'true') {
-      req.userId = Number(req.headers['userid']);
-    } else {
-      req.userId = await authMiddleware(
-        req.headers[envVars.auth.authKey] as string,
-        req.headers[envVars.allowedClient.key] as string,
-      );
-
-      // req.providerId = Number(req.headers['providerId']) || -1;
-    }
-
-    next();
-  } catch (error: any) {
-    createFailResponse(req, res, error, next, HTTPResponses.Unauthorised, error.message, error.additionalPramater, HTTPResponses.Unauthorised);
-  }
-});
+router.use(authRoute);
 
 router.use(moduleRouter);
 router.use(serviceRouter);

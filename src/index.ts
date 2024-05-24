@@ -31,6 +31,9 @@ app.use(cookieParser(envVars.appSecret))
 
 app.use(preLogmiddleware);
 
+// API Auth middleware
+app.use(apiAuthRoute);
+
 app.get('/health', ({ }, res) => {
   console.log("Health")
   return res.json({ status: 200, message: "OK", hostname: os.hostname(), version: process.env['HEROKU_RELEASE_VERSION'] })
@@ -43,10 +46,6 @@ if (!isTest)
   app.use(doubleCsrfProtection);
 
 app.get('/cvapi-csrf', getCsrfRoute);
-
-
-// API Auth middleware
-app.use(apiAuthRoute);
 
 // Inject websocket
 app.use(({ }, res, next) => {

@@ -14,6 +14,6 @@ export interface Token {
 
 export const tokens = {
   secret: envVars.appSecret,
-  expiry: ['development', 'test'].includes(envVars.mode) && envVars.auth.skipAuth === 'true' ? '1y' : '1d',
+  expiry: ['development', 'test'].includes(envVars.mode) && envVars.auth.skipAuth ? '1y' : '1d',
   name: envVars.appName,
 };

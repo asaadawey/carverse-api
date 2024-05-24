@@ -1,10 +1,12 @@
 //@ts-nocheck
 import { verify } from 'jsonwebtoken';
 import { HttpException } from 'src/errors';
-import envVars from 'src/config/environment';
+import envVars, { isDev, isTest } from 'src/config/environment';
 import { Token, tokens } from 'src/interfaces/token.types';
 import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
 import { decrypt } from 'src/utils/encrypt';
+import { RequestHandler } from 'express';
+import { createFailResponse } from 'src/responses';
 
 let declinedTokens = [];
 
@@ -62,5 +64,29 @@ const authMiddleware = async (auth: string, allowedClient: string): number /**Us
   //Inject user id
   return Number(token.id);
 };
+
+export const authRoute: RequestHandler = async (req, res, next) => {
+  try {
+    if (res.headersSent) {
+      next();
+      return;
+    }
+    // For testing
+    if ((isDev || isTest) && envVars.auth.skipAuth) {
+      req.userId = Number(req.headers['userid']);
+    } else {
+      req.userId = await authMiddleware(
+        req.headers[envVars.auth.authKey] as string,
+        req.headers[envVars.allowedClient.key] as string,
+      );
+
+      // req.providerId = Number(req.headers['providerId']) || -1;
+    }
+
+    next();
+  } catch (error: any) {
+    createFailResponse(req, res, error, next, HTTPResponses.Unauthorised, error.message, error.additionalPramater, HTTPResponses.Unauthorised);
+  }
+}
 
 export default authMiddleware;
