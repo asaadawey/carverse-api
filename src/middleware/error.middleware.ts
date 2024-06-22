@@ -25,11 +25,15 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
       message = 'Bad request';
       status = 400;
       additionalData = error.errors[0] || error.message || (error as any) || additionalData;
+    } else if (error instanceof SyntaxError || error instanceof TypeError) {
+      message = envVars.logVerbose === "all" ? message : HTTPErrorString.SomethingWentWrong;
+      additionalData = { ...additionalData, error }
     }
     console.log(`ERROR-BUILDER [${req.method}] ${req.path} ${status}, ${message}`);
     console.log({
       body: JSON.stringify(req.body),
       headers: req.headers,
+      req_id: req.headers["req_id"],
       additionalData,
     });
     res
@@ -37,7 +41,8 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
       .json({
         message,
         status,
-        ...(envVars.logVerbose === 'all' && additionalData ? { data: additionalData } : {}),
+        req_id: req.headers["req_id"],
+        ...(envVars.logVerbose === 'all' && additionalData ? { additionalData } : {}),
       })
       .end();
   } catch (error) {

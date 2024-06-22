@@ -28,7 +28,7 @@ type LoginRequestBody = {
   encryptedClient: string;
 };
 
-type LoginResponse = {
+export type LoginResponse = {
   token: string;
   userInfo: {
     FirstName: string;

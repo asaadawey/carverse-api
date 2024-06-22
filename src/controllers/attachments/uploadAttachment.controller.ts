@@ -42,9 +42,8 @@ const uploadAttachments: RequestHandler<
   try {
     const { attachmentTypeId, userId } = req.params;
 
-    const constructFileName = `${attachmentTypeId}__${userId}__${random.generate(7)}.${
-      mime[req.file?.mimetype || '']?.extensions?.[0]
-    }`;
+    const constructFileName = `${attachmentTypeId}__${userId}__${random.generate(7)}.${mime[req.file?.mimetype || '']?.extensions?.[0]
+      }`;
     const uploadedFile = await prisma.uploadedFiles.create({
       data: {
         FileName: constructFileName,

@@ -15,8 +15,10 @@ export const createAndGetIntent = async (totalAmount: number): Promise<CreateAnd
     amount: totalAmount * 100,
     payment_method_types: ['card'],
     currency: 'AED',
+
     description: 'Carverse services',
     capture_method: 'manual',
+
   });
 
   return {

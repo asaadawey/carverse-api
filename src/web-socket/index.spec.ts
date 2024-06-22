@@ -7,15 +7,16 @@ import ioBack, {
   ProviderSocket,
   ProviderStatus,
   ServerToClientEvents,
+  resetVars
 } from './index';
 import { io as ioClient, Socket } from 'socket.io-client';
 import http from 'http';
-// import { Server } from 'socket.io';
 import envVars from 'src/config/environment';
+
 describe('web-socket/index.ts [Socket logic]', () => {
   jest.mock('src/utils/sendNotification.ts');
   jest.mock('src/utils/payment.ts');
-  jest.setTimeout(90000);
+  jest.setTimeout(10000);
 
   let socketClientCustomer: Socket<ServerToClientEvents, ClientToServerEvents>;
   let socketClientProvider: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -40,6 +41,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
       orderId: orderId,
       providerId: randomClient.providerId,
       userId: randomClient.userId,
+      customrUserId: 1
     });
   };
   // #endregion
@@ -58,6 +60,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
    * Run before each test
    */
   beforeEach((done) => {
+
     let isCustomerDone = false,
       isProviderDone = false;
     // Setup
@@ -103,16 +106,19 @@ describe('web-socket/index.ts [Socket logic]', () => {
   });
 
   afterEach((done) => {
+
     if (socketClientCustomer.connected) {
       socketClientCustomer.disconnect();
     }
     if (socketClientProvider.connected) {
       socketClientProvider.disconnect();
     }
+    resetVars();
     done();
   });
 
   it('Should fail because authentication failed', (done) => {
+    console.log("Start 1");
     // will build new socket without passing auth
     const unauthSocket = ioClient(`http://[${httpServerAddr?.address}]:${httpServerAddr?.port || ''}`, {});
 
@@ -125,6 +131,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
   });
 
   it('[Provider-online] Should pass and make provider online', (done) => {
+    console.log("Start 2");
     socketClientCustomer.emit('provider-online-start', randomClient);
 
     // Broadcast online user
@@ -140,6 +147,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
   });
 
   it('[Provider-online] Should fail because no id or provider id', (done) => {
+    console.log("Start 3");
     randomClient.providerId = 0;
     socketClientCustomer.emit('provider-online-start', randomClient);
 
@@ -156,6 +164,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
   });
 
   it('[Provider-online] get all online providers', (done) => {
+    console.log("Start 4");
     // Broadcast online user
     socketClientCustomer.on('online-users', (online) => {
       expect(online.length).toEqual(0);
@@ -165,6 +174,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
   });
 
   it('[Provider-offline] remove provider from online users', (done) => {
+    console.log("Start 5");
     socketClientProvider.emit('provider-online-start', randomClient);
 
     delay(500).then(() => {
@@ -178,6 +188,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
   });
 
   it('[New-order] should pass and create order', (done) => {
+    console.log("Start 6");
     const orderId = 123;
 
     socketClientProvider.on('notify-order-add', (data) => {

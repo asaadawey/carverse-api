@@ -28,11 +28,13 @@ export type ProviderSocket = {
   notifcationToken: string;
 };
 
-export type OrderDetails = { orderId: number };
+export type OrderDetails = { orderId: number, };
 
 export type ActiveOrders = OrderDetails & {
   providerUuid: string;
   customerUuid: string;
+  customerUserId: number;
+  providerUserId: number;
   customerNotificationToken: string;
 };
 
@@ -49,6 +51,13 @@ export type OrderAccept = OrderDetails &
   };
 
 export type OrderReject = OrderDetails & Result;
+
+type ActiveSession = {
+  type: "provider" | "customer",
+  order: ActiveOrders & { moduleId: number }
+}
+
+type UserInfo = { UserTypeName: string; id: number }
 
 export interface ServerToClientEvents {
   'provider-online-finish': (data: Result) => void;
@@ -71,6 +80,7 @@ export interface ServerToClientEvents {
   'customer-to-provider-finished-order': (data: OrderDetails & Result) => void;
   'provider-to-customer-finished-confirmation': (data: OrderDetails) => void;
   disconnect: any;
+  'notify-active-session': (args: ActiveSession) => void;
 }
 
 export interface ClientToServerEvents {
@@ -86,6 +96,7 @@ export interface ClientToServerEvents {
   'new-order': (data: {
     orderId: number;
     customerUuid: string;
+    customrUserId: number;
     providerId: number;
     userId: number;
     customerNotificationToken: string;
@@ -96,24 +107,28 @@ export interface ClientToServerEvents {
   'customer-reject-inprogress-order': (data: { orderId: number; providerId: number }) => void;
   'provider-finished-order': (data: OrderDetails) => void;
   'customer-confirms-finished-order': (data: OrderDetails & Result) => void;
-  'force-provider-disconnect': (providerId: number) => void;
+  'force-check-active-session': (user: UserInfo) => void;
   disconnect: any;
+  connect: any;
 }
 //#endregion
 
 const ORDER_TIMEOUT_SECONDS = Number(envVars.order.timeout);
 // const ORDER_TIMEOUT_SECONDS = Number(300);
+type SocketData = {
+  userInfo: UserInfo
+}
 
 type CustomSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
-const io = new Server<ClientToServerEvents, ServerToClientEvents>({
+const io = new Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData>({
   cors: { origin: '*' },
 });
 
 const prisma = prismaClient;
 
-let onlineProviders: ProviderSocket[] = [];
-let activeOrders: ActiveOrders[] = [];
+export let onlineProviders: ProviderSocket[] = [];
+export let activeOrders: ActiveOrders[] = [];
 
 //#region Functions
 export const addOrderHistory = async (orderId: number, reason: OrderHistory) => {
@@ -141,40 +156,42 @@ export const broadcastOnlineProvider = (socket: CustomSocket, moduleId?: number)
 };
 
 export const addUpdateOnlineProvider = (
-  { userId, providerId, longitude, latitude, uuid, notifcationToken, status, moduleId }: ProviderSocket,
+  providerArg: ProviderSocket,
   socket: CustomSocket,
-  isUpdate?: true,
+  broadcast?: true,
+  preferredSearchKey: keyof ProviderSocket = "userId"
 ) => {
+  const { userId, providerId, longitude, latitude, uuid, notifcationToken, status, moduleId } = providerArg;
   console.log('[SOCKET - Add/Update providers] Updating online providers, Provider User ID : ' + userId);
   console.log('[SOCKET - Add/Update providers] Received new statuss ' + status);
-  const provider = onlineProviders.find((provider) => provider.userId === userId);
-  if ((provider && isUpdate) || !isUpdate) {
-    const filteredOnlineProviders = onlineProviders.filter((provider) => provider.userId !== userId);
-    onlineProviders = _.uniqBy(
-      [
-        ...filteredOnlineProviders,
-        {
-          userId,
-          providerId,
-          longitude,
-          latitude,
-          uuid,
-          notifcationToken,
-          status,
-          moduleId,
-        },
-      ],
-      (a) => a.userId,
-    );
-    console.log('[SOCKET - Add/Update providers] New online providers : ', onlineProviders);
+  const provider = getProvider(providerArg[preferredSearchKey], preferredSearchKey)
 
+  const filteredOnlineProviders = onlineProviders.filter((provider) => provider.userId !== userId);
+  onlineProviders = _.uniqBy(
+    [
+      ...filteredOnlineProviders,
+      {
+        ...provider,
+        userId,
+        providerId,
+        longitude,
+        latitude,
+        uuid,
+        notifcationToken,
+        status,
+        moduleId
+      },
+    ],
+    (a) => a.userId,
+  );
+  console.log('[SOCKET - Add/Update providers] New online providers : ', onlineProviders);
+
+  if (broadcast) {
     broadcastOnlineProvider(socket);
-
-    if (!isUpdate) {
-      socket.emit('provider-online-finish', { result: true });
-      socket.join('providers');
-    }
+    socket.emit('provider-online-finish', { result: true });
+    socket.join('providers');
   }
+
 };
 
 export const removeOnlineProvider = (id: number, socket: CustomSocket) => {
@@ -191,7 +208,7 @@ export const getOrder = (id: any, searchKey: keyof ActiveOrders = 'orderId') => 
 };
 
 export const addPendingOrder = (
-  { customerUuid, orderId, providerUuid, customerNotificationToken: customerNotificationUuid }: ActiveOrders,
+  { customerUuid, orderId, providerUuid, customerUserId, providerUserId, customerNotificationToken: customerNotificationUuid }: ActiveOrders,
   socket: CustomSocket,
 ) => {
   console.log('[SOCKET - Add new order] Adding new order. OrderID : ' + orderId + ' ProviderUuid : ' + providerUuid);
@@ -202,6 +219,7 @@ export const addPendingOrder = (
         providerUuid,
         customerUuid,
         orderId,
+        customerUserId, providerUserId,
         customerNotificationToken: customerNotificationUuid,
       },
     ],
@@ -211,6 +229,8 @@ export const addPendingOrder = (
     providerUuid,
     customerUuid,
     orderId,
+    customerUserId,
+    providerUserId,
     customerNotificationToken: customerNotificationUuid,
   });
 };
@@ -257,12 +277,16 @@ export const removePendingOrder = async (
             customerUuid: order.customerUuid,
             orderId,
             providerUuid: order.providerUuid,
+            customerUserId: order.customerUserId,
+            providerUserId: order.providerUserId,
             customerNotificationToken: order.customerNotificationToken,
           });
         } else {
           socket.to(order.providerUuid).emit('notify-order-remove', {
             customerUuid: order.customerUuid,
             orderId,
+            customerUserId: order.customerUserId,
+            providerUserId: order.providerUserId,
             providerUuid: order.providerUuid,
             customerNotificationToken: order.customerNotificationToken,
           });
@@ -277,17 +301,46 @@ export const getProvider = (id: any, searchKey: keyof ProviderSocket = 'userId')
   return provider;
 };
 
-export const setProviderOffline = (providerId: number, socket: CustomSocket) => {
-  const providerOrders = activeOrders.filter((order) => order.providerUuid === socket.id);
-  providerOrders.forEach((order) => {
-    socket.to(order.customerUuid).emit('order-rejected', {
-      result: false,
-      orderId: order.orderId,
-      message: "Provider wen't offline",
-    });
-  });
+export const setProviderOffline = async (providerId: number, socket: CustomSocket) => {
+  // const providerOrders = activeOrders.filter((order) => order.providerUserId === socket.id);
+  // providerOrders.forEach((order) => {
+  //   socket.to(order.customerUuid).emit('order-rejected', {
+  //     result: false,
+  //     orderId: order.orderId,
+
+  //     message: "Provider wen't offline",
+  //   });
+  // });
+
+  // const provider = getProvider(providerId, 'providerId');
+
+  // const sockets = await io.in([provider.uuid]).fetchSockets();
+
+  // for (const socket of sockets) {
+  //   socket.disconnect(true);
+  // }
+
   removeOnlineProvider(providerId, socket);
 };
+
+export const checkActiveSession = (socket: CustomSocket, user: UserInfo | undefined) => {
+  // Someone connected to socket and we need to identify if the connected user hace current session
+  // If connected is customer => check the current in progress order
+  // If connected is provider => check the current in progress order and pass it to order
+  let toSearchKey: keyof ActiveOrders;
+  if (user?.UserTypeName === "Customer") {
+    toSearchKey = "customerUserId";
+  } else toSearchKey = "customerUserId"; if (user?.UserTypeName === "Provider") {
+    toSearchKey = "providerUserId";
+  }
+  const order = getOrder(user?.id, toSearchKey)
+
+  if (order) {
+    console.log("[SOCKET] Restoring active session ", { order, user })
+    const provider = getProvider(order.providerUuid, "uuid")
+    socket.emit("notify-active-session", { type: user?.UserTypeName?.toLowerCase?.() as any, order: { ...order, moduleId: provider.moduleId } })
+  }
+}
 //#endregion
 
 // #region IO Auth
@@ -295,6 +348,9 @@ io.use((socket, next) => {
   try {
     const apiValue = socket.handshake.auth[envVars.auth.apiKey];
     apiAuthMiddleware(apiValue);
+    // inject user id coming from socket
+    socket.data.userInfo = socket.handshake.auth['userInfo'];
+    console.log("Connected")
     next();
   } catch (error: any) {
     next(error);
@@ -302,7 +358,23 @@ io.use((socket, next) => {
 });
 // #endregion
 
+io.on('connect', (socket) => {
+  const user = socket.data.userInfo;
+  console.log("user", user)
+
+  checkActiveSession(socket, user);
+})
+
 io.on('connection', (socket) => {
+
+  // socket.on('connect', () => {
+  //   //@ts-ignore
+  //   console.log("user", socket.userId)
+  // })
+  socket.on("force-check-active-session", (user) => {
+    checkActiveSession(socket, user)
+  })
+
   socket.on('provider-online-start', (args) => {
     if ((!socket.id && !args.uuid) || !args.userId || !args.providerId) {
       socket.emit('provider-online-finish', { result: false });
@@ -312,33 +384,25 @@ io.on('connection', (socket) => {
     // Check if provider is already online0
     const online = getProvider(args.providerId, 'providerId');
     if (online) {
-      socket.emit('provider-offline-finish', { result: false, message: 'You are already logged in on other device' });
-      return;
+      // Check if provider has active order
+      const order = getOrder(online.uuid, "providerUuid");
+      if (order) {
+        // if provider has active order. Then switch to the new client.
+        addUpdateOnlineProvider({ ...online, uuid: socket.id }, socket, true);
+        checkActiveSession(socket, { id: online.userId, UserTypeName: "Provider" })
+        return;
+      }
     }
 
     addUpdateOnlineProvider(
       {
-        userId: args.userId,
-        providerId: args.providerId,
-        latitude: args.latitude,
-        longitude: args.longitude,
-        notifcationToken: args.notifcationToken,
+        ...args,
         uuid: socket.id,
         status: ProviderStatus.Online,
-        moduleId: args.moduleId,
       },
       socket,
+      true
     );
-  });
-
-  socket.on('force-provider-disconnect', async (providerId) => {
-    const provider = getProvider(providerId, 'providerId');
-
-    const sockets = await io.in([provider.uuid]).fetchSockets();
-
-    for (const socket of sockets) {
-      socket.disconnect(true);
-    }
   });
 
   socket.on('provider-offline-start', (args) => {
@@ -350,7 +414,7 @@ io.on('connection', (socket) => {
 
     provider = { ...provider, ...args };
 
-    addUpdateOnlineProvider({ ...provider }, socket, true);
+    addUpdateOnlineProvider({ ...provider }, socket);
 
     const order = getOrder(provider.uuid, 'providerUuid');
     console.log('Provider location change', order);
@@ -379,6 +443,8 @@ io.on('connection', (socket) => {
       {
         customerUuid: args.customerUuid,
         orderId: args.orderId,
+        customerUserId: args.customrUserId,
+        providerUserId: selectedProvider.userId,
         providerUuid: selectedProvider?.uuid,
         customerNotificationToken: args.customerNotificationToken,
       },
@@ -425,7 +491,7 @@ io.on('connection', (socket) => {
 
       const provider = getProvider(order.providerUuid, 'uuid');
 
-      addUpdateOnlineProvider({ ...provider, status: ProviderStatus.HaveOrder }, socket, true);
+      addUpdateOnlineProvider({ ...provider, status: ProviderStatus.HaveOrder }, socket);
 
       socket.to(args.customerUuid).emit('order-accepted', {
         result: true,
@@ -483,6 +549,9 @@ io.on('connection', (socket) => {
         orderId: order.orderId,
         providerUuid: order.providerUuid,
         customerNotificationToken: order.customerNotificationToken,
+        customerUserId: order.customerUserId,
+        providerUserId: order.providerUserId
+
       });
 
       sendNotification({
@@ -504,6 +573,8 @@ io.on('connection', (socket) => {
         orderId: order?.orderId,
         providerUuid: provider?.uuid,
         customerNotificationToken: order?.customerNotificationToken,
+        customerUserId: order?.customerUserId,
+        providerUserId: provider?.userId
       });
     }
   });
@@ -577,55 +648,72 @@ io.on('connection', (socket) => {
             expoToken: order?.customerNotificationToken,
           });
           await capturePayment(order.orderId);
-          addUpdateOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket);
+
+          addUpdateOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket, true);
+
           socket.to(order.providerUuid).emit('customer-to-provider-finished-order', args);
+
           socket.emit('provider-to-customer-finished-confirmation', { orderId: args.orderId });
+        } else {
+          socket.to(order.providerUuid).emit('customer-to-provider-finished-order', args);
         }
       }
     }
   });
 
-  socket.on('disconnect', async () => {
-    const provider = getProvider(socket.id, 'uuid');
-    if (provider) {
-      // Check if provider have any active order
-      const order = getOrder(provider.uuid, 'providerUuid');
-      if (order) {
-        await removePendingOrder(order.orderId, socket, OrderHistory.Cancelled, { isOrderActive: true });
+  socket.on('disconnect', async (args) => {
+    // const provider = getProvider(socket.id, 'uuid');
+    // if (provider) {
+    //   // Check if provider have any active order
+    //   const order = getOrder(provider.uuid, 'providerUuid');
+    //   if (order) {
+    //     // await removePendingOrder(order.orderId, socket, OrderHistory.Cancelled, { isOrderActive: true });
 
-        cancelOnHoldPayment(order.orderId);
+    //     // cancelOnHoldPayment(order.orderId);
 
-        sendNotification({
-          data: {},
-          description:
-            'Unfortuantly, Provider have unexpectedly disconnected. You can choose another provider by pressing her',
-          title: 'Provider disconnected',
-          expoToken: order.customerNotificationToken,
-        });
+    //     // sendNotification({
+    //     //   data: {},
+    //     //   description:
+    //     //     'Unfortuantly, Provider have unexpectedly disconnected. You can choose another provider by pressing her',
+    //     //   title: 'Provider disconnected',
+    //     //   expoToken: order.customerNotificationToken,
+    //     // });
 
-        socket.to(order.customerUuid).emit('provider-offline-finish', { result: true });
-      }
-      setProviderOffline(provider.userId, socket);
-    }
+    //     // socket.to(order.customerUuid).emit('provider-offline-finish', { result: true });
+    //   }
+    //   // //@ts-ignore
+    //   // if (args?.forceRemoveProvider)
+    //   //   setProviderOffline(provider.userId, socket);
+    // }
     // For any reasons if customer logged out
-    const order = getOrder(socket.id, 'customerUuid');
-    if (order) {
-      await removePendingOrder(order.orderId, socket, OrderHistory.Cancelled, { isOrderActive: true });
+    // const order = getOrder(socket.id, 'customerUuid');
+    // if (order) {
+    // await removePendingOrder(order.orderId, socket, OrderHistory.Cancelled, { isOrderActive: true });
 
-      cancelOnHoldPayment(order.orderId);
+    // cancelOnHoldPayment(order.orderId);
 
-      const provider = getProvider(order.providerUuid, 'uuid');
+    // const provider = getProvider(order.providerUuid, 'uuid');
 
-      sendNotification({
-        data: {},
-        description: 'Unfortuanlty, Customer have unexpectedly disconnected.',
-        title: 'Customer disconnected',
-        expoToken: provider?.notifcationToken,
-      });
+    // sendNotification({
+    //   data: {},
+    //   description: 'Unfortuanlty, Customer have unexpectedly disconnected.',
+    //   title: 'Customer disconnected',
+    //   expoToken: provider?.notifcationToken,
+    // });
 
-      socket.to(order.providerUuid).emit('notify-active-order-remove', order);
-    }
+    // socket.to(order.providerUuid).emit('notify-active-order-remove', order);
+    // }
   });
 });
 
 export default io;
+
+// #region Functions for unit testing ONLY
+export const resetVars = () => {
+  onlineProviders = [];
+  activeOrders = []
+}
+export const getOnlineProvider = () => {
+  return onlineProviders
+};
+// #endregion
