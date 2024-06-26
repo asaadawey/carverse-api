@@ -48,6 +48,7 @@ describe('web-socket/index.ts [Socket functions]', () => {
         uuid: '123',
       },
       mockSocket,
+      true
     );
     expect(mockSocket.join).toHaveBeenCalled();
 
@@ -70,6 +71,7 @@ describe('web-socket/index.ts [Socket functions]', () => {
         uuid: '123',
       },
       mockSocket,
+      true
     );
     expect(mockSocket.join).toHaveBeenCalled();
 
