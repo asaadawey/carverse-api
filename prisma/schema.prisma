@@ -25,7 +25,8 @@ model users {
   provider      provider?
   uploadedFiles uploadedFiles[]
   userTypes     userTypes       @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
-  test          Int
+  test          Int?
+  test2         Int?
 }
 
 model customer {
