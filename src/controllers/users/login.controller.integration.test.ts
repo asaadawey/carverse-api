@@ -35,33 +35,6 @@ describe('Integration users/login', () => {
     expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
   });
 
-  it('Should fail becasue account in active', async () => {
-    const randomTypename = randomstring.generate(7);
-    await prisma.users.create({
-      data: {
-        Email: 'testEmail',
-        FirstName: 'testFirst',
-        LastName: 'testLast',
-        Nationality: 'testNation',
-        Password: 'testPaswword',
-        PhoneNumber: 'testPhone',
-        isActive: false,
-        userTypes: { create: { TypeName: randomTypename, AllowedClients: ['cp'] } },
-      },
-    });
-    const result = await supertest(app)
-      .post(RouterLinks.login)
-      .set(commonHeaders(1, true))
-      .send({
-        email: 'testEmail',
-        password: 'testPaswword',
-        keepLoggedIn: false,
-        encryptedClient: encrypt('cp'),
-      })
-      .expect(HTTPResponses.BusinessError);
-    expect(result.body.message).toEqual(HTTPErrorMessages.AccountInactive);
-  });
-
   it('Should success', async () => {
     const randomTypename = randomstring.generate(7);
     const randomEmail = randomstring.generate(7);

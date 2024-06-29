@@ -8,6 +8,8 @@ import { GetObjectCommand, GetObjectCommandInput, S3Client } from '@aws-sdk/clie
 
 //#region GetImage
 type GetImageLinkQuery = {
+    jsonEquals?: string;
+    attachmentIdIn?: string
 };
 
 type GetImageRequestBody = {};
@@ -25,6 +27,9 @@ export const getImageSchema: yup.SchemaOf<{
     query: yup.object().shape({
         jsonEquals: yup.string().optional(),
         attachmentIdIn: yup.string().optional(),
+    }).test({
+        message: 'There must be at least one supported query',
+        test: (obj: any) => obj.jsonEquals || obj.attachmentIdIn,
     }),
 });
 

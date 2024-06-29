@@ -51,6 +51,7 @@ const registerUser: RequestHandler<
       data: {
         ...rest,
         userTypes: { connect: { TypeName: UserTypeName } },
+        // Only active in case of customer
         isActive: UserTypeName.toLowerCase() === 'customer',
       },
       select: { id: true },

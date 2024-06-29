@@ -158,7 +158,7 @@ export const broadcastOnlineProvider = (socket: CustomSocket, moduleId?: number)
 export const addUpdateOnlineProvider = (
   providerArg: ProviderSocket,
   socket: CustomSocket,
-  broadcast?: true,
+  broadcast?: boolean,
   preferredSearchKey: keyof ProviderSocket = "userId"
 ) => {
   const { userId, providerId, longitude, latitude, uuid, notifcationToken, status, moduleId } = providerArg;
@@ -335,10 +335,23 @@ export const checkActiveSession = (socket: CustomSocket, user: UserInfo | undefi
   }
   const order = getOrder(user?.id, toSearchKey)
 
+  // Update the current providers and orders
+  if (user?.UserTypeName === "Customer" && order) {
+    let newOrders = activeOrders.filter(aOrder => aOrder.orderId !== order.orderId);
+    activeOrders = [...newOrders, { ...order, customerUuid: socket.id }]
+  }
+
   if (order) {
     console.log("[SOCKET] Restoring active session ", { order, user })
     const provider = getProvider(order.providerUuid, "uuid")
-    socket.emit("notify-active-session", { type: user?.UserTypeName?.toLowerCase?.() as any, order: { ...order, moduleId: provider.moduleId } })
+    // Update providerUuid
+    //Update providerUuid;
+
+
+    if (provider) {
+      addUpdateOnlineProvider({ ...provider, uuid: socket.id }, socket, true)
+      socket.emit("notify-active-session", { type: user?.UserTypeName?.toLowerCase?.() as any, order: { ...order, moduleId: provider.moduleId } })
+    }
   }
 }
 //#endregion
@@ -610,6 +623,7 @@ io.on('connection', (socket) => {
       const provider = getProvider(order.providerUuid, 'uuid');
 
       if (provider) {
+        console.log("Sending update to customer", { provider, order })
         sendNotification({
           data: {},
           description: 'Provider finsihed order',

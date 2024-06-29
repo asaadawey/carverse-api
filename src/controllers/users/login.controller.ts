@@ -7,6 +7,7 @@ import { HTTPErrorMessages, HTTPResponses } from 'src/interfaces/enums';
 import crypto from 'crypto';
 import { generateToken } from 'src/utils/token';
 import { decrypt } from 'src/utils/encrypt';
+import { Prisma } from '@prisma/client';
 // import createFailResponse from 'src/responses';
 
 //#region Login
@@ -29,6 +30,8 @@ type LoginRequestBody = {
 };
 
 export type LoginResponse = {
+  isUserActive: boolean;
+  isDocumentsFullfilled: boolean | undefined,
   token: string;
   userInfo: {
     FirstName: string;
@@ -104,21 +107,27 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         userClient: user.userTypes.AllowedClients,
       });
 
-    if (!user.isActive)
-      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.AccountInactive, { id: user.id });
-
     const token = generateToken({
       id: user.id,
       customerId: user.customer?.id,
       providerId: user.provider?.id,
-      exp: Boolean(req.body.keepLoggedIn) ? '10d' : '',
+      exp: Boolean(req.body.keepLoggedIn) ? '30d' : '',
       authorisedEncryptedClient: req.body.encryptedClient,
     });
+
+    // Check if provider has uploaded documents or not
+    let isDocumentsFullfilled: boolean | undefined = undefined;
+    if (user.userTypes.TypeName === "Provider" && !user.isActive) {
+      const attachments = await prisma.uploadedFiles.findFirst({ where: { AND: [{ UserID: { equals: user.id } }, { JsonData: { equals: Prisma.JsonNull } }] } })
+      isDocumentsFullfilled = Boolean(attachments);
+    }
 
     createSuccessResponse(
       req,
       res,
       {
+        isUserActive: user.isActive,
+        isDocumentsFullfilled: isDocumentsFullfilled,
         token,
         userInfo: {
           id: user.id,
