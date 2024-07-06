@@ -117,6 +117,16 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
     if (totalOrderAmount !== orderAmount)
       throw new HttpException(HTTPResponses.BusinessError, '', "Order total amount doesn't match");
 
+    // Check if order method is active
+    const orderMethod = await prisma.paymentMethods.findUnique({ where: { MethodName: paymentMethodName }, select: { isActive: true } });
+
+    if (!orderMethod)
+      throw new HttpException(HTTPResponses.BusinessError, "", "Order method is incorrect");
+
+    if (!orderMethod.isActive)
+      throw new HttpException(HTTPResponses.BusinessError, "", "Order method is not active : " + paymentMethodName);
+
+
     const createOrderResult = await prisma.orders.create({
       data: {
         orderAmountStatements: {

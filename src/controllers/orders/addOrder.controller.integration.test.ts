@@ -216,4 +216,36 @@ describe('Integration orders/addOrder', () => {
 
     expect(result.body.message).toBe(HTTPErrorString.BadRequest);
   });
+
+  it('Should be false because method name is not active', async () => {
+    await prisma.paymentMethods.update({ where: { MethodName: "Cash" }, data: { isActive: false } });
+    const result = await supertest(app)
+      .post(RouterLinks.addOrder)
+      .set(commonHeaders())
+      .send({
+        providerId,
+        customerId,
+        orderServices: [
+          {
+            carId: createdCarId,
+            providerServiceId: createdServiceId,
+          },
+        ],
+        orderAmount: 400,
+        longitude: 12,
+        latitude: 13,
+        addressString: 'Bateen',
+        paymentMethodName: 'Cash',
+        orderTotalAmountStatement: [
+          {
+            name: 'service fees',
+            encryptedValue: encrypt(String(400)),
+            relatedProviderServiceId: createdServiceId,
+          },
+        ] as Statements[],
+      })
+      .expect(HTTPResponses.BusinessError);
+
+    expect(result.body.message).toBe(HTTPErrorString.SomethingWentWrong);
+  });
 });
