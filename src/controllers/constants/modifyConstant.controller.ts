@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -39,14 +38,17 @@ const modifyConstant: RequestHandler<
     const { constantId } = req.params;
     const { newValue, isActive } = req.body;
 
-    await prisma.constants.update({
+    const modifiedConstant = await req.prisma.constants.update({
       where: { id: Number(constantId) },
       data: {
         isActive: typeof isActive !== 'undefined' ? isActive : undefined,
         Value: Number(newValue),
       },
+      select: {
+        id: true,
+      }
     });
-    createSuccessResponse(req, res, { result: true }, next);
+    createSuccessResponse(req, res, { result: true, createdItemId: modifiedConstant.id }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -118,7 +117,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
       throw new HttpException(HTTPResponses.BusinessError, '', "Order total amount doesn't match");
 
     // Check if order method is active
-    const orderMethod = await prisma.paymentMethods.findUnique({ where: { MethodName: paymentMethodName }, select: { isActive: true } });
+    const orderMethod = await req.prisma.paymentMethods.findUnique({ where: { MethodName: paymentMethodName }, select: { isActive: true } });
 
     if (!orderMethod)
       throw new HttpException(HTTPResponses.BusinessError, "", "Order method is incorrect");
@@ -127,7 +126,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
       throw new HttpException(HTTPResponses.BusinessError, "", "Order method is not active : " + paymentMethodName);
 
 
-    const createOrderResult = await prisma.orders.create({
+    const createOrderResult = await req.prisma.orders.create({
       data: {
         orderAmountStatements: {
           create: orderTotalAmountStatement.map((amount) => ({
@@ -189,7 +188,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
 
       clientSecret = intent.clientSecret;
 
-      await prisma.orders.update({
+      await req.prisma.orders.update({
         where: { id: createOrderResult.id },
         data: {
           PaymentIntentID: intent.paymentIntentId,
@@ -200,7 +199,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
     createSuccessResponse(req, res, { id: createOrderResult.id, clientSecret }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
-    if (createdOrderId) await prisma.orders.delete({ where: { id: createdOrderId } });
+    if (createdOrderId) await req.prisma.orders.delete({ where: { id: createdOrderId } });
   }
 };
 //#endregion

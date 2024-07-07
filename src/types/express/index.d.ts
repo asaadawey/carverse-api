@@ -1,8 +1,11 @@
 declare namespace Express {
+  type Token = import("../../interfaces/token.types").Token
+  type Prisma = import("@prisma/client").PrismaClient
   interface Request {
-    userId: number;
+    user: Token;
+    prisma: Prisma;
     providerId: number;
     updatedToken: string | undefined;
   }
-  interface Response {}
+  interface Response { }
 }

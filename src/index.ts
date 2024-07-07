@@ -17,7 +17,10 @@ import envVars, { isTest } from 'src/config/environment';
 
 import os from 'os';
 import { doubleCsrfProtection, getCsrfRoute } from './middleware/csrf.middleware';
+
 import mobileCookieInjector from './middleware/mobileCookieInjector.middleware';
+
+import prismaInjectorMiddleware from './middleware/prismaInjector.middleware';
 
 const app = express();
 
@@ -36,7 +39,8 @@ app.use(apiAuthRoute);
 
 app.get('/health', ({ }, res) => {
   console.log("Health")
-  return res.json({ status: 200, message: "OK", hostname: os.hostname(), version: process.env['HEROKU_RELEASE_VERSION'] })
+  const versionVariableName = "HEROKU_RELEASE_VERSION"
+  return res.json({ status: 200, message: "OK", hostname: os.hostname(), version: process.env[versionVariableName] })
 })
 
 // Csrf
@@ -56,6 +60,8 @@ app.use(({ }, res, next) => {
 
 
 app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))]);
+
+app.use(prismaInjectorMiddleware)
 
 app.use(routes);
 

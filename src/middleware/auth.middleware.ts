@@ -10,7 +10,7 @@ import { createFailResponse } from 'src/responses';
 
 let declinedTokens = [];
 
-const authMiddleware = async (auth: string, allowedClient: string): number /**User id */ => {
+const authMiddleware = async (auth: string, allowedClient: string): Token /**User id */ => {
   if (!auth)
     throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Token header not exists');
 
@@ -62,7 +62,7 @@ const authMiddleware = async (auth: string, allowedClient: string): number /**Us
     );
 
   //Inject user id
-  return Number(token.id);
+  return token
 };
 
 export const authRoute: RequestHandler = async (req, res, next) => {
@@ -73,9 +73,11 @@ export const authRoute: RequestHandler = async (req, res, next) => {
     }
     // For testing
     if ((isDev || isTest) && envVars.auth.skipAuth) {
-      req.userId = Number(req.headers['userid']);
+      //Explicit for userType
+      const additionalUserParams = JSON.parse(req.headers["extrauser"] || "{}");
+      req.user = { id: Number(req.headers['userid']), ...additionalUserParams }
     } else {
-      req.userId = await authMiddleware(
+      req.user = await authMiddleware(
         req.headers[envVars.auth.authKey] as string,
         req.headers[envVars.allowedClient.key] as string,
       );

@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
@@ -34,9 +33,9 @@ const getAllCars: RequestHandler<
   GetAllCarsQueryParams
 > = async (req, res, next) => {
   try {
-    const cars = await prisma.cars.findMany({
+    const cars = await req.prisma.cars.findMany({
       ...spreadPaginationParams(req.query),
-      where: { UserID: Number(req.userId) },
+      where: { UserID: Number(req.user.id) },
       select: {
         id: true,
         bodyTypes: { select: { TypeName: true } },

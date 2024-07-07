@@ -1,7 +1,6 @@
 import { RequestHandler } from 'express';
 import { HttpException } from 'src/errors';
 import * as yup from 'yup';
-import prisma from 'src/helpers/databaseHelpers/client';
 import { createSuccessResponse, createFailResponse } from 'src/responses';
 import { HTTPErrorMessages, HTTPResponses } from 'src/interfaces/enums';
 import crypto from 'crypto';
@@ -55,7 +54,7 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
   try {
     const { email, password } = req.body;
 
-    const user = await prisma.users.findFirst({
+    const user = await req.prisma.users.findFirst({
       where: { Email: { equals: email } },
       select: {
         Email: true,
@@ -112,13 +111,15 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
       customerId: user.customer?.id,
       providerId: user.provider?.id,
       exp: Boolean(req.body.keepLoggedIn) ? '30d' : '',
+      userType: user.userTypes.TypeName,
+      keepLoggedIn: true,
       authorisedEncryptedClient: req.body.encryptedClient,
     });
 
     // Check if provider has uploaded documents or not
     let isDocumentsFullfilled: boolean | undefined = undefined;
     if (user.userTypes.TypeName === "Provider" && !user.isActive) {
-      const attachments = await prisma.uploadedFiles.findFirst({ where: { AND: [{ UserID: { equals: user.id } }, { JsonData: { equals: Prisma.JsonNull } }] } })
+      const attachments = await req.prisma.uploadedFiles.findFirst({ where: { AND: [{ UserID: { equals: user.id } }, { JsonData: { equals: Prisma.JsonNull } }] } })
       isDocumentsFullfilled = Boolean(attachments);
     }
 

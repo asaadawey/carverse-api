@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -24,7 +23,7 @@ const getAllBodyTypes: RequestHandler<
   GetAllBodyTypesQueryParams
 > = async (req, res, next) => {
   try {
-    const bodyTypes = await prisma.bodyTypes.findMany({
+    const bodyTypes = await req.prisma.bodyTypes.findMany({
       select: { TypeName: true, id: true },
     });
     createSuccessResponse(req, res, bodyTypes, next);

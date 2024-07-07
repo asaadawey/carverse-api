@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import { S3 } from '@aws-sdk/client-s3';
 import { ResultResponse } from 'src/interfaces/express.types';
 import envVars from 'src/config/environment';
-import prisma from 'src/helpers/databaseHelpers/client';
 import mime from 'mime-db';
 import random from 'randomstring';
 
@@ -44,7 +43,7 @@ const uploadAttachments: RequestHandler<
 
     const constructFileName = `${attachmentTypeId}__${userId}__${random.generate(7)}.${mime[req.file?.mimetype || '']?.extensions?.[0]
       }`;
-    const uploadedFile = await prisma.uploadedFiles.create({
+    const uploadedFile = await req.prisma.uploadedFiles.create({
       data: {
         FileName: constructFileName,
         UserID: Number(userId),
@@ -64,7 +63,7 @@ const uploadAttachments: RequestHandler<
       Key: constructFileName,
     });
 
-    await prisma.uploadedFiles.update({
+    await req.prisma.uploadedFiles.update({
       data: {
         AWSEtag: awsResult.ETag,
         UploadedAt: new Date(),
@@ -74,7 +73,7 @@ const uploadAttachments: RequestHandler<
       },
     });
 
-    createSuccessResponse(req, res, { result: Boolean(awsResult.$metadata.httpStatusCode === 200) }, next);
+    createSuccessResponse(req, res, { result: Boolean(awsResult.$metadata.httpStatusCode === 200), createdItemId: uploadedFile.id }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

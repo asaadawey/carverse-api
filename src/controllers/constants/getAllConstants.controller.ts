@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -31,7 +30,7 @@ const getAllConstants: RequestHandler<
 > = async (req, res, next) => {
   try {
     const { name } = req.query;
-    const constants = await prisma.constants.findMany({
+    const constants = await req.prisma.constants.findMany({
       where: { isActive: { equals: true }, ...(name && { Name: { in: name.split(',') } }) },
       select: { Name: true, Value: true, Type: true },
     });

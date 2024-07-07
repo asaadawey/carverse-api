@@ -1,6 +1,4 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
-import { ResultResponse } from 'src/interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
 
@@ -9,7 +7,7 @@ type VerifyCarNumberQuery = {};
 
 type VerifyCarNumberRequestBody = {};
 
-type VerifyCarNumberResponse = ResultResponse;
+type VerifyCarNumberResponse = { result: boolean };
 
 type VerifyCarNumberParams = { plateNumber: string };
 
@@ -26,7 +24,7 @@ const verifyCarNumber: RequestHandler<
   VerifyCarNumberQuery
 > = async (req, res, next) => {
   try {
-    const result = await prisma.cars.findMany({
+    const result = await req.prisma.cars.findMany({
       where: { PlateNumber: { equals: req.params.plateNumber } },
     });
     createSuccessResponse(req, res, { result: result?.length > 0 }, next);

@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { v4 as uuid4 } from 'uuid';
 export const preLogmiddleware: RequestHandler<any, any, any, any> = (req, res, next) => {
-  if (!req.headers["req_id"])
+  if (!req.headers["req_id"] && !res.headersSent)
     req.headers["req_id"] = `AG_${uuid4()}`
 
   console.log(

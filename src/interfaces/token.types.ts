@@ -9,6 +9,7 @@ export interface Token {
   authorisedEncryptedClient: string;
   previousExpiredTokens?: string[];
   timestamp: Date;
+  userType: string;
   exp?: Date | string;
 }
 

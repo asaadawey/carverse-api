@@ -11,7 +11,7 @@ describe('cars/addCar', () => {
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
-      { result: true },
+      { result: true, createdItemId: 1 },
       global.mockNext,
     );
   });

@@ -1,5 +1,4 @@
 import { colorGradiants, packages, services } from '@prisma/client';
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -31,7 +30,7 @@ const getAllPackages: RequestHandler<
 > = async (req, res, next) => {
   try {
     const { moduleId } = req.params;
-    const data = await prisma.packages.findMany({
+    const data = await req.prisma.packages.findMany({
       where: { ModuleID: { equals: Number(moduleId) } },
       select: {
         id: true,

@@ -4,7 +4,7 @@ import { createSuccessResponse } from 'src/responses';
 
 describe('constants/modifyConstant', () => {
   it('Should success and modify constant', async () => {
-    prismaMock.cars.findMany.mockResolvedValue([]);
+    prismaMock.constants.update.mockResolvedValue([]);
 
     global.mockReq = { ...global.mockReq, params: { constantId: 1 }, body: { newValue: 10 } };
 
@@ -14,7 +14,7 @@ describe('constants/modifyConstant', () => {
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
-      { result: true },
+      { result: true, createdItemId: undefined },
       global.mockNext,
     );
   });

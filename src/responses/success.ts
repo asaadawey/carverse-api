@@ -9,7 +9,8 @@ const createSuccessResponse = <T>(
   status: HTTPResponses = HTTPResponses.Success,
 ) => {
   console.log(`[POST-LOG] SUCCESS [${status}] ${JSON.stringify({ body, req_id: req.headers["req_id"] })}\n`);
-  res.setHeader("req_id", req.header('req_id') || "")
+  if (!res.headersSent)
+    res.setHeader("req_id", req.header('req_id') || "")
   res.status(status).json(body);
   next();
 };

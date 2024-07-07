@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -51,7 +50,7 @@ const getOrderTotalAmountStatements: RequestHandler<
     let statements: Statements[] = [];
 
     // Calculate provider services
-    const providerServices = await prisma.providerServices.findMany({
+    const providerServices = await req.prisma.providerServices.findMany({
       where: {
         id: {
           in: providerServiceIds.split(',').map(Number),
@@ -80,7 +79,7 @@ const getOrderTotalAmountStatements: RequestHandler<
     let constantsToGet = [Constants.VAT, Constants.ServiceCharges];
     if (paymentMethodName === PaymentMethods.Credit) constantsToGet.push(Constants.OnlinePaymentCharges);
 
-    const constants = await prisma.constants.findMany({
+    const constants = await req.prisma.constants.findMany({
       where: {
         AND: [
           {

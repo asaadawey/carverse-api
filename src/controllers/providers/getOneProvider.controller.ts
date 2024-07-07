@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
@@ -44,7 +43,7 @@ const getOneProvider: RequestHandler<
   try {
     const { id } = req.params;
     const [provider, ordersCount] = await Promise.all([
-      prisma.provider.findFirst({
+      req.prisma.provider.findFirst({
         where: {
           OR: [{ UserID: { equals: Number(id) } }, { id: { equals: Number(id) } }],
         },
@@ -66,7 +65,7 @@ const getOneProvider: RequestHandler<
           },
         },
       }),
-      prisma.orders.count({
+      req.prisma.orders.count({
         where: { ProviderID: Number(id) },
       }),
     ]);

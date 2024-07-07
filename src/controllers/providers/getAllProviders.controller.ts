@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
@@ -38,7 +37,7 @@ const getAllProviders: RequestHandler<
   try {
     const { avg, ids } = req.query;
 
-    const providers: GetAllProvidersResponse = await prisma.provider.findMany({
+    const providers: GetAllProvidersResponse = await req.prisma.provider.findMany({
       ...spreadPaginationParams(req.query),
       ...(ids
         ? {
@@ -61,7 +60,7 @@ const getAllProviders: RequestHandler<
       var i = 0;
       //Calculate price average
       for (let provider of providers) {
-        const providerServices = await prisma.providerServices.findMany({
+        const providerServices = await req.prisma.providerServices.findMany({
           where: { ProviderID: { equals: provider.id } },
           select: {
             Price: true,

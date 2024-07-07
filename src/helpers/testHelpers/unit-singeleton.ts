@@ -19,6 +19,8 @@ beforeEach(() => {
   let next: jest.Func;
   req = httpMocks.createRequest({
     body: {},
+    user: {},
+    prisma: prismaMock
   });
   res = httpMocks.createResponse();
   next = jest.fn();

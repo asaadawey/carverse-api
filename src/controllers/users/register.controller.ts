@@ -1,6 +1,5 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
-import prisma from 'src/helpers/databaseHelpers/client';
 import { createSuccessResponse, createFailResponse } from 'src/responses';
 
 //#region Register
@@ -47,7 +46,7 @@ const registerUser: RequestHandler<
   try {
     const { UserTypeName, ...rest } = req.body;
 
-    const createdUser = await prisma.users.create({
+    const createdUser = await req.prisma.users.create({
       data: {
         ...rest,
         userTypes: { connect: { TypeName: UserTypeName } },

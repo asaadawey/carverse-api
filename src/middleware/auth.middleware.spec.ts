@@ -128,7 +128,7 @@ describe('auth.middleware', () => {
 
       await authRoute(global.mockReq, global.mockRes, global.mockNext)
 
-      expect(global.mockReq.userId).toEqual(expectedUserId);
+      expect(global.mockReq.user.id).toEqual(expectedUserId);
     })
   })
 

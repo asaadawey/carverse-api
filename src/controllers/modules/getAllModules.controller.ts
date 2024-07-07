@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 import { RequestHandler } from 'express';
-import prisma from 'src/helpers/databaseHelpers/client';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
 
@@ -27,7 +26,7 @@ const getAllModules: RequestHandler<
   GetModulesQueryParams
 > = async (req, res, next) => {
   try {
-    const modules = await prisma.modules.findMany({
+    const modules = await req.prisma.modules.findMany({
       ...spreadPaginationParams(req.query),
       where: { isActive: { equals: true } },
       select: { id: true, ModuleName: true, ModuleDescription: true, ModuleIconLink: true },

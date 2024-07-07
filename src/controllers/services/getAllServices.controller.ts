@@ -1,9 +1,8 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
-import { Prisma } from '@prisma/client';
+
 //#region GetAllServices
 type GetAllServicesParams = {
   moduleId: string;
@@ -15,7 +14,6 @@ type GetAllServicesResponse = {
   id: number;
   ServiceName: string;
   ServiceDescription: string;
-  ServicePrice: Prisma.Decimal;
 }[];
 
 type GetAllServicesQuery = {
@@ -39,7 +37,7 @@ const getAllServices: RequestHandler<
 > = async (req, res, next) => {
   try {
     const { moduleId } = req.params;
-    const data = await prisma.services.findMany({
+    const data = await req.prisma.services.findMany({
       where: {
         ModuleID: { equals: Number(moduleId) },
       },
@@ -47,7 +45,6 @@ const getAllServices: RequestHandler<
         id: true,
         ServiceName: true,
         ServiceDescription: true,
-        ServicePrice: true,
       },
       ...spreadPaginationParams(req.query),
     });

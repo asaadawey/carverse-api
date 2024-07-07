@@ -6,10 +6,9 @@ import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
 import { HTTPResponses } from 'src/interfaces/enums';
 
-describe('Integration providers/addProviderServices', () => {
+describe('Integration providers/upsertProviderServices', () => {
   let providerUserId: number;
   let providerId: number;
-  let createdModuleId: number;
   let createdServiceId: number;
   beforeAll(async () => {
     const createdUser = await prisma.$transaction([
@@ -74,13 +73,12 @@ describe('Integration providers/addProviderServices', () => {
         },
       },
     });
-    createdModuleId = createService.modules.id;
     createdServiceId = createService.id;
   });
-  it('Should success when passing existing service id', async () => {
-    await supertest(app)
-      .post(RouterLinks.addProviderService.replace(':moduleId', '' + createdModuleId))
-      .set(commonHeaders(providerUserId))
+  it('Should success and create a new provider service', async () => {
+    const result = await supertest(app)
+      .post(RouterLinks.addProviderService)
+      .set(commonHeaders(providerUserId, false, { extrauser: { providerId: providerId } }))
       .send({
         serviceId: createdServiceId,
         servicePrice: 40,
@@ -89,37 +87,72 @@ describe('Integration providers/addProviderServices', () => {
 
     const createdProviderService = await prisma.providerServices.findFirst({
       where: {
-        AND: [{ ProviderID: { equals: providerId } }, { services: { ModuleID: { equals: createdModuleId } } }],
+        AND: [{ ProviderID: { equals: providerId } }, { services: { id: { equals: createdServiceId } } }],
       },
       select: { id: true, ServiceID: true },
     });
 
-    expect(createdProviderService?.ServiceID).toBe(createdServiceId);
+    expect(createdProviderService?.id).toBe(result.body.createdItemId);
   });
 
-  it('Should success when passing new service details', async () => {
-    const name = randomstring.generate(7);
+  it('Should success and update existing provider service', async () => {
+    const providerService = await prisma.providerServices.create({
+      data: {
+        ProviderID: providerId,
+        ServiceID: createdServiceId,
+        Price: 10,
+      },
+      select: {
+        id: true,
+      }
+    })
     await supertest(app)
-      .post(RouterLinks.addProviderService.replace(':moduleId', '' + createdModuleId))
+      .post(RouterLinks.addProviderService)
       .set(commonHeaders(providerUserId))
       .send({
+        providerServiceId: providerService.id,
         servicePrice: 40,
-        serviceName: name,
-        serviceDescription: 'Mangoa',
       })
       .expect(HTTPResponses.Success);
 
     const createdProviderService = await prisma.providerServices.findFirst({
       where: {
-        AND: [
-          { ProviderID: { equals: providerId } },
-          { services: { ModuleID: { equals: createdModuleId } } },
-          { services: { ServiceName: { equals: name } } },
-        ],
+        id: providerService.id,
       },
-      select: { id: true, ServiceID: true },
+      select: { id: true, Price: true },
     });
 
-    expect(createdProviderService?.ServiceID).not.toBe(createdServiceId);
+    expect(Number(createdProviderService?.Price)).toBe(40);
   });
+
+  it('Should success and make existing one inactive', async () => {
+    const providerService = await prisma.providerServices.create({
+      data: {
+        ProviderID: providerId,
+        ServiceID: createdServiceId,
+        Price: 10,
+      },
+      select: {
+        id: true,
+      }
+    })
+    await supertest(app)
+      .post(RouterLinks.addProviderService)
+      .set(commonHeaders(providerUserId))
+      .send({
+        providerServiceId: providerService.id,
+        isDelete: true,
+      })
+      .expect(HTTPResponses.Success);
+
+    const createdProviderService = await prisma.providerServices.findFirst({
+      where: {
+        id: providerService.id,
+      },
+      select: { id: true, isActive: true },
+    });
+
+    expect(createdProviderService?.isActive).toBe(false);
+  });
+
 });

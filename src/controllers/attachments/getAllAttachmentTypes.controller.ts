@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -24,7 +23,7 @@ const getAllAttachmentTypes: RequestHandler<
   GetAllAttachmentTypesQueryParams
 > = async (req, res, next) => {
   try {
-    const attachemntTypes = await prisma.attachmentTypes.findMany({
+    const attachemntTypes = await req.prisma.attachmentTypes.findMany({
       select: { TypeName: true, id: true },
     });
     createSuccessResponse(req, res, attachemntTypes, next);

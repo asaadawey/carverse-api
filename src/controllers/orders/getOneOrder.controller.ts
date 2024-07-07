@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -61,7 +60,7 @@ const getOneOrder: RequestHandler<
   any
 > = async (req, res, next) => {
   try {
-    const order = await prisma.orders.findUnique({
+    const order = await req.prisma.orders.findUnique({
       where: { id: Number(req.params.id) },
       select: {
         Longitude: true,

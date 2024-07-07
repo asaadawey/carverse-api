@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { ResultResponse } from 'src/interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
@@ -36,9 +35,9 @@ const addCar: RequestHandler<AddCarLinkQuery, AddCarResponse, AddCarRequestBody,
   next,
 ) => {
   try {
-    await prisma.cars.create({
+    const createdCar = await req.prisma.cars.create({
       data: {
-        UserID: req.userId,
+        UserID: req.user.id,
         BodyTypeID: Number(req.body.BodyTypeID),
         Color: req.body.Color,
         Manufacturer: req.body.Manufacturer,
@@ -49,7 +48,7 @@ const addCar: RequestHandler<AddCarLinkQuery, AddCarResponse, AddCarRequestBody,
       select: { id: true },
     });
 
-    createSuccessResponse(req, res, { result: true }, next);
+    createSuccessResponse(req, res, { result: true, createdItemId: createdCar.id }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

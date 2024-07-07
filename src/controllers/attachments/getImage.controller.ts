@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -45,7 +44,7 @@ const getImage: RequestHandler<
 
         const decodedAttachmentsIn: any[] = req.query.attachmentIdIn && JSON.parse(decodeURIComponent(req.query.attachmentIdIn));
 
-        const attachmentsFound = await prisma.uploadedFiles.findMany({
+        const attachmentsFound = await req.prisma.uploadedFiles.findMany({
             where: {
                 OR: [
                     ...decodedJsonQuery?.map?.((json: any) => (

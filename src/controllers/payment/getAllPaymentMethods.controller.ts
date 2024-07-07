@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -25,8 +24,7 @@ const getAllPaymentMethods: RequestHandler<
   GetAllPaymentMethodsQueryParams
 > = async (req, res, next) => {
   try {
-    const paymentMethods = await prisma.paymentMethods.findMany({
-      where: { isActive: { equals: true } },
+    const paymentMethods = await req.prisma.paymentMethods.findMany({
       select: { MethodName: true, id: true, MethodDescription: true },
     });
     createSuccessResponse(req, res, paymentMethods, next);

@@ -125,13 +125,14 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData
   cors: { origin: '*' },
 });
 
-const prisma = prismaClient;
+
 
 export let onlineProviders: ProviderSocket[] = [];
 export let activeOrders: ActiveOrders[] = [];
 
 //#region Functions
 export const addOrderHistory = async (orderId: number, reason: OrderHistory) => {
+  const prisma = prismaClient;
   console.log(
     '[SOCKET - Add order history] Add order history, Order ID : ' + orderId + ' Reason : ' + reason.toString(),
   );

@@ -146,4 +146,16 @@ describe('Integration providers/getAllProviderServices', () => {
     expect(Array.isArray(result.body)).toBe(true);
     expect(result.body.length).toBe(0);
   });
+
+  it('Should return unauthorised if the access person is incorrect', async () => {
+    await supertest(app)
+      .get(
+        RouterLinks.getAllProviderServices
+          .replace(':moduleId', String(createdModuleId))
+          .replace(":providerId", "2")
+      )
+      .set(commonHeaders(1, false, { extrauser: { userType: "Provider" } }))
+      .send()
+      .expect(HTTPResponses.Unauthorised);
+  });
 });

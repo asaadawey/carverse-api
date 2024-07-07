@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -32,7 +31,7 @@ const GetListOfAttachments: RequestHandler<
 > = async (req, res, next) => {
   try {
     const { typeName } = req.params;
-    const attachments = await prisma.attachments.findMany({
+    const attachments = await req.prisma.attachments.findMany({
       where: {
         attachmentType: {
           TypeName: {

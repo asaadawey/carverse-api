@@ -57,7 +57,6 @@ model services {
   ServiceName        String             @unique
   ServiceDescription String
   ServiceIconLink    String
-  ServicePrice       Decimal            @default(0)
   IsActive           Boolean            @default(true)
   CreatedOn          DateTime           @default(now())
   ModifiedOn         DateTime           @updatedAt
@@ -157,8 +156,9 @@ model providerServices {
   ServiceID        Int?
   Pofeciency       String?
   Price            Decimal                 @default(0)
-  CreatedOn        String?
+  CreatedOn         DateTime   @default(now())
   Rating           Decimal                 @default(0)
+  isActive         Boolean                @default(true)
   orderTotalAmount orderAmountStatements[]
   orderServices    orderServices[]
   provider         provider?               @relation(fields: [ProviderID], references: [id], onDelete: Cascade)

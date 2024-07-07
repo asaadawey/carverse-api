@@ -1,4 +1,3 @@
-import prisma from 'src/helpers/databaseHelpers/client';
 import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import * as yup from 'yup';
@@ -34,7 +33,7 @@ const checkUserExist: RequestHandler<
   CheckUserExistRequestParams
 > = async (req, res, next) => {
   try {
-    const user = await prisma.users.findFirst({
+    const user = await req.prisma.users.findFirst({
       where: {
         OR: [{ PhoneNumber: { equals: req.body.PhoneNumber } }, { Email: { equals: req.body.Email } }],
       },

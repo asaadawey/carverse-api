@@ -6,12 +6,12 @@ import { getAllProviders, getOneProvider, addProviderService } from 'src/control
 
 import { getAllProvidersSchema } from 'src/controllers/providers/getAllProviders.controller';
 import { getOneProviderSchema } from 'src/controllers/providers/getOneProvider.controller';
-import { AddProviderServiceSchema } from 'src/controllers/providers/addProviderService.controller';
+import { upsertProviderServiceschema } from 'src/controllers/providers/upsertProviderService.controller';
 
 const router = Router();
 
 router.get(RouterLinks.getAllProviders, validate(getAllProvidersSchema), getAllProviders);
 router.get(RouterLinks.getOneProvider, validate(getOneProviderSchema), getOneProvider);
-router.post(RouterLinks.addProviderService, validate(AddProviderServiceSchema), addProviderService);
+router.post(RouterLinks.addProviderService, validate(upsertProviderServiceschema), addProviderService);
 
 export default router;
