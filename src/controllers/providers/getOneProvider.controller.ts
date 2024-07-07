@@ -56,7 +56,6 @@ const getOneProvider: RequestHandler<
                 select: {
                   ServiceName: true,
                   colorGradiants: true,
-                  ServicePrice: true,
                   ServiceIconLink: true,
                   ServiceDescription: true,
                 },
