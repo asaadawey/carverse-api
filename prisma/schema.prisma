@@ -248,7 +248,7 @@ model attachments {
   id             Int             @id @default(autoincrement())
   TypeID         Int
   Name           String         @unique
-  Description    String
+  Description    String         @unique
   attachmentType attachmentTypes @relation(fields: [TypeID], references: [id])
   uploadedFiles  uploadedFiles[]
 }
