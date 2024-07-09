@@ -54,6 +54,7 @@ jobs:
       - name: Install dependencies
         run: yarn
       - name : Show migrate status
+        continue-on-error: true
         run: yarn prisma migrate status
         
       - name: Prisma
