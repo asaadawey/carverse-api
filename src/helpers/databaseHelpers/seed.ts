@@ -305,7 +305,7 @@ const main = async () => {
     },
     update: {},
     where: {
-      id: 1,
+      Name: "Emirates id",
     },
   });
   await prisma.attachments.upsert({

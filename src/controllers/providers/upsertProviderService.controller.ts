@@ -26,7 +26,7 @@ export const upsertProviderServiceschema: yup.SchemaOf<{
     serviceId: yup.number().optional(),
     providerServiceId: yup.number().optional(),
     servicePrice: yup.number().optional(),
-    isDelete: yup.bool().optional().oneOf([true])
+    isDelete: yup.bool().optional().oneOf([true, false])
   }).test({
     message: "wrong delete params",
     test: (params) => {
@@ -37,7 +37,7 @@ export const upsertProviderServiceschema: yup.SchemaOf<{
   }).test({
     message: "wrong upsert params",
     test: (params) => {
-      if (params.providerServiceId)
+      if (params.providerServiceId && params.isDelete === undefined)
         return (Boolean(params.servicePrice) || Boolean(params.isDelete));
       return true;
     }

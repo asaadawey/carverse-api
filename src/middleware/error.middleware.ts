@@ -19,8 +19,10 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
 
       // console.error(error.message);
     } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') message = message.slice(message.indexOf('Unique constraint'));
-      else if (error.code === 'P2025') message = message.slice(message.indexOf('An operation failed'));
+      const newMessage = "Cannot proceed with this operation as it's seems to be duplicated. Please try again with other data"
+      if (error.code === 'P2002') additionalData = (additionalData || "") + message.slice(message.indexOf('Unique constraint'));
+      else if (error.code === 'P2025') additionalData = (additionalData || "") + message.slice(message.indexOf('An operation failed'));
+      message = newMessage;
     } else if (error instanceof yup.ValidationError) {
       message = 'Bad request';
       status = 400;
@@ -45,6 +47,7 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
         ...(envVars.logVerbose === 'all' && additionalData ? { additionalData } : {}),
       })
       .end();
+    next();
   } catch (error) {
     next(error);
   }

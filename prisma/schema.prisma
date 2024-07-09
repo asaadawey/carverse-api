@@ -153,7 +153,7 @@ model modules {
 model providerServices {
   id               Int                     @id @default(autoincrement())
   ProviderID       Int?
-  ServiceID        Int?
+  ServiceID        Int?                    
   Pofeciency       String?
   Price            Decimal                 @default(0)
   CreatedOn         DateTime   @default(now())
@@ -163,6 +163,7 @@ model providerServices {
   orderServices    orderServices[]
   provider         provider?               @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
   services         services?               @relation(fields: [ServiceID], references: [id], onDelete: Cascade)
+  @@unique([ProviderID,ServiceID])
 }
 
 model packages {
@@ -246,7 +247,7 @@ model attachmentTypes {
 model attachments {
   id             Int             @id @default(autoincrement())
   TypeID         Int
-  Name           String
+  Name           String         @unique
   Description    String
   attachmentType attachmentTypes @relation(fields: [TypeID], references: [id])
   uploadedFiles  uploadedFiles[]

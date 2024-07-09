@@ -13,7 +13,6 @@ type AddOrderQuery = {};
 
 type AddOrderRequestBody = {
   providerId: number;
-  customerId: number;
   orderServices: {
     carId: number;
     providerServiceId: number;
@@ -37,7 +36,6 @@ type AddOrderParams = { skipCardPayment: string };
 export const addOrderSchema: yup.SchemaOf<{ body: AddOrderRequestBody; query: AddOrderParams }> = yup.object({
   body: yup.object({
     providerId: yup.number().min(1).required('Provider id is required'),
-    customerId: yup.number().min(1).required('customer id is required'),
     orderServices: yup
       .array()
       .of(
@@ -91,7 +89,6 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
 ) => {
   let {
     addressString,
-    customerId,
     latitude,
     longitude,
     orderAmount,
@@ -139,7 +136,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
         Longitude: longitude,
         Latitude: latitude,
         AddressString: addressString,
-        customer: { connect: { id: customerId } },
+        customer: { connect: { id: req.user.customerId } },
         provider: { connect: { id: providerId } },
         orderHistory: {
           create: {
