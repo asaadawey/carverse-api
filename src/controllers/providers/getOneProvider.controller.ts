@@ -19,7 +19,6 @@ type GetOneProvidersResponse = {
     services: {
       ServiceName: string;
       colorGradiants: colorGradiants;
-      ServicePrice: number;
       ServiceIconLink: string;
       ServiceDescription: string;
     } | null;

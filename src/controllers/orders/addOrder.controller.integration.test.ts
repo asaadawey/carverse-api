@@ -35,7 +35,7 @@ describe('Integration orders/addOrder', () => {
               Manufacturer: 'Mercedes',
               Model: '2010',
               PlateNumber: '58849',
-              bodyTypes: { create: { TypeName: randomstring.generate(7) } },
+              bodyTypes: { connectOrCreate: { create: { TypeName: "Sedan" }, where: { TypeName: "Sedan" } } },
             },
           },
           customer: { create: {} },
@@ -75,32 +75,20 @@ describe('Integration orders/addOrder', () => {
     ]);
     customerId = createdUser[0].customer?.id || 0;
     providerId = createdUser[1].provider?.id || 0;
-    const createService = await prisma.providerServices.create({
+    const createService = await prisma.providerServicesAllowedBodyTypes.create({
       data: {
-        provider: { connect: { id: providerId } },
-        services: {
-          create: {
-            ServiceDescription: 'Test',
-            ServiceIconLink: '/',
-            ServiceName: randomstring.generate(7),
-            colorGradiants: {
-              create: {
-                ColorEnd: 'r',
-                ColorName: randomstring.generate(7),
-                ColorMainText: randomstring.generate(7),
-                ColorSecondaryText: 'e',
-                ColorStart: 'T',
-              },
-            },
-            modules: {
-              create: {
-                ModuleName: randomstring.generate(7),
-                ModuleDescription: 'f',
-                ModuleIconLink: 'd',
-              },
-            },
-          },
+        Price: 40,
+        bodyType: {
+          connectOrCreate: {
+            create: { TypeName: "Sedan" },
+            where: { TypeName: "Sedan" }
+          }
         },
+        providerService: {
+          create: {
+
+          }
+        }
       },
 
       select: {
@@ -129,14 +117,14 @@ describe('Integration orders/addOrder', () => {
     await prisma.orders.deleteMany();
     const result = await supertest(app)
       .post(RouterLinks.addOrder)
-      .set(commonHeaders())
+      .set(commonHeaders(1, false, { extrauser: { customerId } }))
       .send({
         providerId,
-        customerId,
+        // customerId,
         orderServices: [
           {
             carId: createdCarId,
-            providerServiceId: createdServiceId,
+            providerServiceBodyTypeId: createdServiceId,
           },
         ],
         orderAmount: 400,
@@ -170,11 +158,11 @@ describe('Integration orders/addOrder', () => {
       .set(commonHeaders())
       .send({
         providerId,
-        customerId,
+        // customerId,
         orderServices: [
           {
             carId: createdCarId,
-            providerServiceId: createdServiceId,
+            providerServiceBodyTypeId: createdServiceId,
           },
         ],
         orderAmount: 400,
@@ -201,11 +189,11 @@ describe('Integration orders/addOrder', () => {
       .set(commonHeaders())
       .send({
         providerId,
-        customerId,
+        // customerId,
         orderServices: [
           {
             carId: createdCarId,
-            providerServiceId: createdServiceId,
+            providerServiceBodyTypeId: createdServiceId,
           },
         ],
         longitude: 12,
@@ -224,11 +212,11 @@ describe('Integration orders/addOrder', () => {
       .set(commonHeaders())
       .send({
         providerId,
-        customerId,
+        // customerId,
         orderServices: [
           {
             carId: createdCarId,
-            providerServiceId: createdServiceId,
+            providerServiceBodyTypeId: createdServiceId,
           },
         ],
         orderAmount: 400,

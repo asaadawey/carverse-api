@@ -12,13 +12,15 @@ describe('orders/getOrderTotalAmount', () => {
     const vatPerc = new Decimal(10.9);
     const serviceCharges = 10;
     const vat = providerServiceFees.mul(vatPerc.div(100));
-    prismaMock.providerServices.findMany.mockResolvedValue([
+    prismaMock.providerServicesAllowedBodyTypes.findMany.mockResolvedValue([
       {
         id: 1,
         Price: providerServiceFees,
-        services: {
-          ServiceName: 'Service fee',
-        },
+        providerService: {
+          services: {
+            ServiceName: 'Service fee',
+          },
+        }
       },
     ]);
 
@@ -36,7 +38,7 @@ describe('orders/getOrderTotalAmount', () => {
         Type: ConstantType.Amount,
       },
     ]);
-    global.mockReq.query = { paymentMethodName: 'Cash', providerServiceIds: '1,2' };
+    global.mockReq.query = { paymentMethodName: 'Cash', providerServiceBodyTypesIds: '1,2' };
     await getOrderTotalAmountStatements(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);

@@ -349,8 +349,11 @@ export const checkActiveSession = (socket: CustomSocket, user: UserInfo | undefi
     //Update providerUuid;
 
 
+
     if (provider) {
       addUpdateOnlineProvider({ ...provider, uuid: socket.id }, socket, true)
+      let newOrders = activeOrders.filter(aOrder => aOrder.orderId !== order.orderId);
+      activeOrders = [...newOrders, { ...order, providerUuid: socket.id }]
       socket.emit("notify-active-session", { type: user?.UserTypeName?.toLowerCase?.() as any, order: { ...order, moduleId: provider.moduleId } })
     }
   }
@@ -430,7 +433,7 @@ io.on('connection', (socket) => {
 
     addUpdateOnlineProvider({ ...provider }, socket);
 
-    const order = getOrder(provider.uuid, 'providerUuid');
+    const order = getOrder(socket.id, 'providerUuid');
     console.log('Provider location change', order);
     //Provider have an active order;
     if (order) {

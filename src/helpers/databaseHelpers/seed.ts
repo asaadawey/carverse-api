@@ -62,6 +62,7 @@ const main = async () => {
     where: { ColorName: 'Purple' },
   });
   //#endregion
+  console.log("Seeding colorGradiants finish")
   //#region Modules
   await prisma.modules.upsert({
     create: {
@@ -112,7 +113,8 @@ const main = async () => {
     where: { ModuleName: 'Car washing' },
   });
   //#endregion
-  //#region Customers
+  console.log("Seeding modules finish")
+  //#region userTypes
   await prisma.userTypes.upsert({
     create: { TypeName: 'Customer', AllowedClients: [AllowedClients.MobileApp] },
     where: { TypeName: 'Customer' },
@@ -129,6 +131,7 @@ const main = async () => {
     update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   //#endregion
+  console.log("Seeding userTypes finish")
   //#region Users
   await prisma.users.upsert({
     create: {
@@ -158,7 +161,7 @@ const main = async () => {
           providerServices: {
             create: {
               services: { connect: { ServiceName: 'Stem wash' } },
-              Price: 40,
+              // Price: 40,
               Pofeciency: 'Skilled',
               Rating: 4,
             },
@@ -171,13 +174,25 @@ const main = async () => {
     where: { Email: 'b' },
   });
   //#endregion
+  console.log("Seeding users finish")
   //#region BodyTypes
   await prisma.bodyTypes.upsert({
     create: { TypeName: 'Sedan' },
     where: { TypeName: 'Sedan' },
     update: {},
   });
+  await prisma.bodyTypes.upsert({
+    create: { TypeName: 'Station' },
+    where: { TypeName: 'Station' },
+    update: {},
+  });
+  await prisma.bodyTypes.upsert({
+    create: { TypeName: '4X4' },
+    where: { TypeName: '4X4' },
+    update: {},
+  });
   //#endregion
+  console.log("Seeding bodyTypes finish")
   //#region PaymentMethods
   await prisma.paymentMethods.upsert({
     create: { MethodName: PaymentMethods.Cash, MethodDescription: '' },
@@ -190,6 +205,7 @@ const main = async () => {
     where: { MethodName: PaymentMethods.Credit },
   });
   //#endregion
+  console.log("Seeding paymentMethods finish")
   //#region OrderHistoryItems
   await prisma.orderHistoryItems.upsert({
     create: {
@@ -270,7 +286,7 @@ const main = async () => {
   });
 
   //#endregion
-
+  console.log("Seeding orderHistoryItems finish")
   //#region AttachmentsTypes
   await prisma.attachmentTypes.upsert({
     create: {
@@ -291,7 +307,7 @@ const main = async () => {
     update: {},
   });
   //#endregion
-
+  console.log("Seeding attachmentTypes finish")
   //#region Attachments
   await prisma.attachments.upsert({
     create: {
@@ -305,7 +321,7 @@ const main = async () => {
     },
     update: {},
     where: {
-      id: 1,
+      Name: "Emirates id",
     },
   });
   await prisma.attachments.upsert({
@@ -320,7 +336,7 @@ const main = async () => {
     },
     update: {},
     where: {
-      id: 2,
+      Name: 'Profile image',
     },
   });
   await prisma.attachments.upsert({
@@ -335,7 +351,7 @@ const main = async () => {
     },
     update: {},
     where: {
-      id: 3,
+      Name: 'Car registration',
     },
   });
   await prisma.attachments.upsert({
@@ -350,7 +366,7 @@ const main = async () => {
     },
     update: {},
     where: {
-      id: 4,
+      Name: 'Car from front',
     },
   });
   await prisma.attachments.upsert({
@@ -365,10 +381,11 @@ const main = async () => {
     },
     update: {},
     where: {
-      id: 5,
+      Name: 'Car from back',
     },
   });
   //#endregion
+  console.log("Seeding attachments finish")
   //#region Constants
   await prisma.constants.upsert({
     create: {
@@ -419,6 +436,7 @@ const main = async () => {
     },
   });
   //#endregion
+  console.log("Seeding constants finish")
 };
 
 if (process.argv[2] === '--exit') {

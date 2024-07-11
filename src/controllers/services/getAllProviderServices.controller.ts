@@ -1,4 +1,4 @@
-import { providerServices, services } from '@prisma/client';
+import { providerServices, providerServicesAllowedBodyTypes, services } from '@prisma/client';
 import { RequestHandler } from 'express';
 import { paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
@@ -15,6 +15,7 @@ type GetAllProviderServicesRequestBody = {};
 
 type GetAllProviderServicesResponse = (providerServices & {
   services: services | null;
+  providerServicesAllowedBodyTypes: providerServicesAllowedBodyTypes[]
 })[];
 
 type GetAllProviderServicesQuery = {
@@ -54,6 +55,11 @@ const getAllProviderServices: RequestHandler<
       },
       ...spreadPaginationParams(req.query),
       include: {
+        providerServicesAllowedBodyTypes: {
+          include: {
+            bodyType: true
+          }
+        },
         services: true,
       },
     });

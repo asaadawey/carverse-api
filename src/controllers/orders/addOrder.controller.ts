@@ -13,10 +13,9 @@ type AddOrderQuery = {};
 
 type AddOrderRequestBody = {
   providerId: number;
-  customerId: number;
   orderServices: {
     carId: number;
-    providerServiceId: number;
+    providerServiceBodyTypeId: number;
   }[];
   orderTotalAmountStatement: Omit<Statements, 'label'>[];
   paymentMethodName: string;
@@ -37,13 +36,12 @@ type AddOrderParams = { skipCardPayment: string };
 export const addOrderSchema: yup.SchemaOf<{ body: AddOrderRequestBody; query: AddOrderParams }> = yup.object({
   body: yup.object({
     providerId: yup.number().min(1).required('Provider id is required'),
-    customerId: yup.number().min(1).required('customer id is required'),
     orderServices: yup
       .array()
       .of(
         yup.object({
           carId: yup.number().min(1).required('Car id is required'),
-          providerServiceId: yup.number().min(1).required('Service id is required'),
+          providerServiceBodyTypeId: yup.number().min(1).required('Service id is required'),
         }),
       )
       .test({
@@ -91,7 +89,6 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
 ) => {
   let {
     addressString,
-    customerId,
     latitude,
     longitude,
     orderAmount,
@@ -125,6 +122,17 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
     if (!orderMethod.isActive)
       throw new HttpException(HTTPResponses.BusinessError, "", "Order method is not active : " + paymentMethodName);
 
+    // Check if the provided car have same body type for the services
+    for (let service of orderServices) {
+      const [car, providerService] = await Promise.all([
+        req.prisma.cars.findUnique({ where: { id: service.carId }, select: { BodyTypeID: true } }),
+        req.prisma.providerServicesAllowedBodyTypes.findUnique({ where: { id: service.providerServiceBodyTypeId }, select: { BodyTypeID: true } })
+      ]);
+
+      if (car?.BodyTypeID !== providerService?.BodyTypeID)
+        throw new HttpException(HTTPResponses.BusinessError, "", "Not all cars match the body tpes")
+    }
+
 
     const createOrderResult = await req.prisma.orders.create({
       data: {
@@ -139,7 +147,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
         Longitude: longitude,
         Latitude: latitude,
         AddressString: addressString,
-        customer: { connect: { id: customerId } },
+        customer: { connect: { id: req.user.customerId } },
         provider: { connect: { id: providerId } },
         orderHistory: {
           create: {
@@ -161,7 +169,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
         orderServices: {
           create: orderServices?.map((service) => ({
             CarID: service.carId,
-            ProviderServiceID: service.providerServiceId,
+            ProviderServiceBodyTypeID: service.providerServiceBodyTypeId,
           })),
         },
       },

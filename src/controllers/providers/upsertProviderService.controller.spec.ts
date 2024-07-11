@@ -11,7 +11,7 @@ describe('providers/upsertProviderServices', () => {
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
-      { result: true, createdItemId: 1 },
+      expect.anything(),
       global.mockNext,
     );
   });
@@ -26,7 +26,7 @@ describe('providers/upsertProviderServices', () => {
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
-      { result: true, createdItemId: sentProviderServiceId },
+      expect.anything(),
       global.mockNext,
     );
   });

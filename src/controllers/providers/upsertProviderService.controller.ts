@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import * as yup from 'yup';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
 import { ResultResponse } from 'src/interfaces/express.types';
+
 //#region AddProviderService
 type upsertProviderServiceParams = {
 
@@ -9,9 +10,16 @@ type upsertProviderServiceParams = {
 
 type upsertProviderServicesRequestBody = {
   serviceId?: number;
-  providerServiceId?: number;
-  servicePrice?: number;
-  isDelete?: boolean;
+  toCreateServicesBodyTypes: {
+    bodyTypeId: number;
+    price: number;
+  }[];
+  toUpdateServices: {
+    providerServiceBodyTypeId: number;
+    price: number;
+  }[];
+  providerServicesBodyTypeToRemove?: number[]
+  providerServicesToRemove?: number[];
 };
 
 type upsertProviderServicesResponse = ResultResponse;
@@ -24,30 +32,22 @@ export const upsertProviderServiceschema: yup.SchemaOf<{
 }> = yup.object({
   body: yup.object().shape({
     serviceId: yup.number().optional(),
-    providerServiceId: yup.number().optional(),
-    servicePrice: yup.number().optional(),
-    isDelete: yup.bool().optional().oneOf([true])
-  }).test({
-    message: "wrong delete params",
-    test: (params) => {
-      if (params.isDelete)
-        return Object.keys(params).length === 2 && Boolean(params.providerServiceId);
-      return true;
-    }
-  }).test({
-    message: "wrong upsert params",
-    test: (params) => {
-      if (params.providerServiceId)
-        return (Boolean(params.servicePrice) || Boolean(params.isDelete));
-      return true;
-    }
-  }).test({
-    message: "wrong insert params",
-    test: (params) => {
-      if (params.serviceId)
-        return Object.keys(params).length === 2 && Boolean(params.servicePrice);
-      return true;
-    }
+    toCreateServicesBodyTypes: yup.array().of(
+      yup.object({
+        bodyTypeId: yup.number().required().min(1),
+        price: yup.number().required().min(1),
+      })).min(1),
+    toUpdateServices: yup.array().of(
+      yup.object({
+        providerServiceBodyTypeId: yup.number().required().min(1),
+        price: yup.number().required().min(1),
+      })).min(1),
+    providerServicesBodyTypeToRemove: yup.array().of(yup.number().min(1)).optional().min(1),
+    providerServicesToRemove: yup.array().of(yup.number().min(1)).optional().min(1)
+  }).test((body) => {
+    if (!body.providerServicesBodyTypeToRemove && !body.providerServicesToRemove && !body.toCreateServicesBodyTypes && !body.toUpdateServices)
+      return false;
+    return true;
   }),
   params: yup.object()
 });
@@ -58,45 +58,67 @@ const addProviderService: RequestHandler<
   upsertProviderServicesRequestBody,
   upsertProvideServiceQuery
 > = async (req, res, next) => {
-  const { servicePrice, serviceId, isDelete, providerServiceId } = req.body;
+  const { toCreateServicesBodyTypes, providerServicesBodyTypeToRemove, providerServicesToRemove, serviceId, toUpdateServices } = req.body;
 
-  let createdOrUpdatedId: number;
+  let createdOrUpdatedId: number = -1;
 
   try {
-    if (isDelete === true || isDelete === false) {
-      await req.prisma.providerServices.update({
-        where: {
-          id: providerServiceId,
-        },
-        data: {
-          isActive: !isDelete
-        },
+    if (toCreateServicesBodyTypes && serviceId) {
+      const isProviderHaveService = await req.prisma.providerServices.findFirst({ where: { ServiceID: serviceId }, select: { id: true } });
 
-      })
-      createdOrUpdatedId = providerServiceId as number;
-    } else {
-      const createdProviderServices = await req.prisma.providerServices.upsert({
-        where: {
-          id: providerServiceId || -1
-        },
-        update: {
-          Price: servicePrice,
-        },
-        create: {
-          Price: servicePrice,
-          ServiceID: serviceId,
+      if (isProviderHaveService?.id) {
+        const result = await req.prisma.providerServicesAllowedBodyTypes.createManyAndReturn({
+          data: toCreateServicesBodyTypes.map(body => ({ BodyTypeID: body.bodyTypeId, Price: body.price, ProviderServiceID: isProviderHaveService.id })),
+          select: { id: true }
+        })
+        createdOrUpdatedId = result as any;
+      } else {
+        const result = await req.prisma.providerServices.create({
+          data: {
+            ServiceID: serviceId,
+            ProviderID: req.user.providerId,
+            providerServicesAllowedBodyTypes: {
+              create: toCreateServicesBodyTypes.map(body => ({
+                BodyTypeID: body.bodyTypeId,
+                Price: body.price
+              }))
+            }
+          },
+          select: {
+            id: true
+          }
+        });
 
-          ProviderID: req.user.providerId
-        },
-        select: {
-          id: true
-        }
-      });
-      createdOrUpdatedId = createdProviderServices.id
+        createdOrUpdatedId = result.id
+      }
+    }
+    if (providerServicesToRemove) {
+      const result = await req.prisma.providerServices.deleteMany({ where: { id: { in: providerServicesToRemove } } })
+      createdOrUpdatedId = result.count
+    }
+
+    if (providerServicesBodyTypeToRemove) {
+      const result = await req.prisma.providerServicesAllowedBodyTypes.deleteMany({ where: { id: { in: providerServicesBodyTypeToRemove } } })
+      createdOrUpdatedId = result.count
+    }
+
+    if (toUpdateServices) {
+      for (let service of toUpdateServices) {
+        const result = await req.prisma.providerServicesAllowedBodyTypes.update({
+          where: {
+            id: service.providerServiceBodyTypeId
+          },
+          data: {
+            Price: service.price
+          },
+          select: { id: true }
+        })
+        createdOrUpdatedId = result.id
+      }
     }
 
     createSuccessResponse(req, res, {
-      result: true,
+      result: createdOrUpdatedId !== -1,
       createdItemId: createdOrUpdatedId
     }, next);
   } catch (error: any) {

@@ -26,13 +26,13 @@ type GetOrderTotalAmountStatementsResponse = {
   statements: Statements[];
 };
 
-type GetOrderTotalAmountStatementsQueryParams = { paymentMethodName: string; providerServiceIds: string };
+type GetOrderTotalAmountStatementsQueryParams = { paymentMethodName: string; providerServiceBodyTypesIds: string };
 
 export const getOrderTotalAmountStatementsSchema: yup.SchemaOf<{ query: GetOrderTotalAmountStatementsQueryParams }> =
   yup.object({
     query: yup.object().shape({
       paymentMethodName: yup.string().required(),
-      providerServiceIds: yup.string().required(),
+      providerServiceBodyTypesIds: yup.string().required(),
     }),
   });
 
@@ -43,35 +43,39 @@ const getOrderTotalAmountStatements: RequestHandler<
   GetOrderTotalAmountStatementsQueryParams
 > = async (req, res, next) => {
   try {
-    const { paymentMethodName, providerServiceIds } = req.query;
+    const { paymentMethodName, providerServiceBodyTypesIds } = req.query;
 
     let totalAmount: number = 0;
 
     let statements: Statements[] = [];
 
     // Calculate provider services
-    const providerServices = await req.prisma.providerServices.findMany({
+    const providerServices = await req.prisma.providerServicesAllowedBodyTypes.findMany({
       where: {
         id: {
-          in: providerServiceIds.split(',').map(Number),
+          in: providerServiceBodyTypesIds.split(',').map(Number),
         },
       },
       select: {
         id: true,
-        services: {
-          select: {
-            ServiceName: true,
-          },
-        },
         Price: true,
+        providerService: {
+          select: {
+            services: {
+              select: {
+                ServiceName: true,
+              }
+            }
+          }
+        }
       },
     });
 
     statements = statements.concat(
       providerServices.map((service) => ({
-        name: service.services?.ServiceName || '',
-        label: service.services?.ServiceName || '',
-        encryptedValue: encrypt(String(getAmount(service.Price, ConstantType.Amount, new Decimal(totalAmount)))),
+        name: service.providerService?.services?.ServiceName || '',
+        label: service.providerService?.services?.ServiceName || '',
+        encryptedValue: encrypt(String(getAmount(new Decimal(service.Price), ConstantType.Amount, new Decimal(totalAmount)))),
         relatedProviderServiceId: service.id,
       })),
     );

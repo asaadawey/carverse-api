@@ -70,16 +70,20 @@ const getOneOrder: RequestHandler<
         AdditionalAddressData: true,
         orderServices: {
           select: {
-            providerServices: {
+            providerServicesAllowedBodyTypes: {
               select: {
-                services: {
-                  select: {
-                    ServiceDescription: true,
-                    ServiceName: true,
-                  },
-                },
                 Price: true,
-              },
+                providerService: {
+                  select: {
+                    services: {
+                      select: {
+                        ServiceName: true,
+                        ServiceDescription: true
+                      }
+                    }
+                  }
+                }
+              }
             },
             cars: {
               select: {
@@ -110,5 +114,6 @@ const getOneOrder: RequestHandler<
   }
 };
 //#endregion
+
 
 export default getOneOrder;

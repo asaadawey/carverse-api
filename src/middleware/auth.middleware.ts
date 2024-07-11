@@ -35,6 +35,14 @@ const authMiddleware = async (auth: string, allowedClient: string): Token /**Use
       'Token exist and active but not name doesnt match ' + tokens.name,
     );
 
+  // Check version of token (This is used to verify that the logged in user has generated token from latest application version)
+  if (token.applicationVersion !== envVars.version)
+    throw new HttpException(
+      HTTPResponses.Unauthorised,
+      HTTPErrorString.UnauthorisedToken,
+      'Token exist and active but not version doesnt match ' + JSON.stringify({ appVersion: envVars.version, token: token.applicationVersion }),
+    );
+
   //No token id or user id
   if (!token.id)
     throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'No user id found');

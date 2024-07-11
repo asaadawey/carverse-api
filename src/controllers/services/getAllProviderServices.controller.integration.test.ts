@@ -23,6 +23,7 @@ describe('Integration providers/getAllProviderServices', () => {
         id: true,
       },
     });
+    createdModuleId = createdModule.id;
     const createdProvider = await prisma.provider.create({
       data: {
         users: {
@@ -40,72 +41,35 @@ describe('Integration providers/getAllProviderServices', () => {
         providerServices: {
           create: [
             {
-              Price: 30,
+              services: {
+                create: {
+                  ServiceName: "test",
+                  ServiceDescription: "rt",
+                  ServiceIconLink: "tr",
+                  modules: {
+                    connect: {
+                      id: createdModuleId
+                    }
+                  }
+                }
+              },
               Pofeciency: 'Expert',
-              services: {
-                connectOrCreate: {
-                  create: {
-                    ServiceName: 'Stem wash',
-                    ServiceDescription: '1',
-                    ServiceIconLink: '1',
-                    colorGradiants: {
-                      connectOrCreate: {
-                        where: { ColorName: 'Orange' },
-                        create: {
-                          ColorName: 'Gold',
-                          ColorMainText: 'white',
-                          ColorSecondaryText: 'white',
-                          ColorEnd: '#ffac33',
-                          ColorStart: '#b26a00',
-                        },
+              providerServicesAllowedBodyTypes: {
+                create: {
+                  Price: 30,
+                  bodyType: {
+                    connectOrCreate: {
+                      create: {
+                        TypeName: "Sedan"
                       },
-                    },
-                    modules: {
-                      connect: {
-                        id: createdModule.id,
-                      },
-                    },
-                  },
-                  where: { ServiceName: 'Stem wash' },
-                },
+                      where: {
+                        TypeName: "Sedan"
+                      }
+                    }
+                  }
+                }
               },
-            },
-            {
-              Price: 15,
-              Pofeciency: 'Expert2',
-              services: {
-                connectOrCreate: {
-                  create: {
-                    ServiceName: 'Stem wash',
-                    ServiceDescription: '1',
-                    ServiceIconLink: '1',
-                    colorGradiants: {
-                      connectOrCreate: {
-                        where: { ColorName: 'Orange' },
-                        create: {
-                          ColorName: 'Gold',
-                          ColorMainText: 'white',
-                          ColorSecondaryText: 'white',
-                          ColorEnd: '#ffac33',
-                          ColorStart: '#b26a00',
-                        },
-                      },
-                    },
-                    modules: {
-                      connectOrCreate: {
-                        create: {
-                          ModuleName: 'Car washing',
-                          ModuleIconLink: '/icons/car-wash.png',
-                          ModuleDescription: 'Wash your car easily by dispatching our providers',
-                        },
-                        where: { ModuleName: 'Car washing' },
-                      },
-                    },
-                  },
-                  where: { ServiceName: 'Stem wash' },
-                },
-              },
-            },
+            }
           ],
         },
       },
@@ -114,7 +78,7 @@ describe('Integration providers/getAllProviderServices', () => {
       },
     });
 
-    createdModuleId = createdModule.id;
+
     createdProviderId = createdProvider.id;
   });
 
@@ -129,7 +93,7 @@ describe('Integration providers/getAllProviderServices', () => {
       .send()
       .expect(HTTPResponses.Success);
     expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(2);
+    expect(result.body.length).toBe(1);
     expect(result.body[0].Pofeciency).toBe('Expert');
   });
 

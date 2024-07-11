@@ -10,6 +10,7 @@ export interface Token {
   previousExpiredTokens?: string[];
   timestamp: Date;
   userType: string;
+  applicationVersion: string;
   exp?: Date | string;
 }
 

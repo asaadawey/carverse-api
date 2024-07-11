@@ -35,11 +35,14 @@ describe('auth.middleware', () => {
 
     it('Should fail becuase auth token is expired', async () => {
       //@ts-ignore
+      envVars.version = "123";
+      //@ts-ignore
       envVars.auth.skipAuth = false;
       const mockVerifyObject = {
         name: envVars.appName,
         exp: 11,
         id: 1,
+        applicationVersion: "123"
       };
       (verify as DeepMockProxy<any>).mockReturnValue(mockVerifyObject);
       (decode as DeepMockProxy<any>).mockReturnValue({
@@ -54,11 +57,15 @@ describe('auth.middleware', () => {
 
     it('Should fail because allowed client is not right', async () => {
       //@ts-ignore
+      envVars.version = "123";
+
+      //@ts-ignore
       envVars.auth.skipAuth = false;
       (verify as DeepMockProxy<any>).mockReturnValue({
         name: envVars.appName,
         authorisedEncryptedClient: encrypt('Iam different that the allowed client'),
         id: 1,
+        applicationVersion: "123"
       });
       (decode as DeepMockProxy<any>).mockReturnValue({
         authorisedEncryptedClient: encrypt('Iam different that the allowed client'),
@@ -70,17 +77,43 @@ describe('auth.middleware', () => {
         expect(error.additionalParameters).toEqual('Allowed Client is not right');
       }
     });
-    it('Should success', async () => {
+
+    it('Should fail because verson is different than application version', async () => {
       //@ts-ignore
       envVars.auth.skipAuth = false;
+      //@ts-ignore
+      envVars.version = "123";
       const encryptedClient = encrypt('cp');
       (verify as DeepMockProxy<any>).mockReturnValue({
         name: envVars.appName,
         id: 1,
+        applicationVersion: "321"
       });
       (decode as DeepMockProxy<any>).mockReturnValue({
         authorisedEncryptedClient: encryptedClient,
         exp: new Date().getTime() + 1000000, //Present time
+      });
+      try {
+        await auth('wrong', 'wrong client');
+      } catch (error: any) {
+        expect(error.additionalParameters).toEqual('Token exist and active but not version doesnt match ' + JSON.stringify({ appVersion: "123", token: "321" }));
+      }
+    });
+    it('Should success', async () => {
+      //@ts-ignore
+      envVars.auth.skipAuth = false;
+      //@ts-ignore
+      envVars.version = "123";
+      const encryptedClient = encrypt('cp');
+      (verify as DeepMockProxy<any>).mockReturnValue({
+        name: envVars.appName,
+        id: 1,
+        applicationVersion: "123"
+      });
+      (decode as DeepMockProxy<any>).mockReturnValue({
+        authorisedEncryptedClient: encryptedClient,
+        exp: new Date().getTime() + 1000000, //Present time
+        applicationVersion: "123"
       });
       try {
         await auth('right', encryptedClient);

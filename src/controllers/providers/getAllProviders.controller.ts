@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from 'src/responses';
-import * as _ from 'lodash';
+// import * as _ from 'lodash';
 import * as yup from 'yup';
 
 //#region GetAllProviders
@@ -35,7 +35,7 @@ const getAllProviders: RequestHandler<
   GetAllProvidersQuery
 > = async (req, res, next) => {
   try {
-    const { avg, ids } = req.query;
+    const { ids } = req.query;
 
     const providers: GetAllProvidersResponse = await req.prisma.provider.findMany({
       ...spreadPaginationParams(req.query),
@@ -56,31 +56,31 @@ const getAllProviders: RequestHandler<
       },
     });
 
-    if (avg === 'true') {
-      var i = 0;
-      //Calculate price average
-      for (let provider of providers) {
-        const providerServices = await req.prisma.providerServices.findMany({
-          where: { ProviderID: { equals: provider.id } },
-          select: {
-            Price: true,
-            services: {
-              select: {
-                ServiceName: true,
-                ServiceDescription: true,
-                ServiceIconLink: true,
-              },
-            },
-          },
-        });
-        const sum = _.sumBy(providerServices, (a) => Number(a.Price) as any);
-        providers[Number(i)] = {
-          ...provider,
-          avg: sum / providerServices.length,
-        };
-        i++;
-      }
-    }
+    // if (avg === 'true') {
+    //   var i = 0;
+    //   //Calculate price average
+    //   for (let provider of providers) {
+    //     const providerServices = await req.prisma.providerServices.findMany({
+    //       where: { ProviderID: { equals: provider.id } },
+    //       select: {
+    //         // Price: true,
+    //         services: {
+    //           select: {
+    //             ServiceName: true,
+    //             ServiceDescription: true,
+    //             ServiceIconLink: true,
+    //           },
+    //         },
+    //       },
+    //     });
+    //     // const sum = _.sumBy(providerServices, (a) => Number(a.Price) as any);
+    //     providers[Number(i)] = {
+    //       ...provider,
+    //       // avg: sum / providerServices.length,
+    //     };
+    //     i++;
+    //   }
+    // }
     createSuccessResponse(req, res, [...providers], next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);

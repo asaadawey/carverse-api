@@ -5,6 +5,8 @@ config();
 
 const variables: Record<string, any> = { ...process.env };
 
+const verisonVariableName = "HEROKU_RELEASE_VERSION"
+
 const { ...values } = environmentSchema.validateSync(variables);
 
 export const isDev = values.NODE_ENV === 'development';
@@ -43,5 +45,6 @@ export default {
   cookies: {
     secret: values.COOKIE_SECRET,
     key: values.COOKIE_KEY
-  }
+  },
+  version: variables[verisonVariableName] || values.VERSION || "1.0-dev"
 };

@@ -46,7 +46,21 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
     ]);
     const createService = await prisma.providerServices.create({
       data: {
-        Price: providerServicePrice,
+        providerServicesAllowedBodyTypes: {
+          create: {
+            Price: providerServicePrice,
+            bodyType: {
+              connectOrCreate: {
+                create: {
+                  TypeName: "Sedan"
+                },
+                where: {
+                  TypeName: "Sedan"
+                }
+              }
+            }
+          }
+        },
         provider: { connect: { id: createdUser[0].provider?.id || 0 } },
         services: {
           create: {
@@ -75,10 +89,15 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
 
       select: {
         id: true,
+        providerServicesAllowedBodyTypes: {
+          select: {
+            id: true
+          }
+        }
       },
     });
 
-    createdProviderServiceId = createService.id;
+    createdProviderServiceId = createService.providerServicesAllowedBodyTypes[0].id;
     await prisma.constants.deleteMany();
     // Since VAT and service fees inside the seed. the no need to create
     const vatConstant = await prisma.constants.create({
@@ -112,7 +131,7 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
     const vat = providerServicePrice * ((vatPerc as number) / 100);
     const result = await supertest(app)
       .get(
-        `${RouterLinks.getOrderTotalAmountStatements}?paymentMethodName=Cash&providerServiceIds=${createdProviderServiceId}`,
+        `${RouterLinks.getOrderTotalAmountStatements}?paymentMethodName=Cash&providerServiceBodyTypesIds=${createdProviderServiceId}`,
       )
       .set(commonHeaders())
       .send({})

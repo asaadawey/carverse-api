@@ -52,4 +52,5 @@ export enum RouterLinks {
   getAllConstants = '/constants',
   modifyConstant = '/constants/update',
   //#endregion
+  getCsrfToken = '/cvapi-csrf'
 }

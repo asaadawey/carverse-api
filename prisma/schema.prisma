@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model users {
@@ -90,14 +91,14 @@ model orders {
 }
 
 model orderServices {
-  id                Int              @id @default(autoincrement())
-  ProviderServiceID Int
-  OrderID           Int
-  CarID             Int
-  CreatedOn         DateTime?        @default(now()) @db.Timestamptz(6)
-  cars              cars             @relation(fields: [CarID], references: [id], onDelete: Cascade)
-  orders            orders           @relation(fields: [OrderID], references: [id], onDelete: Cascade)
-  providerServices  providerServices @relation(fields: [ProviderServiceID], references: [id], onDelete: Cascade, map: "orderServices_ServiceID_fkey")
+  id                               Int                              @id @default(autoincrement())
+  ProviderServiceBodyTypeID        Int
+  OrderID                          Int
+  CarID                            Int
+  CreatedOn                        DateTime?                        @default(now()) @db.Timestamptz(6)
+  cars                             cars                             @relation(fields: [CarID], references: [id], onDelete: Cascade)
+  orders                           orders                           @relation(fields: [OrderID], references: [id], onDelete: Cascade)
+  providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes @relation(fields: [ProviderServiceBodyTypeID], references: [id], onDelete: Cascade)
 }
 
 model orderCreditCardsPurchase {
@@ -151,18 +152,18 @@ model modules {
 }
 
 model providerServices {
-  id               Int                     @id @default(autoincrement())
-  ProviderID       Int?
-  ServiceID        Int?
-  Pofeciency       String?
-  Price            Decimal                 @default(0)
-  CreatedOn         DateTime   @default(now())
-  Rating           Decimal                 @default(0)
-  isActive         Boolean                @default(true)
-  orderTotalAmount orderAmountStatements[]
-  orderServices    orderServices[]
-  provider         provider?               @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
-  services         services?               @relation(fields: [ServiceID], references: [id], onDelete: Cascade)
+  id                               Int                                @id @default(autoincrement())
+  ProviderID                       Int?
+  ServiceID                        Int?
+  Pofeciency                       String?
+  CreatedOn                        DateTime                           @default(now())
+  Rating                           Decimal                            @default(0)
+  isActive                         Boolean                            @default(true)
+  provider                         provider?                          @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
+  services                         services?                          @relation(fields: [ServiceID], references: [id], onDelete: Cascade)
+  providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes[]
+
+  @@unique([ProviderID, ServiceID])
 }
 
 model packages {
@@ -181,9 +182,23 @@ model packages {
 }
 
 model bodyTypes {
-  id       Int    @id @default(autoincrement())
-  TypeName String @unique
-  cars     cars[]
+  id                               Int                                @id @default(autoincrement())
+  TypeName                         String                             @unique
+  cars                             cars[]
+  providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes[]
+}
+
+model providerServicesAllowedBodyTypes {
+  id                    Int                     @id @default(autoincrement())
+  ProviderServiceID     Int
+  BodyTypeID            Int
+  Price                 Decimal
+  providerService       providerServices        @relation(fields: [ProviderServiceID], references: [id], onDelete: Cascade)
+  bodyType              bodyTypes               @relation(fields: [BodyTypeID], references: [id], onDelete: Cascade)
+  orderAmountStatements orderAmountStatements[]
+  orderServices         orderServices[]
+
+  @@unique([ProviderServiceID, BodyTypeID])
 }
 
 model cars {
@@ -246,7 +261,7 @@ model attachmentTypes {
 model attachments {
   id             Int             @id @default(autoincrement())
   TypeID         Int
-  Name           String
+  Name           String          @unique
   Description    String
   attachmentType attachmentTypes @relation(fields: [TypeID], references: [id])
   uploadedFiles  uploadedFiles[]
@@ -278,16 +293,16 @@ model constants {
 }
 
 model orderAmountStatements {
-  id                       Int               @id @default(autoincrement())
-  OrderID                  Int
-  RelatedConstantID        Int?
-  RelatedProviderServiceID Int?
-  Name                     String?
-  Amount                   Decimal
-  CreatedAt                DateTime          @default(now())
-  orders                   orders            @relation(fields: [OrderID], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  constants                constants?        @relation(fields: [RelatedConstantID], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  providerService          providerServices? @relation(fields: [RelatedProviderServiceID], references: [id])
+  id                               Int                               @id @default(autoincrement())
+  OrderID                          Int
+  RelatedConstantID                Int?
+  RelatedProviderServiceID         Int?
+  Name                             String?
+  Amount                           Decimal
+  CreatedAt                        DateTime                          @default(now())
+  orders                           orders                            @relation(fields: [OrderID], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  constants                        constants?                        @relation(fields: [RelatedConstantID], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes? @relation(fields: [RelatedProviderServiceID], references: [id])
 }
 
 enum ConstantType {
