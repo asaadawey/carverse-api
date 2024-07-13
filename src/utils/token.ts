@@ -14,7 +14,7 @@ export const generateToken = (payload: Omit<Token, 'timestamp' | 'name' | 'appli
       name: tokens.name,
       timestamp: new Date(),
       authorisedEncryptedClient: payload.authorisedEncryptedClient,
-      applicationVersion: envVars.version
+      applicationVersion: envVars.appServer.version
     } as SignToken,
     tokens.secret,
     { expiresIn: (payload.exp as string) || tokens.expiry },
