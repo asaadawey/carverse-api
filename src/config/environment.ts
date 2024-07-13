@@ -5,7 +5,10 @@ config();
 
 const variables: Record<string, any> = { ...process.env };
 
-const verisonVariableName = "HEROKU_RELEASE_VERSION"
+const serverVariables = {
+  version: "HEROKU_RELEASE_VERSION", serverId: "HEROKU_DYNO_ID", releaseCreatedAt: "HEROKU_RELEASE_CREATED_AT", commitId: "HEROKU_SLUG_COMMIT",
+}
+
 
 const { ...values } = environmentSchema.validateSync(variables);
 
@@ -46,5 +49,10 @@ export default {
     secret: values.COOKIE_SECRET,
     key: values.COOKIE_KEY
   },
-  version: variables[verisonVariableName] || values.VERSION || "1.0-dev"
+  appServer: {
+    version: variables[serverVariables.version] || values.VERSION || "1.0-dev",
+    releaseDate: variables[serverVariables.releaseCreatedAt] || new Date().toISOString(),
+    slugCommitId: variables[serverVariables.commitId] || "none",
+    serverId: variables[serverVariables.serverId] || "localhost",
+  }
 };

@@ -40,7 +40,10 @@ app.use(apiAuthRoute);
 app.get('/health', ({ }, res) => {
   console.log("Health")
 
-  return res.json({ status: 200, message: "OK", hostname: os.hostname(), version: envVars.version })
+  return res.json({
+    status: 200, message: "OK", hostname: os.hostname(),
+    ...envVars.appServer
+  })
 })
 
 // Csrf
