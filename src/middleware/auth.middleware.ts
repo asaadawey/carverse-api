@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { verify } from 'jsonwebtoken';
 import { HttpException } from 'src/errors';
 import envVars, { isDev, isTest } from 'src/config/environment';
@@ -8,18 +7,9 @@ import { decrypt } from 'src/utils/encrypt';
 import { RequestHandler } from 'express';
 import { createFailResponse } from 'src/responses';
 
-let declinedTokens = [];
-
-const authMiddleware = async (auth: string, allowedClient: string): Token /**User id */ => {
+const authMiddleware = (auth: string, allowedClient: string): Token /**User id */ => {
   if (!auth)
     throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Token header not exists');
-
-  if (declinedTokens.includes(auth))
-    throw new HttpException(
-      HTTPResponses.Unauthorised,
-      HTTPErrorString.UnauthorisedToken,
-      'Token already expired token' + auth,
-    );
 
   const token = verify(auth, envVars.appSecret, { ignoreExpiration: true }) as Token;
 
@@ -36,11 +26,11 @@ const authMiddleware = async (auth: string, allowedClient: string): Token /**Use
     );
 
   // Check version of token (This is used to verify that the logged in user has generated token from latest application version)
-  if (token.applicationVersion !== envVars.version)
+  if (token.applicationVersion !== envVars.appServer.version)
     throw new HttpException(
       HTTPResponses.Unauthorised,
       HTTPErrorString.UnauthorisedToken,
-      'Token exist and active but not version doesnt match ' + JSON.stringify({ appVersion: envVars.version, token: token.applicationVersion }),
+      'Token exist and active but not version doesnt match ' + JSON.stringify({ appVersion: envVars.appServer.version, token: token.applicationVersion }),
     );
 
   //No token id or user id
@@ -82,10 +72,10 @@ export const authRoute: RequestHandler = async (req, res, next) => {
     // For testing
     if ((isDev || isTest) && envVars.auth.skipAuth) {
       //Explicit for userType
-      const additionalUserParams = JSON.parse(req.headers["extrauser"] || "{}");
+      const additionalUserParams = JSON.parse(req.headers["extrauser"] as string || "{}");
       req.user = { id: Number(req.headers['userid']), ...additionalUserParams }
     } else {
-      req.user = await authMiddleware(
+      req.user = authMiddleware(
         req.headers[envVars.auth.authKey] as string,
         req.headers[envVars.allowedClient.key] as string,
       );
