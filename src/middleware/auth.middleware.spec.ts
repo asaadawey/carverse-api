@@ -140,7 +140,7 @@ describe('auth.middleware', () => {
       await authRoute(global.mockReq, global.mockRes, global.mockNext)
 
       expect(global.mockNext).not.toBeCalled()
-      expect(createFailResponse).toBeCalledWith(global.mockReq, global.mockRes, error, global.mockNext, 401, HTTPErrorString.UnauthorisedToken, undefined, 401)
+      expect(createFailResponse).toBeCalledWith(global.mockReq, global.mockRes, error, global.mockNext, 401, HTTPErrorString.UnauthorisedToken, undefined)
     })
 
     it('Should inject user id in case of skip auth', async () => {
