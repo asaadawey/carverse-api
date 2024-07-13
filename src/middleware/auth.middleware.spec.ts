@@ -35,7 +35,7 @@ describe('auth.middleware', () => {
 
     it('Should fail becuase auth token is expired', async () => {
       //@ts-ignore
-      envVars.version = "123";
+      envVars.appServer.version = "123";
       //@ts-ignore
       envVars.auth.skipAuth = false;
       const mockVerifyObject = {
@@ -57,7 +57,7 @@ describe('auth.middleware', () => {
 
     it('Should fail because allowed client is not right', async () => {
       //@ts-ignore
-      envVars.version = "123";
+      envVars.appServer.version = "123";
 
       //@ts-ignore
       envVars.auth.skipAuth = false;
@@ -82,7 +82,7 @@ describe('auth.middleware', () => {
       //@ts-ignore
       envVars.auth.skipAuth = false;
       //@ts-ignore
-      envVars.version = "123";
+      envVars.appServer.version = "123";
       const encryptedClient = encrypt('cp');
       (verify as DeepMockProxy<any>).mockReturnValue({
         name: envVars.appName,
@@ -103,7 +103,7 @@ describe('auth.middleware', () => {
       //@ts-ignore
       envVars.auth.skipAuth = false;
       //@ts-ignore
-      envVars.version = "123";
+      envVars.appServer.version = "123";
       const encryptedClient = encrypt('cp');
       (verify as DeepMockProxy<any>).mockReturnValue({
         name: envVars.appName,
