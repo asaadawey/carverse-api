@@ -40,6 +40,7 @@ const authMiddleware = (auth: string, allowedClient: string): Token /**User id *
   var timeNow = new Date().getTime();
 
   //Token is expired and the user didn't tick keepLoggedIn checkbox
+  //@ts-ignore
   if (((token.exp * 1000) as unknown as number) < timeNow)
     throw new HttpException(
       HTTPResponses.Unauthorised,
@@ -85,7 +86,7 @@ export const authRoute: RequestHandler = async (req, res, next) => {
 
     next();
   } catch (error: any) {
-    createFailResponse(req, res, error, next, HTTPResponses.Unauthorised, error.message, error.additionalPramater, HTTPResponses.Unauthorised);
+    createFailResponse(req, res, error, next, HTTPResponses.Unauthorised, error.message, error.additionalPramater);
   }
 }
 
