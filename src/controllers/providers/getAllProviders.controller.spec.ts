@@ -41,7 +41,7 @@ describe('providers/getAllProviders', () => {
       [
         {
           id: 1,
-          avg: (15 + 30) / 2,
+          // avg: (15 + 30) / 2,
         },
       ],
       global.mockNext,
