@@ -18,7 +18,8 @@
     "push:seed": "dotenv -e .env_test -- npx prisma db push && dotenv -e .env_test -- yarn seed",
     "test:intg" : "dotenv -e .env_test -- jest --config jest.integration.config.js --testTimeout=150000 --silent --runInBand",
     "jest:integration": "yarn push:seed && dotenv -e .env_test -- yarn test:intg",
-    "test:integration:docker": "yarn docker:up && yarn jest:integration && yarn docker:down"
+    "test:integration:docker": "yarn docker:up && yarn jest:integration && yarn docker:down",
+    "pre-commit" : "node ./scripts/checkHardCoded.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",
