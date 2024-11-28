@@ -665,6 +665,7 @@ io.on('connection', (socket) => {
             title: 'Order finished ! Thank you for using our services',
             expoToken: order?.customerNotificationToken,
           });
+
           await capturePayment(order.orderId);
 
           addUpdateOnlineProvider({ ...provider, status: ProviderStatus.Online }, socket, true);

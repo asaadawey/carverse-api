@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { HTTPResponses } from 'src/interfaces/enums';
 
 const createFailResponse = (
-  req: Request,
+  req: Request | any,
   res: Response,
   error: any,
   next: NextFunction,
@@ -11,8 +11,7 @@ const createFailResponse = (
   additionalPramater: any = null,
 ) => {
   console.error(
-    `POST-LOG [${status}] [RESPONSE-FUNC] [${req.method}] ${req.url} ${JSON.stringify(error)} ${
-      additionalPramater || error?.additionalPramater || ''
+    `POST-LOG [${status}] [RESPONSE-FUNC] [${req.method}] ${req.url} ${JSON.stringify(error)} ${additionalPramater || error?.additionalPramater || ''
     }`,
   );
 

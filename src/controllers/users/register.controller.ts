@@ -1,6 +1,9 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
+import bcrypt from 'bcrypt';
+import constants from 'src/config/environment'
 import { createSuccessResponse, createFailResponse } from 'src/responses';
+import { generateHashedString } from 'src/utils/encrypt';
 
 //#region Register
 type RegisterRequestQuery = {};
@@ -44,11 +47,12 @@ const registerUser: RequestHandler<
   RegisterRequestParams
 > = async (req, res, next) => {
   try {
-    const { UserTypeName, ...rest } = req.body;
+    const { UserTypeName, Password, ...rest } = req.body;
 
     const createdUser = await req.prisma.users.create({
       data: {
         ...rest,
+        Password: await generateHashedString(Password),
         userTypes: { connect: { TypeName: UserTypeName } },
         // Only active in case of customer
         isActive: UserTypeName.toLowerCase() === 'customer',

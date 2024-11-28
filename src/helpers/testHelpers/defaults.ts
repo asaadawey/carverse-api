@@ -14,6 +14,9 @@ export const commonHeaders = (userId: number = 1, disableAuth = false, addtional
     'content-type': 'application/json',
     accept: '*/*',
     userId,
+    user: {
+      id: userId
+    },
     authorization: disableAuth ? '' : 'test',
     'accept-encoding': 'gzip, deflate, br',
     connection: 'keep-alive',

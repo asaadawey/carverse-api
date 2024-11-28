@@ -28,6 +28,9 @@ export enum RouterLinks {
   login = '/login',
   register = '/register',
   checkUserExist = '/checkUserExist',
+  getUserDetails = '/getUserDetails/:userId?',
+  addDeleteRequest = '/addDeleteRequest/:userId?',
+  processDeleteRequest = '/processDeleteRequest/:deleteRequestId',
   //#endregion
   //#region Values
   getValues = '/values',

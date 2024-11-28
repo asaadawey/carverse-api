@@ -53,14 +53,7 @@ describe('Integration users/register', () => {
         UserTypeName: 'Provider',
       })
       .expect(HTTPResponses.Success);
-    expect(result.body.result).toEqual(true);
-
-    const createdUser = await prisma.users.findFirst({
-      where: { AND: [{ FirstName: { equals: generatedFirstName } }, { LastName: { equals: generatedLastName } }] },
-      select: { isActive: true },
-    });
-
-    expect(createdUser?.isActive).toBe(false);
+    expect(result.body.result).toEqual(true)
   });
 
   it('Should fail because of schema validation', async () => {

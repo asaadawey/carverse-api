@@ -1,5 +1,7 @@
 import { PrismaClient } from '.prisma/client';
-import { AllowedClients, Constants, OrderHistory, PaymentMethods } from 'src/interfaces/enums';
+import bcrypt from 'bcrypt';
+import { AllowedClients, Constants, OrderHistory, PaymentMethods, UserTypes } from 'src/interfaces/enums';
+import { generateHashedString } from 'src/utils/encrypt';
 
 const prisma = new PrismaClient();
 
@@ -116,18 +118,18 @@ const main = async () => {
   console.log("Seeding modules finish")
   //#region userTypes
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Customer', AllowedClients: [AllowedClients.MobileApp] },
+    create: { TypeName: UserTypes.Customer, AllowedClients: [AllowedClients.MobileApp, AllowedClients.Web] },
     where: { TypeName: 'Customer' },
     update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Provider', AllowedClients: [AllowedClients.MobileApp] },
-    where: { TypeName: 'Provider' },
+    create: { TypeName: UserTypes.Provider, AllowedClients: [AllowedClients.MobileApp] },
+    where: { TypeName: UserTypes.Provider },
     update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: 'Admin', AllowedClients: [AllowedClients.CP] },
-    where: { TypeName: 'Admin' },
+    create: { TypeName: UserTypes.Admin, AllowedClients: [AllowedClients.Web] },
+    where: { TypeName: UserTypes.Admin },
     update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   //#endregion
@@ -136,7 +138,7 @@ const main = async () => {
   await prisma.users.upsert({
     create: {
       Email: 'a',
-      Password: 'a',
+      Password: await generateHashedString("a"),
       FirstName: 'Ahmed',
       LastName: 'Customer',
       Nationality: 'Egypt',
@@ -154,7 +156,7 @@ const main = async () => {
       FirstName: 'Mohammed',
       LastName: 'Provider',
       Nationality: 'Egypt',
-      Password: 'b',
+      Password: await generateHashedString("a"),
       PhoneNumber: '971501234567',
       provider: {
         create: {

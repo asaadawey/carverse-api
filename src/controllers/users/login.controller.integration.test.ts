@@ -5,7 +5,8 @@ import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
 import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
-import { encrypt } from 'src/utils/encrypt';
+import { encrypt, generateHashedString } from 'src/utils/encrypt';
+
 
 describe('Integration users/login', () => {
   it('Should fail if username and password is incorrect', async () => {
@@ -44,8 +45,8 @@ describe('Integration users/login', () => {
         Email: randomEmail,
         FirstName: 'testFirst',
         LastName: 'testLast',
-        Nationality: 'testNation',
-        Password: 'testPaswword',
+        Nationality: 'testNation2on',
+        Password: await generateHashedString("testPaswword"),
         PhoneNumber: randomPhone,
         isActive: true,
         userTypes: { create: { TypeName: randomTypename, AllowedClients: ['cp'] } },

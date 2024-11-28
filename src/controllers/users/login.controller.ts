@@ -3,9 +3,10 @@ import { HttpException } from 'src/errors';
 import * as yup from 'yup';
 import { createSuccessResponse, createFailResponse } from 'src/responses';
 import { HTTPErrorMessages, HTTPResponses } from 'src/interfaces/enums';
-import crypto from 'crypto';
+import bcrypt from 'bcrypt';
+import constants from 'src/config/environment';
 import { generateToken } from 'src/utils/token';
-import { decrypt } from 'src/utils/encrypt';
+import { compareHashedString, decrypt } from 'src/utils/encrypt';
 import { Prisma } from '@prisma/client';
 // import createFailResponse from 'src/responses';
 
@@ -82,9 +83,7 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         'No user found',
       );
 
-    const isValid =
-      password.length === user.Password.length &&
-      crypto.timingSafeEqual(Buffer.from(password), Buffer.from(user.Password));
+    const isValid = await compareHashedString(user.Password, password);
 
     if (!isValid)
       throw new HttpException(

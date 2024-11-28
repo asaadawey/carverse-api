@@ -48,5 +48,11 @@ export enum HTTPResponses {
 
 export enum AllowedClients {
   MobileApp = 'mobile-app',
-  CP = 'cp',
+  Web = 'web',
+}
+
+export enum UserTypes {
+  Customer = "Customer",
+  Provider = "Provider",
+  Admin = "Admin",
 }

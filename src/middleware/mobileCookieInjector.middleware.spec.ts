@@ -23,7 +23,7 @@ describe('mobileCookietInjector.middleware', () => {
     it('Should success and shouldnt parse cookies from headers', () => {
         global.mockRes.status = jest.fn(() => { });
         global.mockReq.header = jest.fn((arg) => {
-            if (arg === envVars.allowedClient.key) return encrypt(AllowedClients.CP)
+            if (arg === envVars.allowedClient.key) return encrypt(AllowedClients.Web)
             else if (arg === 'cookies') return JSON.stringify({ test: "test" })
         });
 

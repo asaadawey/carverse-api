@@ -54,15 +54,15 @@ if (!isTest)
 
 app.get('/cvapi-csrf', getCsrfRoute);
 
-// Inject websocket
-app.use(({ }, res, next) => {
-  //@ts-ignore
-  res.io = io;
-  next();
-});
+// // Inject websocket
+// app.use(({ }, res, next) => {
+//   //@ts-ignore
+//   res.io = io;
+//   next();
+// });
 
 
-app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))]);
+// app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))]);
 
 app.use(prismaInjectorMiddleware)
 

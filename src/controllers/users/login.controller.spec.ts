@@ -5,7 +5,7 @@ import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
 import { HttpException } from 'src/errors';
 import { createSuccessResponse, createFailResponse } from 'src/responses';
 import { HTTPErrorMessages, HTTPResponses } from 'src/interfaces/enums';
-import { encrypt } from 'src/utils/encrypt';
+import { encrypt, generateHashedString } from 'src/utils/encrypt';
 
 jest.mock('jsonwebtoken');
 
@@ -17,7 +17,7 @@ describe('users/login', () => {
 
   it('Should return fail because password is incorrect', async () => {
     //@ts-ignore
-    prismaMock.users.findFirst.mockResolvedValue({ Password: 'd' });
+    prismaMock.users.findFirst.mockResolvedValue({ Password: await generateHashedString("d"), });
 
     global.mockReq.body = { email: '1', password: '1' };
 
@@ -55,7 +55,7 @@ describe('users/login', () => {
   it('Should return fail because allowed clients is not right', async () => {
     //@ts-ignore
     prismaMock.users.findFirst.mockResolvedValue({
-      Password: '1',
+      Password: await generateHashedString("1"),
       userTypes: {
         AllowedClients: ['cp'],
       },
@@ -80,7 +80,7 @@ describe('users/login', () => {
     prismaMock.users.findFirst.mockResolvedValue({
       id: 1,
       Email: '1',
-      Password: '1',
+      Password: await generateHashedString("1"),
       userTypes: {
         AllowedClients: ['cp'],
       },
@@ -104,7 +104,7 @@ describe('users/login', () => {
     prismaMock.users.findFirst.mockResolvedValue({
       id: 1,
       Email: '1',
-      Password: '1',
+      Password: await generateHashedString("1"),
       userTypes: {
         AllowedClients: ['cp'],
       },
@@ -129,7 +129,7 @@ describe('users/login', () => {
     prismaMock.users.findFirst.mockResolvedValue({
       id: 1,
       Email: '1',
-      Password: '1',
+      Password: await generateHashedString("1"),
       userTypes: {
         AllowedClients: ['cp'], TypeName: "Provider"
       },
@@ -141,7 +141,7 @@ describe('users/login', () => {
     global.mockReq.body = { email: '1', password: '1', encryptedClient: encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
-
+    ``
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,

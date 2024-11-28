@@ -20,7 +20,7 @@ describe('allowedClient.middlware', () => {
 
     it('Should fail since client is not right', () => {
         global.mockReq.header = jest.fn((arg) => {
-            if (arg === envVars.allowedClient.key) return encrypt(AllowedClients.CP)
+            if (arg === envVars.allowedClient.key) return encrypt(AllowedClients.Web)
         });
         global.mockNext = jest.fn(() => ({}))
         allowedClientMiddleware([AllowedClients.MobileApp])(

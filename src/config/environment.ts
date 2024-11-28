@@ -54,5 +54,6 @@ export default {
     releaseDate: variables[serverVariables.releaseCreatedAt] || new Date().toISOString(),
     slugCommitId: variables[serverVariables.commitId] || "none",
     serverId: variables[serverVariables.serverId] || "localhost",
-  }
+  },
+  passwordHashSeperator: values.PASSWORD_HASH_SEPERATOR
 };

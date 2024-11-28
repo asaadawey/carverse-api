@@ -3,7 +3,7 @@ import getAllProviders from './getAllProviders.controller';
 import { createSuccessResponse } from 'src/responses';
 
 describe('providers/getAllProviders', () => {
-  it('Should sucess and return all providers with no avg', async () => {
+  it('Should success and return all providers with no avg', async () => {
     prismaMock.provider.findMany.mockResolvedValue([{ test: 'test' }]);
     await getAllProviders(global.mockReq, global.mockRes, global.mockNext);
 
@@ -16,7 +16,7 @@ describe('providers/getAllProviders', () => {
     );
   });
 
-  it('Should sucess and return all providers with  avg', async () => {
+  it('Should success and return all providers with  avg', async () => {
     prismaMock.provider.findMany.mockResolvedValue([
       {
         id: 1,

@@ -26,8 +26,26 @@ model users {
   provider      provider?
   uploadedFiles uploadedFiles[]
   userTypes     userTypes       @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
+  deleteRequests deleteRequests[] 
+  currentUserDeleteRequests deleteRequests[] @relation(name: "currentUserDeleteRequests")
+  processedUserDeletions deleteRequests[] @relation(name: "processedByUsers")
   test          Int?
   test2         Int?
+}
+
+model deleteRequests {
+    id            Int             @id @default(autoincrement())
+    UserID        Int             
+    DeletedBy     Int             
+    Comments      String?
+    ProcessedOn   DateTime?
+    IsProcessed   Boolean @default(false)
+    ProcessedBy   Int?
+  CreatedOn     DateTime        @default(now())
+  ModifiedOn    DateTime        @updatedAt
+  user      users      @relation(fields: [UserID],references: [id],name: "currentUserDeleteRequests")
+  deletedByUser users  @relation(fields: [DeletedBy],references: [id])
+  processedByUser users? @relation(fields: [ProcessedBy], references: [id], name: "processedByUsers")
 }
 
 model customer {

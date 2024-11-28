@@ -3,7 +3,7 @@ import getAllCars from './getAllCars.controller';
 import { createSuccessResponse } from 'src/responses';
 
 describe('cars/getAllCars', () => {
-  it('Should sucess and return all cars', async () => {
+  it('Should success and return all cars', async () => {
     prismaMock.cars.findMany.mockResolvedValue([]);
     await getAllCars(global.mockReq, global.mockRes, global.mockNext);
 

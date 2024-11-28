@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { HTTPResponses } from 'src/interfaces/enums';
 
 const createSuccessResponse = <T>(
-  req: Request,
+  req: Request | any,
   res: Response<T>,
   body: T,
   next: NextFunction,

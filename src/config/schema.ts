@@ -22,6 +22,7 @@ const environmentSchema = yup.object().shape({
   STRIPE_API_KEY: yup.string().required(),
   COOKIE_KEY: yup.string().required(),
   COOKIE_SECRET: yup.string().required(),
+  PASSWORD_HASH_SEPERATOR: yup.string().required()
 });
 
 export default environmentSchema;
