@@ -38,7 +38,7 @@ export default {
     authKey: values.AUTH_KEY,
   },
   allowedClient: {
-    key: values.ALLOWED_CLIENT_KEY,
+    key: values.ALLOWED_CLIENT_KEY as string,
   },
   order: {
     timeout: values.ORDER_TIMEOUT_SECONDS,
