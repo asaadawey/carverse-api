@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: yarn
       - name: Test
-        run: yarn test:integration:docker --silent --coverage
+        run: yarn test:integration:docker
         
   prisma-migrate:
     env:

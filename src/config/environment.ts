@@ -9,8 +9,15 @@ const serverVariables = {
   version: "HEROKU_RELEASE_VERSION", serverId: "HEROKU_DYNO_ID", releaseCreatedAt: "HEROKU_RELEASE_CREATED_AT", commitId: "HEROKU_SLUG_COMMIT",
 }
 
+// Don't validate in case of CI
+let values;
+if (process.env.CI)
+  values = process.env;
+else {
+  const { ...allValues } = environmentSchema.validateSync(variables);
+  values = allValues;
+}
 
-const { ...values } = environmentSchema.validateSync(variables);
 
 export const isDev = values.NODE_ENV === 'development';
 export const isTest = values.NODE_ENV === 'test';
