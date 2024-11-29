@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
     "build": "yarn prisma generate && yarn tsc",
     "lint": "yarn eslint . --ext .ts --fix",
     "prisma:migrate": "dotenv -e .env_local -- yarn prisma migrate dev",
