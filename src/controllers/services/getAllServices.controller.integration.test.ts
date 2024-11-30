@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import { HTTPResponses } from 'src/interfaces/enums';
@@ -54,7 +54,7 @@ describe('Integration services/getAllServices', () => {
 
   it('Should success and return services', async () => {
     const result = await supertest(app)
-      .get(RouterLinks.getAllServices.replace(':moduleId', String(createdModuleId)))
+      .get(apiPrefix + RouterLinks.getAllServices.replace(':moduleId', String(createdModuleId)))
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -65,7 +65,7 @@ describe('Integration services/getAllServices', () => {
 
   it('Should return empty array becuase module id is incorrect', async () => {
     const result = await supertest(app)
-      .get(RouterLinks.getAllServices.replace(':moduleId', String(createdModuleId + 123)))
+      .get(apiPrefix + RouterLinks.getAllServices.replace(':moduleId', String(createdModuleId + 123)))
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);

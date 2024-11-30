@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -41,7 +41,7 @@ describe('Integration packages/getAllPackages', () => {
     });
     const carWash = await prisma.modules.findUnique({ where: { ModuleName: 'Car washing' } });
     const result = await supertest(app)
-      .get(RouterLinks.getPackages.replace(':moduleId', String(carWash?.id) || ''))
+      .get(apiPrefix + RouterLinks.getPackages.replace(':moduleId', String(carWash?.id) || ''))
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -52,7 +52,7 @@ describe('Integration packages/getAllPackages', () => {
 
   it('Should fail because no moduleId passed', async () => {
     await supertest(app)
-      .get(RouterLinks.getPackages.replace(':moduleId', ''))
+      .get(apiPrefix + RouterLinks.getPackages.replace(':moduleId', ''))
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.NotFound);

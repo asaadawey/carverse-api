@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -116,7 +116,7 @@ describe('Integration orders/addOrder', () => {
   it('Should success', async () => {
     await prisma.orders.deleteMany();
     const result = await supertest(app)
-      .post(RouterLinks.addOrder)
+      .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders(1, false, { extrauser: { customerId } }))
       .send({
         providerId,
@@ -154,7 +154,7 @@ describe('Integration orders/addOrder', () => {
 
   it("Should fail because the total amount sent is incorrect and doesn't match", async () => {
     const result = await supertest(app)
-      .post(RouterLinks.addOrder)
+      .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders())
       .send({
         providerId,
@@ -180,12 +180,12 @@ describe('Integration orders/addOrder', () => {
       })
       .expect(HTTPResponses.BusinessError);
 
-    expect(result.body.data.message).toBe(HTTPErrorString.SomethingWentWrong);
+    expect(result.body.message).toBe(HTTPErrorString.SomethingWentWrong);
   });
 
   it('Should be false because schema is incorrect', async () => {
     const result = await supertest(app)
-      .post(RouterLinks.addOrder)
+      .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders())
       .send({
         providerId,
@@ -202,13 +202,13 @@ describe('Integration orders/addOrder', () => {
       })
       .expect(HTTPResponses.ValidationError);
 
-    expect(result.body.data.message).toBe(HTTPErrorString.BadRequest);
+    expect(result.body.message).toBe(HTTPErrorString.BadRequest);
   });
 
   it('Should be false because method name is not active', async () => {
     await prisma.paymentMethods.update({ where: { MethodName: "Cash" }, data: { isActive: false } });
     const result = await supertest(app)
-      .post(RouterLinks.addOrder)
+      .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders())
       .send({
         providerId,
@@ -234,6 +234,6 @@ describe('Integration orders/addOrder', () => {
       })
       .expect(HTTPResponses.BusinessError);
 
-    expect(result.body.data.message).toBe(HTTPErrorString.SomethingWentWrong);
+    expect(result.body.message).toBe(HTTPErrorString.SomethingWentWrong);
   });
 });

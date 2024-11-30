@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -31,7 +31,7 @@ describe('Integration user/getUserDetails', () => {
   it('Should return logged in user details', async () => {
 
     const result = await supertest(app)
-      .get(`${RouterLinks.getUserDetails.replace(':userId?', "")}`)
+      .get(apiPrefix + `${RouterLinks.getUserDetails.replace(':userId?', "")}`)
       .set(commonHeaders(customerUserId))
       .send()
       .expect(HTTPResponses.Success);
@@ -55,7 +55,7 @@ describe('Integration user/getUserDetails', () => {
       },
     });
     const result = await supertest(app)
-      .get(`${RouterLinks.getUserDetails.replace(':userId?', customerUserId)}`)
+      .get(apiPrefix + `${RouterLinks.getUserDetails.replace(':userId?', customerUserId)}`)
       .set(commonHeaders(createResult.id, false, { extrauser: { userType: UserTypes.Customer } }))
       .send()
       .expect(HTTPResponses.Unauthorised);
@@ -79,7 +79,7 @@ describe('Integration user/getUserDetails', () => {
       },
     });
     const result = await supertest(app)
-      .get(`${RouterLinks.getUserDetails.replace(':userId?', customerUserId)}`)
+      .get(apiPrefix + `${RouterLinks.getUserDetails.replace(':userId?', customerUserId)}`)
       .set(commonHeaders(createResult.id, false, { extrauser: { userType: UserTypes.Admin } }))
       .send()
       .expect(HTTPResponses.Success);

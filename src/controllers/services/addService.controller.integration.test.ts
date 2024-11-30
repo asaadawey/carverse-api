@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import { HTTPResponses } from 'src/interfaces/enums';
@@ -27,7 +27,7 @@ describe('Integration providers/addService', () => {
 
   it('Should success and return services', async () => {
     const result = await supertest(app)
-      .post(
+      .post(apiPrefix +
         RouterLinks.addServices
       )
       .set(commonHeaders())

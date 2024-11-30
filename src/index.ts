@@ -19,6 +19,7 @@ import { doubleCsrfProtection, getCsrfRoute } from './middleware/csrf.middleware
 import mobileCookieInjector from './middleware/mobileCookieInjector.middleware';
 
 import prismaInjectorMiddleware from './middleware/prismaInjector.middleware';
+import { apiPrefix } from './constants/links';
 
 const app = express();
 
@@ -69,7 +70,7 @@ app.get('/cvapi-csrf', getCsrfRoute);
 
 app.use(prismaInjectorMiddleware)
 
-app.use("/api/v1", routes);
+app.use(apiPrefix, routes);
 
 app.use(errorMiddleware);
 

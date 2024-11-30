@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -11,7 +11,7 @@ import { encrypt, generateHashedString } from 'src/utils/encrypt';
 describe('Integration users/login', () => {
   it('Should fail if username and password is incorrect', async () => {
     const result = await supertest(app)
-      .post(RouterLinks.login)
+      .post(apiPrefix + RouterLinks.login)
       .set(commonHeaders(1, true))
       .send({
         email: '1',
@@ -19,12 +19,12 @@ describe('Integration users/login', () => {
         encryptedClient: 'ds',
       })
       .expect(HTTPResponses.BusinessError);
-    expect(result.body.data.message).toEqual(HTTPErrorMessages.InvalidUsernameOrPassowrd);
+    expect(result.body.message).toEqual(HTTPErrorMessages.InvalidUsernameOrPassowrd);
   });
 
   it('Should fail because of schema validation', async () => {
     const result = await supertest(app)
-      .post(RouterLinks.login)
+      .post(apiPrefix + RouterLinks.login)
       .set(commonHeaders(1, true))
       .send({
         email: '1',
@@ -33,7 +33,7 @@ describe('Integration users/login', () => {
       })
       .expect(HTTPResponses.ValidationError);
 
-    expect(result.body.data.message).toEqual(HTTPErrorString.BadRequest);
+    expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
   });
 
   it('Should success', async () => {
@@ -53,7 +53,7 @@ describe('Integration users/login', () => {
       },
     });
     const result = await supertest(app)
-      .post(RouterLinks.login)
+      .post(apiPrefix + RouterLinks.login)
       .set(commonHeaders(1, true))
       .send({
         email: randomEmail,

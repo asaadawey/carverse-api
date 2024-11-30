@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -56,7 +56,7 @@ describe('Integration orders/getOneOrder', () => {
       },
     });
     const result = await supertest(app)
-      .get(`${RouterLinks.getOneOrder.replace('/:id', '')}/${createResult.id}`)
+      .get(apiPrefix + `${RouterLinks.getOneOrder.replace('/:id', '')}/${createResult.id}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -67,7 +67,7 @@ describe('Integration orders/getOneOrder', () => {
   it('Should success but no order found', async () => {
     const randomId = 11111111;
     const result = await supertest(app)
-      .get(`${RouterLinks.getOneOrder.replace(':id', String(randomId))}`)
+      .get(apiPrefix + `${RouterLinks.getOneOrder.replace(':id', String(randomId))}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);

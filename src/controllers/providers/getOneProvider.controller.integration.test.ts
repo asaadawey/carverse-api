@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -86,7 +86,7 @@ describe('Integration providers/getOneProvider', () => {
 
   it('Should return one provider with user id', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getOneProvider.replace(':id', String(createdUserId))}`)
+      .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(createdUserId))}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -96,7 +96,7 @@ describe('Integration providers/getOneProvider', () => {
 
   it('Should return one provider with provider id', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getOneProvider.replace(':id', String(createdProviderId))}`)
+      .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(createdProviderId))}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -107,7 +107,7 @@ describe('Integration providers/getOneProvider', () => {
   it('Should return empty if no provider found', async () => {
     const randomId = 11111111;
     const result = await supertest(app)
-      .get(`${RouterLinks.getOneProvider.replace(':id', String(randomId))}`)
+      .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(randomId))}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -116,7 +116,7 @@ describe('Integration providers/getOneProvider', () => {
 
   it('Should return zero orders', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getOneProvider.replace(':id', String(createdNoOrdersUserId))}`)
+      .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(createdNoOrdersUserId))}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);

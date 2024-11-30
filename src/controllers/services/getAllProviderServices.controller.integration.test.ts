@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -84,7 +84,7 @@ describe('Integration providers/getAllProviderServices', () => {
 
   it('Should success and return services', async () => {
     const result = await supertest(app)
-      .get(
+      .get(apiPrefix +
         RouterLinks.getAllProviderServices
           .replace(':moduleId', String(createdModuleId))
           .replace(':providerId', String(createdProviderId)),
@@ -99,7 +99,7 @@ describe('Integration providers/getAllProviderServices', () => {
 
   it('Should return empty array becuase provider id is incorrect', async () => {
     const result = await supertest(app)
-      .get(
+      .get(apiPrefix +
         RouterLinks.getAllProviderServices
           .replace(':moduleId', String(createdModuleId))
           .replace(':providerId', String(createdModuleId + 1234)),
@@ -113,7 +113,7 @@ describe('Integration providers/getAllProviderServices', () => {
 
   it('Should return unauthorised if the access person is incorrect', async () => {
     await supertest(app)
-      .get(
+      .get(apiPrefix +
         RouterLinks.getAllProviderServices
           .replace(':moduleId', String(createdModuleId))
           .replace(":providerId", "2")

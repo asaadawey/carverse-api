@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -39,7 +39,7 @@ describe('Integration cars/checkCarExist', () => {
       },
     });
     const result = await supertest(app)
-      .get(RouterLinks.verifyCarNumber.replace(':plateNumber', randomPlateNumber))
+      .get(apiPrefix + RouterLinks.verifyCarNumber.replace(':plateNumber', randomPlateNumber))
       .set(commonHeaders())
       .expect(HTTPResponses.Success);
     expect(result.body.data.result).toEqual(true);
@@ -47,7 +47,7 @@ describe('Integration cars/checkCarExist', () => {
 
   it('Should return false if car not exist', async () => {
     const result = await supertest(app)
-      .get(RouterLinks.verifyCarNumber.replace(':plateNumber', randomstring.generate(7)))
+      .get(apiPrefix + RouterLinks.verifyCarNumber.replace(':plateNumber', randomstring.generate(7)))
       .set(commonHeaders())
       .expect(HTTPResponses.Success);
     expect(result.body.data.result).toEqual(false);

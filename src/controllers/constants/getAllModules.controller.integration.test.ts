@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -13,7 +13,7 @@ describe('Integration constants/getAllConstants', () => {
       data: { ModuleName: generatedTypeName, ModuleDescription: 'Des', ModuleIconLink: '/dd/' },
     });
     const result = await supertest(app)
-      .get(RouterLinks.getModules)
+      .get(apiPrefix + RouterLinks.getModules)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);

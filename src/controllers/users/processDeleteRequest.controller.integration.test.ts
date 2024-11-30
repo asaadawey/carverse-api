@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import { HTTPResponses, UserTypes } from 'src/interfaces/enums';
@@ -30,7 +30,7 @@ describe('Integration user/addDeleteRequest', () => {
   it('Should add delete request', async () => {
 
     const result = await supertest(app)
-      .post(`${RouterLinks.addDeleteRequest.replace(':userId?', "")}`)
+      .post(apiPrefix + `${RouterLinks.addDeleteRequest.replace(':userId?', "")}`)
       .set(commonHeaders(customerUserId))
       .send()
       .expect(HTTPResponses.Success);
@@ -54,7 +54,7 @@ describe('Integration user/addDeleteRequest', () => {
       },
     });
     const result = await supertest(app)
-      .post(`${RouterLinks.addDeleteRequest.replace(':userId?', customerUserId)}`)
+      .post(apiPrefix + `${RouterLinks.addDeleteRequest.replace(':userId?', customerUserId)}`)
       .set(commonHeaders(createResult.id, false, { extrauser: { userType: UserTypes.Customer } }))
       .send()
       .expect(HTTPResponses.Unauthorised);
@@ -78,7 +78,7 @@ describe('Integration user/addDeleteRequest', () => {
       },
     });
     const result = await supertest(app)
-      .post(`${RouterLinks.addDeleteRequest.replace(':userId?', customerUserId)}`)
+      .post(apiPrefix + `${RouterLinks.addDeleteRequest.replace(':userId?', customerUserId)}`)
       .set(commonHeaders(createResult.id, false, { extrauser: { userType: UserTypes.Admin } }))
       .send()
       .expect(HTTPResponses.Success);

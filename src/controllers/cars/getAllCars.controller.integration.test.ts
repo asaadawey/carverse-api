@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -34,7 +34,7 @@ describe('Integration cars/getAllCars', () => {
       },
     });
     const result = await supertest(app)
-      .get(RouterLinks.getCars)
+      .get(apiPrefix + RouterLinks.getCars)
       .set(commonHeaders(createResult.id))
       .send()
       .expect(HTTPResponses.Success);
@@ -44,7 +44,7 @@ describe('Integration cars/getAllCars', () => {
 
   it('Should return empty array', async () => {
     const result = await supertest(app)
-      .get(RouterLinks.getCars)
+      .get(apiPrefix + RouterLinks.getCars)
       .set(commonHeaders(99))
       .send()
       .expect(HTTPResponses.Success);

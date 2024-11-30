@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -130,7 +130,7 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
   it('Should success and return right statements', async () => {
     const vat = providerServicePrice * ((vatPerc as number) / 100);
     const result = await supertest(app)
-      .get(
+      .get(apiPrefix +
         `${RouterLinks.getOrderTotalAmountStatements}?paymentMethodName=Cash&providerServiceBodyTypesIds=${createdProviderServiceId}`,
       )
       .set(commonHeaders())

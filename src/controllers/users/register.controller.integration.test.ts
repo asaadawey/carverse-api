@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -15,7 +15,7 @@ describe('Integration users/register', () => {
       },
     });
     const result = await supertest(app)
-      .post(RouterLinks.register)
+      .post(apiPrefix + RouterLinks.register)
       .set(commonHeaders())
       .send({
         FirstName: 'FirstName test',
@@ -41,7 +41,7 @@ describe('Integration users/register', () => {
       },
     });
     const result = await supertest(app)
-      .post(RouterLinks.register)
+      .post(apiPrefix + RouterLinks.register)
       .set(commonHeaders())
       .send({
         FirstName: generatedFirstName,
@@ -59,7 +59,7 @@ describe('Integration users/register', () => {
   it('Should fail because of schema validation', async () => {
     console.log(RouterLinks.register);
     const result = await supertest(app)
-      .post(RouterLinks.register)
+      .post(apiPrefix + RouterLinks.register)
       .set(commonHeaders())
       .send({
         email: '1',
@@ -67,6 +67,6 @@ describe('Integration users/register', () => {
         unkownArg: '1',
       })
       .expect(HTTPResponses.ValidationError);
-    expect(result.body.data.message).toEqual(HTTPErrorString.BadRequest);
+    expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
   });
 });

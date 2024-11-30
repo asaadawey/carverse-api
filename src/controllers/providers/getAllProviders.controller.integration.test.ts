@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -112,7 +112,7 @@ describe('Integration providers/getAllProviders', () => {
 
   it('Should success with no average', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getAllProviders}?ids=${createdProvider.UserID}`)
+      .get(apiPrefix + `${RouterLinks.getAllProviders}?ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -123,7 +123,7 @@ describe('Integration providers/getAllProviders', () => {
 
   it('Should success with no average and only return providers with givin ids', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getAllProviders}?ids=${createdProvider.UserID}`)
+      .get(apiPrefix + `${RouterLinks.getAllProviders}?ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -145,7 +145,7 @@ describe('Integration providers/getAllProviders', () => {
 
   it('Should success and return 0 length because take pagination is zero', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getAllProviders}?take=0&ids=${createdProvider.UserID}`)
+      .get(apiPrefix + `${RouterLinks.getAllProviders}?take=0&ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
@@ -155,10 +155,10 @@ describe('Integration providers/getAllProviders', () => {
 
   it('Should fail because wrong value passed to average', async () => {
     const result = await supertest(app)
-      .get(`${RouterLinks.getAllProviders}?avg=wrong&ids=${createdProvider.UserID}`)
+      .get(apiPrefix + `${RouterLinks.getAllProviders}?avg=wrong&ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.ValidationError);
-    expect(result.body.data.message).toBe(HTTPErrorString.BadRequest);
+    expect(result.body.message).toBe(HTTPErrorString.BadRequest);
   });
 });

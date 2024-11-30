@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -34,7 +34,7 @@ describe('Integration attachments/getAllAttachmentTypes', () => {
   });
   it('Should return one type', async () => {
     const result = await supertest(app)
-      .get(RouterLinks.getListOfAttachments.replace(':typeName', '' + createdAttachmentType))
+      .get(apiPrefix + RouterLinks.getListOfAttachments.replace(':typeName', '' + createdAttachmentType))
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);

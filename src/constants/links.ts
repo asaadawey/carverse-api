@@ -1,3 +1,5 @@
+export const apiPrefix = "/api/v1";
+
 export enum RouterLinks {
   //#region Attachments
   getAllAttachmentTypes = '/attachments/getTypes',

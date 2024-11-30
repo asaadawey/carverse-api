@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -13,7 +13,7 @@ describe('Integration paymentMethods/getAllPaymentMethods', () => {
       data: { MethodName: generatedTypeName, MethodDescription: '' },
     });
     const result = await supertest(app)
-      .get(RouterLinks.getAllPaymentMethods)
+      .get(apiPrefix + RouterLinks.getAllPaymentMethods)
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);

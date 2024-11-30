@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { RouterLinks } from 'src/constants/links';
+import { apiPrefix, RouterLinks } from 'src/constants/links';
 import { commonHeaders } from 'src/helpers/testHelpers/defaults';
 import prisma from 'src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
@@ -37,7 +37,7 @@ describe('Integration cars/addCar', () => {
   });
   it('Should return false because plate number is nort right', async () => {
     const result = await supertest(app)
-      .post(RouterLinks.addCar)
+      .post(apiPrefix + RouterLinks.addCar)
       .set(commonHeaders(userId))
       .send({
         BodyTypeID: bodyId,
@@ -49,12 +49,12 @@ describe('Integration cars/addCar', () => {
       })
       .expect(HTTPResponses.ValidationError);
 
-    expect(result.body.data.message).toBe(HTTPErrorString.BadRequest);
+    expect(result.body.message).toBe(HTTPErrorString.BadRequest);
   });
 
   it('Should return one car as will be created', async () => {
     const result = await supertest(app)
-      .post(RouterLinks.addCar)
+      .post(apiPrefix + RouterLinks.addCar)
       .set(commonHeaders(userId))
       .send({
         BodyTypeID: bodyId,
