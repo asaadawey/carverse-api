@@ -116,9 +116,9 @@ describe('Integration providers/getAllProviders', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(1);
-    expect(result.body[0].NumberOfOrders).toBe(231);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(1);
+    expect(result.body.data[0].NumberOfOrders).toBe(231);
   });
 
   it('Should success with no average and only return providers with givin ids', async () => {
@@ -127,9 +127,9 @@ describe('Integration providers/getAllProviders', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(1);
-    expect(result.body[0].id).toBe(createdProvider.id);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(1);
+    expect(result.body.data[0].id).toBe(createdProvider.id);
   });
 
   // it('Should success with average', async () => {
@@ -138,9 +138,9 @@ describe('Integration providers/getAllProviders', () => {
   //     .set(commonHeaders())
   //     .send()
   //     .expect(HTTPResponses.Success);
-  //   expect(Array.isArray(result.body)).toBe(true);
-  //   expect(result.body.length).toBe(1);
-  //   expect(result.body[0].avg).toBe((15 + 30) / 2);
+  //   expect(Array.isArray(result.body.data)).toBe(true);
+  //   expect(result.body.data.length).toBe(1);
+  //   expect(result.body.data[0].avg).toBe((15 + 30) / 2);
   // });
 
   it('Should success and return 0 length because take pagination is zero', async () => {
@@ -149,8 +149,8 @@ describe('Integration providers/getAllProviders', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(0);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(0);
   });
 
   it('Should fail because wrong value passed to average', async () => {
@@ -159,6 +159,6 @@ describe('Integration providers/getAllProviders', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.ValidationError);
-    expect(result.body.message).toBe(HTTPErrorString.BadRequest);
+    expect(result.body.data.message).toBe(HTTPErrorString.BadRequest);
   });
 });

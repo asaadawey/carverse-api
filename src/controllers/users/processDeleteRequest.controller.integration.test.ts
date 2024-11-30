@@ -35,7 +35,7 @@ describe('Integration user/addDeleteRequest', () => {
       .send()
       .expect(HTTPResponses.Success);
 
-    expect(result.body.result).toBeTruthy();
+    expect(result.body.data.result).toBeTruthy();
   });
 
   it('Should fail because customer is trying to access other user id', async () => {

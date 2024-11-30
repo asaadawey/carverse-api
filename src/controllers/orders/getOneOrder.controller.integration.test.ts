@@ -60,8 +60,8 @@ describe('Integration orders/getOneOrder', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(result.body).toBeTruthy();
-    expect(result.body.Longitude).toBe(4321);
+    expect(result.body.data).toBeTruthy();
+    expect(result.body.data.Longitude).toBe(4321);
   });
 
   it('Should success but no order found', async () => {
@@ -71,6 +71,6 @@ describe('Integration orders/getOneOrder', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Object.keys(result.body || {}).length).toBe(0);
+    expect(Object.keys(result.body.data || {}).length).toBe(0);
   });
 });

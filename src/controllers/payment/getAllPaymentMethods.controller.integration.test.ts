@@ -18,7 +18,7 @@ describe('Integration paymentMethods/getAllPaymentMethods', () => {
       .send()
       .expect(HTTPResponses.Success);
 
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body[0].MethodName).toBe(generatedTypeName);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data[0].MethodName).toBe(generatedTypeName);
   });
 });

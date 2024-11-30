@@ -17,7 +17,7 @@ describe('Integration attachments/getAllAttachmentTypes', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.some((type: any) => type.TypeName === generatedTypeName)).toBe(true);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.some((type: any) => type.TypeName === generatedTypeName)).toBe(true);
   });
 });

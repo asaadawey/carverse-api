@@ -45,9 +45,9 @@ describe('Integration packages/getAllPackages', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(1);
-    expect(result.body[0].id).toBe(createdPackage.id);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(1);
+    expect(result.body.data[0].id).toBe(createdPackage.id);
   });
 
   it('Should fail because no moduleId passed', async () => {

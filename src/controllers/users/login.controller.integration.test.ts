@@ -19,7 +19,7 @@ describe('Integration users/login', () => {
         encryptedClient: 'ds',
       })
       .expect(HTTPResponses.BusinessError);
-    expect(result.body.message).toEqual(HTTPErrorMessages.InvalidUsernameOrPassowrd);
+    expect(result.body.data.message).toEqual(HTTPErrorMessages.InvalidUsernameOrPassowrd);
   });
 
   it('Should fail because of schema validation', async () => {
@@ -33,7 +33,7 @@ describe('Integration users/login', () => {
       })
       .expect(HTTPResponses.ValidationError);
 
-    expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
+    expect(result.body.data.message).toEqual(HTTPErrorString.BadRequest);
   });
 
   it('Should success', async () => {
@@ -62,6 +62,6 @@ describe('Integration users/login', () => {
         encryptedClient: encrypt('cp'),
       })
       .expect(HTTPResponses.Success);
-    expect(result.body.userInfo).toBeDefined();
+    expect(result.body.data.userInfo).toBeDefined();
   });
 });

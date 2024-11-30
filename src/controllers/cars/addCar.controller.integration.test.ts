@@ -49,7 +49,7 @@ describe('Integration cars/addCar', () => {
       })
       .expect(HTTPResponses.ValidationError);
 
-    expect(result.body.message).toBe(HTTPErrorString.BadRequest);
+    expect(result.body.data.message).toBe(HTTPErrorString.BadRequest);
   });
 
   it('Should return one car as will be created', async () => {
@@ -66,6 +66,6 @@ describe('Integration cars/addCar', () => {
       })
       .expect(HTTPResponses.Success);
 
-    expect(result.body.result).toBe(true);
+    expect(result.body.data.result).toBe(true);
   });
 });

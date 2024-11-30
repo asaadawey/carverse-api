@@ -38,8 +38,8 @@ describe('Integration cars/getAllCars', () => {
       .set(commonHeaders(createResult.id))
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body[0].Color).toBe('Red');
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data[0].Color).toBe('Red');
   });
 
   it('Should return empty array', async () => {
@@ -48,6 +48,6 @@ describe('Integration cars/getAllCars', () => {
       .set(commonHeaders(99))
       .send()
       .expect(HTTPResponses.Success);
-    expect(result.body.length).toEqual(0);
+    expect(result.body.data.length).toEqual(0);
   });
 });

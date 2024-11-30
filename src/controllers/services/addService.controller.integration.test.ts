@@ -37,7 +37,7 @@ describe('Integration providers/addService', () => {
         serviceName: "test"
       })
       .expect(HTTPResponses.Success);
-    expect(result.body.createdItemId).toBeDefined();
-    expect(result.body.result).toBe(true);
+    expect(result.body.data.createdItemId).toBeDefined();
+    expect(result.body.data.result).toBe(true);
   });
 });

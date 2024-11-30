@@ -27,7 +27,7 @@ describe('Integration users/register', () => {
         UserTypeName: randomTypename,
       })
       .expect(HTTPResponses.Success);
-    expect(result.body.result).toEqual(true);
+    expect(result.body.data.result).toEqual(true);
   });
 
   it('Should success and make provider initially inactive until verification', async () => {
@@ -53,7 +53,7 @@ describe('Integration users/register', () => {
         UserTypeName: 'Provider',
       })
       .expect(HTTPResponses.Success);
-    expect(result.body.result).toEqual(true)
+    expect(result.body.data.result).toEqual(true)
   });
 
   it('Should fail because of schema validation', async () => {
@@ -67,6 +67,6 @@ describe('Integration users/register', () => {
         unkownArg: '1',
       })
       .expect(HTTPResponses.ValidationError);
-    expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
+    expect(result.body.data.message).toEqual(HTTPErrorString.BadRequest);
   });
 });

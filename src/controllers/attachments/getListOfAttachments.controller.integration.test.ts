@@ -38,7 +38,7 @@ describe('Integration attachments/getAllAttachmentTypes', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body[0].Name).toBe(generatedAttachmentName);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data[0].Name).toBe(generatedAttachmentName);
   });
 });

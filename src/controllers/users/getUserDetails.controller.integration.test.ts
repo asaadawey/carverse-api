@@ -36,7 +36,7 @@ describe('Integration user/getUserDetails', () => {
       .send()
       .expect(HTTPResponses.Success);
 
-    expect(result.body.Email).toBe('testEmail');
+    expect(result.body.data.Email).toBe('testEmail');
   });
 
   it('Should fail because customer is trying to access other user id', async () => {
@@ -84,6 +84,6 @@ describe('Integration user/getUserDetails', () => {
       .send()
       .expect(HTTPResponses.Success);
 
-    expect(result.body.Email).toBe('testEmail');
+    expect(result.body.data.Email).toBe('testEmail');
   });
 });

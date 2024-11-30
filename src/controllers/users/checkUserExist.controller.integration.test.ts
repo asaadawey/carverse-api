@@ -29,7 +29,7 @@ describe('Integration users/checkUserExist', () => {
         PhoneNumber: 'testPhone',
       })
       .expect(HTTPResponses.Success);
-    expect(result.body.result).toEqual(true);
+    expect(result.body.data.result).toEqual(true);
   });
 
   it('Should fail because of schema validation', async () => {
@@ -42,7 +42,7 @@ describe('Integration users/checkUserExist', () => {
         unkownArg: '1',
       })
       .expect(HTTPResponses.ValidationError);
-    expect(result.body.message).toEqual(HTTPErrorString.BadRequest);
+    expect(result.body.data.message).toEqual(HTTPErrorString.BadRequest);
   });
 
   it('Should return false if user not exist', async () => {
@@ -54,6 +54,6 @@ describe('Integration users/checkUserExist', () => {
         PhoneNumber: randomstring.generate(7),
       })
       .expect(HTTPResponses.Success);
-    expect(result.body.result).toEqual(false);
+    expect(result.body.data.result).toEqual(false);
   });
 });

@@ -149,7 +149,7 @@ describe('Integration orders/addOrder', () => {
       select: { id: true },
     });
 
-    expect(result.body.id).toBe(createdOrder?.id);
+    expect(result.body.data.id).toBe(createdOrder?.id);
   });
 
   it("Should fail because the total amount sent is incorrect and doesn't match", async () => {
@@ -180,7 +180,7 @@ describe('Integration orders/addOrder', () => {
       })
       .expect(HTTPResponses.BusinessError);
 
-    expect(result.body.message).toBe(HTTPErrorString.SomethingWentWrong);
+    expect(result.body.data.message).toBe(HTTPErrorString.SomethingWentWrong);
   });
 
   it('Should be false because schema is incorrect', async () => {
@@ -202,7 +202,7 @@ describe('Integration orders/addOrder', () => {
       })
       .expect(HTTPResponses.ValidationError);
 
-    expect(result.body.message).toBe(HTTPErrorString.BadRequest);
+    expect(result.body.data.message).toBe(HTTPErrorString.BadRequest);
   });
 
   it('Should be false because method name is not active', async () => {
@@ -234,6 +234,6 @@ describe('Integration orders/addOrder', () => {
       })
       .expect(HTTPResponses.BusinessError);
 
-    expect(result.body.message).toBe(HTTPErrorString.SomethingWentWrong);
+    expect(result.body.data.message).toBe(HTTPErrorString.SomethingWentWrong);
   });
 });

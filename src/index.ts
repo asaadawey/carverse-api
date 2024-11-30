@@ -69,7 +69,7 @@ app.get('/cvapi-csrf', getCsrfRoute);
 
 app.use(prismaInjectorMiddleware)
 
-app.use(routes);
+app.use("/api/v1", routes);
 
 app.use(errorMiddleware);
 

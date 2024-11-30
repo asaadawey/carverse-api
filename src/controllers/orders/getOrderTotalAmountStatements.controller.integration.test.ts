@@ -137,9 +137,9 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
       .send({})
       .expect(HTTPResponses.Success);
 
-    expect(Array.isArray(result.body.statements)).toBe(true);
-    expect(result.body.statements[1].relatedConstantId).toBe(createdVatConstantId);
-    expect(new Decimal(decrypt(result.body.totalAmount))).toEqual(
+    expect(Array.isArray(result.body.data.statements)).toBe(true);
+    expect(result.body.data.statements[1].relatedConstantId).toBe(createdVatConstantId);
+    expect(new Decimal(decrypt(result.body.data.totalAmount))).toEqual(
       new Decimal(vat).add(new Decimal(providerServicePrice)).add(new Decimal(serviceFees)),
     );
   });

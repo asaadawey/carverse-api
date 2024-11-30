@@ -42,7 +42,7 @@ describe('Integration cars/checkCarExist', () => {
       .get(RouterLinks.verifyCarNumber.replace(':plateNumber', randomPlateNumber))
       .set(commonHeaders())
       .expect(HTTPResponses.Success);
-    expect(result.body.result).toEqual(true);
+    expect(result.body.data.result).toEqual(true);
   });
 
   it('Should return false if car not exist', async () => {
@@ -50,6 +50,6 @@ describe('Integration cars/checkCarExist', () => {
       .get(RouterLinks.verifyCarNumber.replace(':plateNumber', randomstring.generate(7)))
       .set(commonHeaders())
       .expect(HTTPResponses.Success);
-    expect(result.body.result).toEqual(false);
+    expect(result.body.data.result).toEqual(false);
   });
 });

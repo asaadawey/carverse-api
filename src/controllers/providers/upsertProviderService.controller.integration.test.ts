@@ -94,7 +94,7 @@ test("", () => {
 //       select: { id: true, ServiceID: true },
 //     });
 
-//     expect(createdProviderService?.id).toBe(result.body.createdItemId);
+//     expect(createdProviderService?.id).toBe(result.body.data.createdItemId);
 //   });
 
 //   it('Should success and update existing provider service', async () => {

@@ -92,9 +92,9 @@ describe('Integration providers/getAllProviderServices', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(1);
-    expect(result.body[0].Pofeciency).toBe('Expert');
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(1);
+    expect(result.body.data[0].Pofeciency).toBe('Expert');
   });
 
   it('Should return empty array becuase provider id is incorrect', async () => {
@@ -107,8 +107,8 @@ describe('Integration providers/getAllProviderServices', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(0);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(0);
   });
 
   it('Should return unauthorised if the access person is incorrect', async () => {

@@ -58,9 +58,9 @@ describe('Integration services/getAllServices', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(1);
-    expect(result.body[0].ServiceName).toBe('testName');
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(1);
+    expect(result.body.data[0].ServiceName).toBe('testName');
   });
 
   it('Should return empty array becuase module id is incorrect', async () => {
@@ -69,7 +69,7 @@ describe('Integration services/getAllServices', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(0);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(0);
   });
 });

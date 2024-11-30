@@ -17,7 +17,7 @@ describe('Integration cars/getAllBodyTypes', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body[0].TypeName).toBe(generatedTypeName);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data[0].TypeName).toBe(generatedTypeName);
   });
 });

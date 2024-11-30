@@ -90,8 +90,8 @@ describe('Integration providers/getOneProvider', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(result.body).toBeTruthy();
-    expect(result.body.id).toBe(createdProviderId);
+    expect(result.body.data).toBeTruthy();
+    expect(result.body.data.id).toBe(createdProviderId);
   });
 
   it('Should return one provider with provider id', async () => {
@@ -100,8 +100,8 @@ describe('Integration providers/getOneProvider', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(result.body).toBeTruthy();
-    expect(result.body.id).toBe(createdProviderId);
+    expect(result.body.data).toBeTruthy();
+    expect(result.body.data.id).toBe(createdProviderId);
   });
 
   it('Should return empty if no provider found', async () => {
@@ -111,7 +111,7 @@ describe('Integration providers/getOneProvider', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Object.keys(result.body).length).toBe(0);
+    expect(Object.keys(result.body.data).length).toBe(0);
   });
 
   it('Should return zero orders', async () => {
@@ -120,6 +120,6 @@ describe('Integration providers/getOneProvider', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(result.body.ordersCount).toBe(0);
+    expect(result.body.data.ordersCount).toBe(0);
   });
 });

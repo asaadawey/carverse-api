@@ -17,8 +17,8 @@ describe('Integration constants/getAllConstants', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Array.isArray(result.body)).toBe(true);
-    expect(result.body.length).toBe(1);
-    expect(result.body[0].ModuleName).toBe(generatedTypeName);
+    expect(Array.isArray(result.body.data)).toBe(true);
+    expect(result.body.data.length).toBe(1);
+    expect(result.body.data[0].ModuleName).toBe(generatedTypeName);
   });
 });
