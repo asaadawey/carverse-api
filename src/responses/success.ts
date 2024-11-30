@@ -4,14 +4,16 @@ import { HTTPResponses } from 'src/interfaces/enums';
 const createSuccessResponse = <T>(
   req: Request | any,
   res: Response<T>,
-  body: T,
+  data: T,
   next: NextFunction,
   status: HTTPResponses = HTTPResponses.Success,
 ) => {
-  console.log(`[POST-LOG] SUCCESS [${status}] ${JSON.stringify({ body, req_id: req.headers["req_id"] })}\n`);
+  const requestId = req.headers["req_id"] || req.header('req_id') || "";
+  console.log(`[POST-LOG] SUCCESS [IP : ${req.ip}] [${status}] ${JSON.stringify({ data, requestId })}\n`);
   if (!res.headersSent)
-    res.setHeader("req_id", req.header('req_id') || "")
-  res.status(status).json(body);
+    res.setHeader("req_id", requestId)
+
+  res.status(status).json({ data, status, requestId } as any);
   next();
 };
 

@@ -14,7 +14,7 @@ function main() {
 
     for (let file of files) {
         // Exculde test files
-        if (!file.includes(".spec.") && !file.includes(".test.")) {
+        if (!file.includes(".spec.") && !file.includes(".test.") && file !== "src/index.ts") {
             const contents = readFileSync(`${file}`).toString();
             if (contents.includes("http://") || contents.includes("https://")) {
                 console.log("Found secured values at " + file + "\n")

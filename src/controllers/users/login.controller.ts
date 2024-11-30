@@ -91,6 +91,11 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         HTTPErrorMessages.InvalidUsernameOrPassowrd,
         'Password incorrect',
       );
+
+    // Check delete requests for the user
+    const deleteRequest = await req.prisma.deleteRequests.findFirst({ where: { UserID: user.id }, select: { IsProcessed: true, id: true } })
+    if (deleteRequest !== undefined && deleteRequest !== null)
+      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.AccountDeleted, "Delete request id " + deleteRequest?.id)
     // const headerSalt = req.headers['salt'];
 
     // const envSalt = envVars.auth.apiSalt;

@@ -16,17 +16,22 @@ export const {
 
 export const getCsrfRoute = (req, res) => {
     let fullToken = "";
-    // The following will override the res.cookie function so it can be used inside mobile
-    // const currentResCookie = res.cookie;
-    // @ts-ignore
-    res.cookie = (name, val) => {
-        if (name === envVars.cookies.key) {
-            // Will be in
-            fullToken = val;
-        }
-        // currentResCookie(name, val)
-    }
-    const token = req.csrfToken();
     const allowedClient = getAllowedClient(req);
-    return res.json(allowedClient === AllowedClients.MobileApp ? { fullToken, token } : { token });
+    if (allowedClient === AllowedClients.MobileApp) {
+        // The following will override the res.cookie function so it can be used inside mobile
+        // const currentResCookie = res.cookie;
+        // @ts-ignore
+        res.cookie = (name, val) => {
+            if (name === envVars.cookies.key) {
+                // Will be in
+                fullToken = val;
+            }
+            // currentResCookie(name, val)
+        }
+        const token = req.csrfToken();
+        return res.json({ fullToken, token })
+    }
+    else {
+        return res.json({ token: generateToken(req, res) })
+    }
 };

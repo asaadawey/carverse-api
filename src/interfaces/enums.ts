@@ -35,6 +35,7 @@ export enum HTTPErrorMessages {
   InvalidUsernameOrPassowrd = 'Invalid username or password',
   NoSufficientPermissions = 'No sufficient permission',
   AccountInactive = 'Your account is still inactive/under processing',
+  AccountDeleted = 'Your account has been deleted as per your request/admin request'
 }
 
 export enum HTTPResponses {

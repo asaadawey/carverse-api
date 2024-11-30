@@ -5,9 +5,7 @@ import errorMiddleware from 'src/middleware/error.middleware';
 import { apiAuthRoute } from 'src/middleware/apiAuth.middleware';
 import routes from 'src/routes/index';
 
-import io from 'src/web-socket/index';
-
-import path from 'path';
+import cors from 'cors';
 
 import { preLogmiddleware } from 'src/middleware/log.middleware';
 import helmet from 'helmet';
@@ -28,6 +26,11 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cors({
+  origin: ["http://localhost:5173", "https://localhost:5173", "https://carverse-web-7d8ac41a6885.herokuapp.com"],
+  credentials: true, exposedHeaders: ["set-cookie"],
+}))
 
 app.use(helmet());
 app.use(cookieParser(envVars.appSecret))
