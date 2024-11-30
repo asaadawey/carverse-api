@@ -10,7 +10,7 @@ export const {
 } = doubleCsrf({
     getSecret: () => envVars.cookies.secret,
     cookieName: envVars.cookies.key,
-    cookieOptions: { sameSite: true, secure: !isDev, signed: false },
+    cookieOptions: { sameSite: "none", secure: !isDev, signed: false },
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
 });
 
