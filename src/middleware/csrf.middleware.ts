@@ -2,17 +2,31 @@ import { doubleCsrf } from "csrf-csrf";
 import envVars, { isDev } from "src/config/environment";
 import { getAllowedClient } from "./allowedClient.middleware";
 import { AllowedClients } from "src/interfaces/enums";
+import { RequestHandler } from "express";
 
 export const {
     invalidCsrfTokenError,
     generateToken,
-    doubleCsrfProtection
+    doubleCsrfProtection: csrfRoute
 } = doubleCsrf({
     getSecret: () => envVars.cookies.secret,
     cookieName: envVars.cookies.key,
-    cookieOptions: { sameSite: "none", secure: !isDev, signed: false },
+    cookieOptions: { sameSite: isDev ? false : "none", secure: !isDev, signed: false, },
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
 });
+
+export const doubleCsrfProtection: RequestHandler = (req, res, next) => {
+    try {
+        // For some reasons. Chromium have some flags that making csrf not working.
+        var isChromium = req.headers['user-agent']?.match(/Chromium/);
+
+        if (!isChromium)
+            csrfRoute(req, res, next)
+
+    } catch (e) { next(e); }
+
+    next();
+}
 
 export const getCsrfRoute = (req, res) => {
     let fullToken = "";
