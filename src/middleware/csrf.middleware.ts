@@ -7,26 +7,26 @@ import { RequestHandler } from "express";
 export const {
     invalidCsrfTokenError,
     generateToken,
-    doubleCsrfProtection: csrfRoute
+    doubleCsrfProtection/*: csrfRoute*/
 } = doubleCsrf({
     getSecret: () => envVars.cookies.secret,
-    cookieName: "__HOST-CVAPI",
+    cookieName: envVars.cookies.key,
     cookieOptions: { secure: true, signed: false, path: "/" },
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
 });
 
-export const doubleCsrfProtection: RequestHandler = (req, res, next) => {
-    try {
-        // For some reasons. Chromium have some flags that making csrf not working.
-        var isChromium = req.headers['user-agent']?.match(/Chromium/);
+// export const doubleCsrfProtection: RequestHandler = (req, res, next) => {
+//     try {
+//         // For some reasons. Chromium have some flags that making csrf not working.
+//         var isChromium = req.headers['user-agent']?.match(/Chromium/);
 
-        if (!isChromium)
-            return csrfRoute(req, res, next)
+//         if (!isChromium)
+//             return csrfRoute(req, res, next)
 
-    } catch (e) { next(e); }
+//     } catch (e) { next(e); }
 
-    next();
-}
+//     next();
+// }
 
 export const getCsrfRoute = (req, res) => {
     let fullToken = "";
