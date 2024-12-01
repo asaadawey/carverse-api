@@ -11,7 +11,7 @@ export const {
 } = doubleCsrf({
     getSecret: () => envVars.cookies.secret,
     cookieName: "__HOST-CVAPI",
-    cookieOptions: { sameSite: "none", secure: true, signed: false, path: "/" },
+    cookieOptions: { secure: true, signed: false, path: "/" },
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
 });
 
