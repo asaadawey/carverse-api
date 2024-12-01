@@ -21,7 +21,7 @@ export const doubleCsrfProtection: RequestHandler = (req, res, next) => {
         var isChromium = req.headers['user-agent']?.match(/Chromium/);
 
         if (!isChromium)
-            csrfRoute(req, res, next)
+            return csrfRoute(req, res, next)
 
     } catch (e) { next(e); }
 
