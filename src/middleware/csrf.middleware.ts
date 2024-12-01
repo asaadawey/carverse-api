@@ -10,8 +10,8 @@ export const {
     doubleCsrfProtection: csrfRoute
 } = doubleCsrf({
     getSecret: () => envVars.cookies.secret,
-    cookieName: envVars.cookies.key,
-    cookieOptions: { sameSite: isDev ? false : "none", secure: !isDev, signed: false, },
+    cookieName: "__HOST-CVAPI",
+    cookieOptions: { sameSite: "none", secure: true, signed: false, path: "/" },
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
 });
 
