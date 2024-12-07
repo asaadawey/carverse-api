@@ -29,7 +29,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-  origin: ["http://localhost:5173", "https://localhost:5173", "https://carverse-web-7d8ac41a6885.herokuapp.com"],
+  origin:
+    [
+      "http://localhost:5173",
+      "https://localhost:5173",
+      "http://web.carverse.me",
+      "https://web.carverse.me",
+      "http://api.carverse.me",
+      "https://api.carverse.me",
+    ],
   credentials: true, exposedHeaders: ["set-cookie"],
 }))
 
