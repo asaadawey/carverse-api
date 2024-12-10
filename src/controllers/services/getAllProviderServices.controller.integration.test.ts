@@ -83,7 +83,7 @@ describe('Integration providers/getAllProviderServices', () => {
   });
 
   it('Should success and return services', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix +
         RouterLinks.getAllProviderServices
           .replace(':moduleId', String(createdModuleId))
@@ -98,7 +98,7 @@ describe('Integration providers/getAllProviderServices', () => {
   });
 
   it('Should return empty array becuase provider id is incorrect', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix +
         RouterLinks.getAllProviderServices
           .replace(':moduleId', String(createdModuleId))
@@ -112,7 +112,7 @@ describe('Integration providers/getAllProviderServices', () => {
   });
 
   it('Should return unauthorised if the access person is incorrect', async () => {
-    await supertest(app)
+    await supertest(await app())
       .get(apiPrefix +
         RouterLinks.getAllProviderServices
           .replace(':moduleId', String(createdModuleId))

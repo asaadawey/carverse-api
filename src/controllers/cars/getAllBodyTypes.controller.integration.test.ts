@@ -12,7 +12,7 @@ describe('Integration cars/getAllBodyTypes', () => {
     await prisma.bodyTypes.create({
       data: { TypeName: generatedTypeName },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getBodyTypes)
       .set(commonHeaders())
       .send()

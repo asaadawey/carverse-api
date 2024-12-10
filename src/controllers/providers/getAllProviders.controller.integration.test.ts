@@ -111,7 +111,7 @@ describe('Integration providers/getAllProviders', () => {
   });
 
   it('Should success with no average', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getAllProviders}?ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
@@ -122,7 +122,7 @@ describe('Integration providers/getAllProviders', () => {
   });
 
   it('Should success with no average and only return providers with givin ids', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getAllProviders}?ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
@@ -133,7 +133,7 @@ describe('Integration providers/getAllProviders', () => {
   });
 
   // it('Should success with average', async () => {
-  //   const result = await supertest(app)
+  //   const result = await supertest(await app())
   //     .get(`${RouterLinks.getAllProviders}?avg=true&ids=${createdProvider.UserID}`)
   //     .set(commonHeaders())
   //     .send()
@@ -144,7 +144,7 @@ describe('Integration providers/getAllProviders', () => {
   // });
 
   it('Should success and return 0 length because take pagination is zero', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getAllProviders}?take=0&ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()
@@ -154,7 +154,7 @@ describe('Integration providers/getAllProviders', () => {
   });
 
   it('Should fail because wrong value passed to average', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getAllProviders}?avg=wrong&ids=${createdProvider.UserID}`)
       .set(commonHeaders())
       .send()

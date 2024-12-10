@@ -10,7 +10,7 @@ import { encrypt, generateHashedString } from 'src/utils/encrypt';
 
 describe('Integration users/login', () => {
   it('Should fail if username and password is incorrect', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.login)
       .set(commonHeaders(1, true))
       .send({
@@ -23,7 +23,7 @@ describe('Integration users/login', () => {
   });
 
   it('Should fail because of schema validation', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.login)
       .set(commonHeaders(1, true))
       .send({
@@ -52,7 +52,7 @@ describe('Integration users/login', () => {
         userTypes: { create: { TypeName: randomTypename, AllowedClients: ['cp'] } },
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.login)
       .set(commonHeaders(1, true))
       .send({

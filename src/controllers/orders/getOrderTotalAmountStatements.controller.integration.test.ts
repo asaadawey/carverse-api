@@ -129,7 +129,7 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
 
   it('Should success and return right statements', async () => {
     const vat = providerServicePrice * ((vatPerc as number) / 100);
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix +
         `${RouterLinks.getOrderTotalAmountStatements}?paymentMethodName=Cash&providerServiceBodyTypesIds=${createdProviderServiceId}`,
       )

@@ -21,7 +21,7 @@ describe('Integration users/checkUserExist', () => {
         userTypes: { create: { TypeName: randomTypename } },
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.checkUserExist)
       .set(commonHeaders())
       .send({
@@ -33,7 +33,7 @@ describe('Integration users/checkUserExist', () => {
   });
 
   it('Should fail because of schema validation', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.checkUserExist)
       .set(commonHeaders())
       .send({
@@ -46,7 +46,7 @@ describe('Integration users/checkUserExist', () => {
   });
 
   it('Should return false if user not exist', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.checkUserExist)
       .set(commonHeaders())
       .send({

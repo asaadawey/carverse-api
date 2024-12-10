@@ -12,7 +12,7 @@ describe('Integration paymentMethods/getAllPaymentMethods', () => {
     await prisma.paymentMethods.create({
       data: { MethodName: generatedTypeName, MethodDescription: '' },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getAllPaymentMethods)
       .set(commonHeaders())
       .send()

@@ -85,7 +85,7 @@ describe('Integration providers/getOneProvider', () => {
   });
 
   it('Should return one provider with user id', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(createdUserId))}`)
       .set(commonHeaders())
       .send()
@@ -95,7 +95,7 @@ describe('Integration providers/getOneProvider', () => {
   });
 
   it('Should return one provider with provider id', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(createdProviderId))}`)
       .set(commonHeaders())
       .send()
@@ -106,7 +106,7 @@ describe('Integration providers/getOneProvider', () => {
 
   it('Should return empty if no provider found', async () => {
     const randomId = 11111111;
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(randomId))}`)
       .set(commonHeaders())
       .send()
@@ -115,7 +115,7 @@ describe('Integration providers/getOneProvider', () => {
   });
 
   it('Should return zero orders', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(createdNoOrdersUserId))}`)
       .set(commonHeaders())
       .send()

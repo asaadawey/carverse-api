@@ -14,7 +14,7 @@ describe('Integration users/register', () => {
         TypeName: randomTypename,
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.register)
       .set(commonHeaders())
       .send({
@@ -40,7 +40,7 @@ describe('Integration users/register', () => {
         TypeName: 'Provider',
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.register)
       .set(commonHeaders())
       .send({
@@ -58,7 +58,7 @@ describe('Integration users/register', () => {
 
   it('Should fail because of schema validation', async () => {
     console.log(RouterLinks.register);
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.register)
       .set(commonHeaders())
       .send({

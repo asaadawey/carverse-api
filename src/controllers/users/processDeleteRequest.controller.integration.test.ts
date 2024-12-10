@@ -29,7 +29,7 @@ describe('Integration user/addDeleteRequest', () => {
 
   it('Should add delete request', async () => {
 
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + `${RouterLinks.addDeleteRequest.replace(':userId?', "")}`)
       .set(commonHeaders(customerUserId))
       .send()
@@ -53,7 +53,7 @@ describe('Integration user/addDeleteRequest', () => {
         id: true,
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + `${RouterLinks.addDeleteRequest.replace(':userId?', customerUserId)}`)
       .set(commonHeaders(createResult.id, false, { extrauser: { userType: UserTypes.Customer } }))
       .send()
@@ -77,7 +77,7 @@ describe('Integration user/addDeleteRequest', () => {
         id: true,
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + `${RouterLinks.addDeleteRequest.replace(':userId?', customerUserId)}`)
       .set(commonHeaders(createResult.id, false, { extrauser: { userType: UserTypes.Admin } }))
       .send()

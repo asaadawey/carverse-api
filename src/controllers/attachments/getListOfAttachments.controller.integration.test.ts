@@ -33,7 +33,7 @@ describe('Integration attachments/getAllAttachmentTypes', () => {
     createdAttachmentType = createdAttachment.attachmentType.TypeName;
   });
   it('Should return one type', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getListOfAttachments.replace(':typeName', '' + createdAttachmentType))
       .set(commonHeaders())
       .send()

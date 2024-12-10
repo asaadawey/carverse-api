@@ -26,7 +26,7 @@ describe('Integration providers/addService', () => {
   });
 
   it('Should success and return services', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix +
         RouterLinks.addServices
       )

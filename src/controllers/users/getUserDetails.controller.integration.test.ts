@@ -30,7 +30,7 @@ describe('Integration user/getUserDetails', () => {
 
   it('Should return logged in user details', async () => {
 
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getUserDetails.replace(':userId?', "")}`)
       .set(commonHeaders(customerUserId))
       .send()
@@ -54,7 +54,7 @@ describe('Integration user/getUserDetails', () => {
         id: true,
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getUserDetails.replace(':userId?', customerUserId)}`)
       .set(commonHeaders(createResult.id, false, { extrauser: { userType: UserTypes.Customer } }))
       .send()
@@ -78,7 +78,7 @@ describe('Integration user/getUserDetails', () => {
         id: true,
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getUserDetails.replace(':userId?', customerUserId)}`)
       .set(commonHeaders(createResult.id, false, { extrauser: { userType: UserTypes.Admin } }))
       .send()

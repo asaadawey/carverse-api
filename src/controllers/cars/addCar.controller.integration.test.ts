@@ -36,7 +36,7 @@ describe('Integration cars/addCar', () => {
     bodyId = createBodyResult.id;
   });
   it('Should return false because plate number is nort right', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.addCar)
       .set(commonHeaders(userId))
       .send({
@@ -53,7 +53,7 @@ describe('Integration cars/addCar', () => {
   });
 
   it('Should return one car as will be created', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.addCar)
       .set(commonHeaders(userId))
       .send({

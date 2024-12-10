@@ -12,7 +12,7 @@ describe('Integration constants/getAllConstants', () => {
     await prisma.modules.create({
       data: { ModuleName: generatedTypeName, ModuleDescription: 'Des', ModuleIconLink: '/dd/' },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getModules)
       .set(commonHeaders())
       .send()

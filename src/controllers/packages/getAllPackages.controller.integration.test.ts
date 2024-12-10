@@ -40,7 +40,7 @@ describe('Integration packages/getAllPackages', () => {
       },
     });
     const carWash = await prisma.modules.findUnique({ where: { ModuleName: 'Car washing' } });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getPackages.replace(':moduleId', String(carWash?.id) || ''))
       .set(commonHeaders())
       .send()
@@ -51,7 +51,7 @@ describe('Integration packages/getAllPackages', () => {
   });
 
   it('Should fail because no moduleId passed', async () => {
-    await supertest(app)
+    await supertest(await app())
       .get(apiPrefix + RouterLinks.getPackages.replace(':moduleId', ''))
       .set(commonHeaders())
       .send()

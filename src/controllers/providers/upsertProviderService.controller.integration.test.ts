@@ -78,7 +78,7 @@ test("", () => {
 //     createdServiceId = createService.id;
 //   });
 //   it('Should success and create a new provider service', async () => {
-//     const result = await supertest(app)
+//     const result = await supertest(await app())
 //       .post(RouterLinks.addProviderService)
 //       .set(commonHeaders(providerUserId, false, { extrauser: { providerId: providerId } }))
 //       .send({
@@ -108,7 +108,7 @@ test("", () => {
 //         id: true,
 //       }
 //     })
-//     await supertest(app)
+//     await supertest(await app())
 //       .post(RouterLinks.addProviderService)
 //       .set(commonHeaders(providerUserId))
 //       .send({
@@ -138,7 +138,7 @@ test("", () => {
 //         id: true,
 //       }
 //     })
-//     await supertest(app)
+//     await supertest(await app())
 //       .post(RouterLinks.addProviderService)
 //       .set(commonHeaders(providerUserId))
 //       .send({

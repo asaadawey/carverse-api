@@ -1,4 +1,5 @@
 import http from 'http';
+// import https from 'https';
 
 import envVars from 'src/config/environment';
 
@@ -6,18 +7,28 @@ import app from 'src';
 
 import io from 'src/web-socket/index';
 
-const server = http.createServer(app);
 
-io.listen(server);
+async function main() {
+  const server = http.createServer(await app());
 
-server.listen(envVars.port, () => {
-  console.log(`Port : ${envVars.port} Listen start at ${new Date().toISOString()}`);
-});
+  io.listen(server);
 
-process.on('uncaughtException', (error) => {
-  console.log({ error })
+  server.listen(envVars.port, () => {
+    console.log(`Port : ${envVars.port} Listen start at ${new Date().toISOString()}`);
+  });
+
+  process.on('uncaughtException', (error) => {
+    console.log({ error })
+  })
+
+  process.on('unhandledRejection', (error) => {
+    console.log({ error })
+  })
+}
+
+//@ts-ignore
+main().finally((stack: any) => {
+  console.log({ stack })
 })
 
-process.on('unhandledRejection', (error) => {
-  console.log({ error })
-})
+

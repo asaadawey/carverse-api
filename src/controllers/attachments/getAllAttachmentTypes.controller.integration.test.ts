@@ -12,7 +12,7 @@ describe('Integration attachments/getAllAttachmentTypes', () => {
     await prisma.attachmentTypes.create({
       data: { TypeName: generatedTypeName },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getAllAttachmentTypes)
       .set(commonHeaders())
       .send()

@@ -38,7 +38,7 @@ describe('Integration cars/checkCarExist', () => {
         },
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.verifyCarNumber.replace(':plateNumber', randomPlateNumber))
       .set(commonHeaders())
       .expect(HTTPResponses.Success);
@@ -46,7 +46,7 @@ describe('Integration cars/checkCarExist', () => {
   });
 
   it('Should return false if car not exist', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.verifyCarNumber.replace(':plateNumber', randomstring.generate(7)))
       .set(commonHeaders())
       .expect(HTTPResponses.Success);

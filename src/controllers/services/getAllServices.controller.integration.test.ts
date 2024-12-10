@@ -53,7 +53,7 @@ describe('Integration services/getAllServices', () => {
   });
 
   it('Should success and return services', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getAllServices.replace(':moduleId', String(createdModuleId)))
       .set(commonHeaders())
       .send()
@@ -64,7 +64,7 @@ describe('Integration services/getAllServices', () => {
   });
 
   it('Should return empty array becuase module id is incorrect', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getAllServices.replace(':moduleId', String(createdModuleId + 123)))
       .set(commonHeaders())
       .send()

@@ -55,7 +55,7 @@ describe('Integration orders/getOneOrder', () => {
         id: true,
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getOneOrder.replace('/:id', '')}/${createResult.id}`)
       .set(commonHeaders())
       .send()
@@ -66,7 +66,7 @@ describe('Integration orders/getOneOrder', () => {
 
   it('Should success but no order found', async () => {
     const randomId = 11111111;
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + `${RouterLinks.getOneOrder.replace(':id', String(randomId))}`)
       .set(commonHeaders())
       .send()

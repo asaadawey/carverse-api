@@ -19,68 +19,100 @@ import { doubleCsrfProtection, getCsrfRoute } from './middleware/csrf.middleware
 import mobileCookieInjector from './middleware/mobileCookieInjector.middleware';
 
 import prismaInjectorMiddleware from './middleware/prismaInjector.middleware';
+
 import { apiPrefix } from './constants/links';
 
-const app = express();
+import { createClient } from 'redis';
+import RedisStore from 'rate-limit-redis';
+import rateLimit from 'express-rate-limit';
 
+async function getApp(): Promise<any> {
+  const app = express();
 
+  if (!isTest) {
+    const redisClient = createClient({
+      url: 'redis://:38pXBAY7Pr7S0U642UxbYSZJkac4VxAy@redis-12880.c90.us-east-1-3.ec2.redns.redis-cloud.com:12880'
+    });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+    await redisClient.connect();
 
-app.use(cors({
-  origin:
-    [
-      "http://localhost:5173",
-      "https://localhost:5173",
-      "http://web.carverse.me",
-      "https://web.carverse.me",
-      "http://api.carverse.me",
-      "https://api.carverse.me",
-    ],
-  credentials: true, exposedHeaders: ["set-cookie"],
-}))
+    // Create and use the rate limiter
+    const limiter = rateLimit({
+      // Rate limiter configuration
+      windowMs: 4 * 60 * 1000, // 15 minutes
+      max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 
-app.use(helmet());
-app.use(cookieParser(envVars.appSecret))
+      // Redis store configuration
+      store: new RedisStore({
+        sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+      }),
+      message: {
+        error: true
+      }
+    })
+    app.use(limiter)
+  }
 
-app.use(preLogmiddleware);
+  app.use(cors({
+    origin:
+      [
+        "http://localhost:5173",
+        "https://localhost:5173",
+        "https://web.carverse.me",
+        "https://api.carverse.me",
+      ],
+    credentials: true, exposedHeaders: ["set-cookie"],
+  }))
 
-// API Auth middleware
-app.use(apiAuthRoute);
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
-app.get('/health', ({ }, res) => {
-  console.log("Health")
+  app.use(helmet());
+  app.use(cookieParser(envVars.appSecret))
 
-  return res.json({
-    status: 200, message: "OK", hostname: os.hostname(),
-    ...envVars.appServer
+  app.use(preLogmiddleware);
+
+  // API Auth middleware
+  app.use(apiAuthRoute);
+
+  app.get('/health', ({ }, res) => {
+    console.log("Health")
+
+    return res.json({
+      status: 200, message: "OK", hostname: os.hostname(),
+      ...envVars.appServer
+    })
   })
-})
 
-// Csrf
-app.use(mobileCookieInjector);
+  // Csrf
+  app.use(mobileCookieInjector);
 
-if (!isTest)
-  app.use(doubleCsrfProtection);
+  if (!isTest)
+    app.use(doubleCsrfProtection);
 
-app.get('/cvapi-csrf', getCsrfRoute);
+  app.get('/cvapi-csrf', getCsrfRoute);
 
-// // Inject websocket
-// app.use(({ }, res, next) => {
-//   //@ts-ignore
-//   res.io = io;
-//   next();
-// });
-
-
-// app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))]);
-
-app.use(prismaInjectorMiddleware)
-
-app.use(apiPrefix, routes);
-
-app.use(errorMiddleware);
+  // // Inject websocket
+  // app.use(({ }, res, next) => {
+  //   //@ts-ignore
+  //   res.io = io;
+  //   next();
+  // });
 
 
-export default app;
+  // app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))]);
+
+  app.use(prismaInjectorMiddleware)
+
+  app.use(apiPrefix, routes);
+
+  app.use(errorMiddleware);
+
+  return app;
+}
+
+
+
+export default getApp;

@@ -33,7 +33,7 @@ describe('Integration cars/getAllCars', () => {
         id: true,
       },
     });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getCars)
       .set(commonHeaders(createResult.id))
       .send()
@@ -43,7 +43,7 @@ describe('Integration cars/getAllCars', () => {
   });
 
   it('Should return empty array', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .get(apiPrefix + RouterLinks.getCars)
       .set(commonHeaders(99))
       .send()

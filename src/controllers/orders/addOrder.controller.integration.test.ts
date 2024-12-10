@@ -115,7 +115,7 @@ describe('Integration orders/addOrder', () => {
 
   it('Should success', async () => {
     await prisma.orders.deleteMany();
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders(1, false, { extrauser: { customerId } }))
       .send({
@@ -153,7 +153,7 @@ describe('Integration orders/addOrder', () => {
   });
 
   it("Should fail because the total amount sent is incorrect and doesn't match", async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders())
       .send({
@@ -184,7 +184,7 @@ describe('Integration orders/addOrder', () => {
   });
 
   it('Should be false because schema is incorrect', async () => {
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders())
       .send({
@@ -207,7 +207,7 @@ describe('Integration orders/addOrder', () => {
 
   it('Should be false because method name is not active', async () => {
     await prisma.paymentMethods.update({ where: { MethodName: "Cash" }, data: { isActive: false } });
-    const result = await supertest(app)
+    const result = await supertest(await app())
       .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders())
       .send({
