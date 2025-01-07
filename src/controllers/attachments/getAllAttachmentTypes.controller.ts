@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
 
 //#region GetAllAttachmentTypes

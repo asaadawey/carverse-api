@@ -1,14 +1,17 @@
 /* eslint-disable no-console */
 import { Server, Socket } from 'socket.io';
-import * as _ from 'lodash';
-import prismaClient from 'src/helpers/databaseHelpers/client';
+import redisAdapter from "@socket.io/redis-adapter";
+import _ from 'lodash';
+import prismaClient from '@src/helpers/databaseHelpers/client';
 import { OrderHistory } from '../interfaces/enums';
 import schedule from 'node-schedule';
 import { addSeconds } from 'date-fns';
-import envVars from 'src/config/environment';
-import apiAuthMiddleware from 'src/middleware/apiAuth.middleware';
-import sendNotification from 'src/utils/sendNotification';
-import { cancelOnHoldPayment, capturePayment } from 'src/utils/payment';
+import envVars, { isTest } from '@src/config/environment';
+import apiAuthMiddleware from '@src/middleware/apiAuth.middleware';
+import sendNotification from '@src/utils/sendNotification';
+import { cancelOnHoldPayment, capturePayment } from '@src/utils/payment';
+import { Redis } from "ioredis";
+import corsOptions from '@src/utils/cors';
 
 //#region Enums & Interfaces
 export enum ProviderStatus {
@@ -121,8 +124,18 @@ type SocketData = {
 
 type CustomSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
+const pubClient = new Redis({
+  port: envVars.redis.port,
+  host: envVars.redis.host,
+  username: envVars.redis.username,
+  password: envVars.redis.password,
+});
+const subClient = pubClient.duplicate();
+
+
 const io = new Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData>({
-  cors: { origin: '*' },
+  cors: corsOptions,
+  adapter: !isTest ? redisAdapter.createAdapter(pubClient, subClient) : undefined
 });
 
 

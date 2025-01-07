@@ -1,7 +1,7 @@
-import envVars from 'src/config/environment';
-// import { encrypt } from 'src/utils/encrypt';
+import envVars from '@src/config/environment';
+// import { encrypt } from '@src/utils/encrypt';
 
-export const commonHeaders = (userId: number = 1, disableAuth = false, addtionalHeaders = {}) => {
+export const commonHeaders = (userId: number = 1, disableAuth = false, addtionalHeaders = {}): any => {
   let extraObjectToPass = {};
   Object.keys(addtionalHeaders).forEach(key => {
     if (typeof addtionalHeaders[key] === 'object')

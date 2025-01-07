@@ -1,7 +1,7 @@
-import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
+import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
 import addOrder from './addOrder.controller';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
-import { encrypt } from 'src/utils/encrypt';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
+import { encrypt } from '@src/utils/encrypt';
 import { Statements } from './getOrderTotalAmountStatements.controller';
 
 describe('orders/addOrder', () => {

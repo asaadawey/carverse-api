@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
-import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from '@src/interfaces/express.types';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
 //#region GetAllCars
 type GetAllCarsLinkQuery = {};

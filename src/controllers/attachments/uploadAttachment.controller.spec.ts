@@ -1,6 +1,6 @@
-import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
+import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
 import uploadAttachments from './uploadAttachment.controller';
-import { createSuccessResponse } from 'src/responses';
+import { createSuccessResponse } from '@src/responses/index';
 import { S3 } from '@aws-sdk/client-s3';
 
 jest.mock('@aws-sdk/client-s3');

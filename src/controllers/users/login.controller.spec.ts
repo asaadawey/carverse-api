@@ -1,11 +1,11 @@
 import login from './login.controller';
 import { DeepMockProxy } from 'jest-mock-extended';
 import { sign } from 'jsonwebtoken';
-import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
-import { HttpException } from 'src/errors';
-import { createSuccessResponse, createFailResponse } from 'src/responses';
-import { HTTPErrorMessages, HTTPResponses } from 'src/interfaces/enums';
-import { encrypt, generateHashedString } from 'src/utils/encrypt';
+import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
+import { HttpException } from '@src/errors/index';
+import { createSuccessResponse, createFailResponse } from '@src/responses/index';
+import { HTTPErrorMessages, HTTPResponses } from '@src/interfaces/enums';
+import { encrypt, generateHashedString } from '@src/utils/encrypt';
 
 jest.mock('jsonwebtoken');
 

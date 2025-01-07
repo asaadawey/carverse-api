@@ -1,4 +1,6 @@
-export const apiPrefix = "/api/v1";
+import envVars from '@src/config/environment';
+
+export const apiPrefix = envVars.baseUrl;
 
 export enum RouterLinks {
   //#region Attachments

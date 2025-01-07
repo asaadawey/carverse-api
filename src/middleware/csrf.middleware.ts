@@ -1,8 +1,7 @@
 import { doubleCsrf } from "csrf-csrf";
-import envVars, { isDev } from "src/config/environment";
+import envVars, { isDev } from "@src/config/environment";
 import { getAllowedClient } from "./allowedClient.middleware";
-import { AllowedClients } from "src/interfaces/enums";
-import { RequestHandler } from "express";
+import { AllowedClients } from "@src/interfaces/enums";
 
 export const {
     invalidCsrfTokenError,

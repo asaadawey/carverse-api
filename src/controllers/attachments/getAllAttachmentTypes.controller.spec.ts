@@ -1,6 +1,6 @@
-import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
+import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
 import getAllAttachmentTypes from './getAllAttachmentTypes.controller';
-import { createSuccessResponse } from 'src/responses';
+import { createSuccessResponse } from '@src/responses/index';
 
 describe('attachment/getAllAttachmentTypes', () => {
   it('Should success', async () => {

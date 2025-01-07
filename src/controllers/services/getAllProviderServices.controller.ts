@@ -1,10 +1,10 @@
 import { providerServices, providerServicesAllowedBodyTypes, services } from '@prisma/client';
 import { RequestHandler } from 'express';
-import { paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { paginationSchema, spreadPaginationParams } from '@src/interfaces/express.types';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
-import { HttpException } from 'src/errors';
-import { HTTPErrorMessages, HTTPResponses } from 'src/interfaces/enums';
+import { HttpException } from '@src/errors/index';
+import { HTTPErrorMessages, HTTPResponses } from '@src/interfaces/enums';
 //#region GetAllProviderServices
 type GetAllProviderServicesParams = {
   moduleId: string;

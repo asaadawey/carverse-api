@@ -1,8 +1,20 @@
-module.exports = {
+const config = {
+  moduleDirectories: ["node_modules", "src", "<rootDir>"],
+  preset: "ts-jest/presets/default-esm",
+  testEnvironment: "node",
+  extensionsToTreatAsEsm: [".ts"],
   transform: {
-    '^.+\\.ts?$': 'ts-jest',
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        useESM: true,
+      },
+    ],
   },
-  testEnvironment: 'node',
+  moduleNameMapper: {
+    "^@src/(.*)$": "<rootDir>/src/$1",
+    "^@assets/(.*)$": "<rootDir>/assets/$1",
+  },
   testRegex: '\\.(spec)\\.ts?$',
   moduleFileExtensions: ['js', 'ts'],
   modulePaths: ['<rootDir>'],
@@ -10,3 +22,5 @@ module.exports = {
   clearMocks: true,
   forceExit: true,
 };
+
+export default config;

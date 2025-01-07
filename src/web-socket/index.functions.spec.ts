@@ -1,6 +1,6 @@
-import { OrderHistory } from 'src/interfaces/enums';
+import { OrderHistory } from '@src/interfaces/enums';
 import * as socketFunctions from './index';
-import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
+import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
 
 jest.mock('socket.io');
 jest.mock('@prisma/client');

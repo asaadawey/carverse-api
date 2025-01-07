@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import httpMocks from 'node-mocks-http';
 import { mockDeep, mockReset, DeepMockProxy } from 'jest-mock-extended';
-import prisma from 'src/helpers/databaseHelpers/client';
+import prisma from '@src/helpers/databaseHelpers/client';
 
 jest.mock('src/helpers/databaseHelpers/client.ts', () => ({
   __esModule: true,

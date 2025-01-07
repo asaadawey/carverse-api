@@ -1,9 +1,9 @@
-import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
+import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
 import getOrderTotalAmountStatements from './getOrderTotalAmountStatements.controller';
-import { createSuccessResponse } from 'src/responses';
-import { Constants } from 'src/interfaces/enums';
+import { createSuccessResponse } from '@src/responses/index';
+import { Constants } from '@src/interfaces/enums';
 import { ConstantType } from '@prisma/client';
-import { decrypt } from 'src/utils/encrypt';
+import { decrypt } from '@src/utils/encrypt';
 import { Decimal } from '@prisma/client/runtime/library';
 
 describe('orders/getOrderTotalAmount', () => {

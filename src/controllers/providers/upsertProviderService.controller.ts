@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
-import { ResultResponse } from 'src/interfaces/express.types';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
+import { ResultResponse } from '@src/interfaces/express.types';
 
 //#region AddProviderService
 type upsertProviderServiceParams = {

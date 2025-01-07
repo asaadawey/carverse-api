@@ -1,9 +1,9 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
 import bcrypt from 'bcrypt';
-import constants from 'src/config/environment'
-import { createSuccessResponse, createFailResponse } from 'src/responses';
-import { generateHashedString } from 'src/utils/encrypt';
+import constants from '@src/config/environment'
+import { createSuccessResponse, createFailResponse } from '@src/responses/index';
+import { generateHashedString } from '@src/utils/encrypt';
 
 //#region Register
 type RegisterRequestQuery = {};

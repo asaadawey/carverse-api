@@ -1,8 +1,8 @@
 import * as yup from 'yup';
 import { RequestHandler } from 'express';
-// import { createFailResponse } from 'src/responses';
-import { PaginatorQueryParamsProps, paginationSchema } from 'src/interfaces/express.types';
-import { createFailResponse } from 'src/responses';
+// import { createFailResponse } from '@src/responses/index';
+import { PaginatorQueryParamsProps, paginationSchema } from '@src/interfaces/express.types';
+import { createFailResponse } from '@src/responses/index';
 
 //#region GetAllUsers
 

@@ -1,7 +1,7 @@
-import envVars from 'src/config/environment';
-import { HttpException } from 'src/errors';
-import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
-import { createFailResponse } from 'src/responses';
+import envVars from '@src/config/environment';
+import { HttpException } from '@src/errors/index';
+import { HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
+import { createFailResponse } from '@src/responses/index';
 
 const apiAuthMiddleware = (gapiValue: string): boolean => {
   if (!gapiValue)

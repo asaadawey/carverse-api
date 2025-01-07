@@ -2,11 +2,11 @@
 // Can be used as middleware
 
 import { Request, RequestHandler } from "express";
-import { AllowedClients, HTTPErrorString, HTTPResponses } from "src/interfaces/enums";
-import { decrypt } from "src/utils/encrypt";
-import envVars from 'src/config/environment';
-import { createFailResponse } from "src/responses";
-import { HttpException } from "src/errors";
+import { AllowedClients, HTTPErrorString, HTTPResponses } from "@src/interfaces/enums";
+import { decrypt } from "@src/utils/encrypt";
+import envVars from '@src/config/environment';
+import { createFailResponse } from "@src/responses/index";
+import { HttpException } from "@src/errors/index";
 
 
 export const getAllowedClient = (req: Request): AllowedClients | undefined => {

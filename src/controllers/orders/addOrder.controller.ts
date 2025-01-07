@@ -1,13 +1,13 @@
 import { RequestHandler } from 'express';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { Statements } from './getOrderTotalAmountStatements.controller';
-import { decrypt } from 'src/utils/encrypt';
-import { HttpException } from 'src/errors';
-import { Constants, HTTPResponses, OrderHistory, PaymentMethods } from 'src/interfaces/enums';
+import { decrypt } from '@src/utils/encrypt';
+import { HttpException } from '@src/errors/index';
+import { Constants, HTTPResponses, OrderHistory, PaymentMethods } from '@src/interfaces/enums';
 import { Decimal } from '@prisma/client/runtime/library';
-import { createAndGetIntent } from 'src/utils/payment';
+import { createAndGetIntent } from '@src/utils/payment';
 //#region AddOrder
 type AddOrderQuery = {};
 

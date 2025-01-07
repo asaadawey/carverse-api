@@ -1,12 +1,12 @@
 import auth, { authRoute } from './auth.middleware';
-import envVars from 'src/config/environment';
+import envVars from '@src/config/environment';
 import { decode, verify } from 'jsonwebtoken';
 import { DeepMockProxy } from 'jest-mock-extended';
-import { tokens } from 'src/interfaces/token.types';
-import { encrypt } from 'src/utils/encrypt';
-import { createFailResponse } from 'src/responses';
-import { HttpException } from 'src/errors';
-import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+import { tokens } from '@src/interfaces/token.types';
+import { encrypt } from '@src/utils/encrypt';
+import { createFailResponse } from '@src/responses/index';
+import { HttpException } from '@src/errors/index';
+import { HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 
 jest.mock('jsonwebtoken');
 

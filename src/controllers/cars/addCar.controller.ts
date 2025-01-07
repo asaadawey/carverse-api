@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
-import { ResultResponse } from 'src/interfaces/express.types';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { ResultResponse } from '@src/interfaces/express.types';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
 //#region AddCar
 type AddCarLinkQuery = {};

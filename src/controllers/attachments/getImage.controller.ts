@@ -1,8 +1,8 @@
 import { RequestHandler } from 'express';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import envVars from 'src/config/environment';
+import envVars from '@src/config/environment';
 import { GetObjectCommand, GetObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
 
 //#region GetImage

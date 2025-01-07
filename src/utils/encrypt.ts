@@ -1,4 +1,4 @@
-import envVars from 'src/config/environment';
+import envVars from '@src/config/environment';
 import CryptoJS from 'crypto-js';
 import bcrypt from 'bcrypt';
 

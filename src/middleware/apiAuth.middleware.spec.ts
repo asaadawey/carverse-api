@@ -1,5 +1,5 @@
 import apiAuthMiddleware from './apiAuth.middleware';
-import envVars from 'src/config/environment';
+import envVars from '@src/config/environment';
 
 describe('apiAuth.middleware', () => {
   it('Should fail becuase no auth key is passed', () => {

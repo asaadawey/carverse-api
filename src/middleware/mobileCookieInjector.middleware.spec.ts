@@ -1,7 +1,7 @@
-import { encrypt } from "src/utils/encrypt";
+import { encrypt } from "@src/utils/encrypt";
 import mobileCookieInjector from "./mobileCookieInjector.middleware";
-import { AllowedClients } from "src/interfaces/enums";
-import envVars from 'src/config/environment';
+import { AllowedClients } from "@src/interfaces/enums";
+import envVars from '@src/config/environment';
 
 describe('mobileCookietInjector.middleware', () => {
     it('Should success and parse cookies from headers', () => {

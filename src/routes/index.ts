@@ -1,16 +1,16 @@
 import express from 'express';
 
-import providerRouter from 'src/routes/provider.route';
-import carRouter from 'src/routes/cars.routes';
-import orderRouter from 'src/routes/orders.route';
-import userRouter from 'src/routes/users.route';
-import moduleRouter from 'src/routes/modules.route';
-import serviceRouter from 'src/routes/service.route';
-import packageRouter from 'src/routes/package.route';
-import attachments from 'src/routes/attachments.routes';
-import paymentMethods from 'src/routes/paymentMethods.routes';
-import constants from 'src/routes/constants.routes';
-import { authRoute } from 'src/middleware/auth.middleware';
+import providerRouter from '@src/routes/provider.routes';
+import carRouter from '@src/routes/cars.routes';
+import orderRouter from '@src/routes/orders.routes';
+import userRouter from '@src/routes/users.routes';
+import moduleRouter from '@src/routes/modules.routes';
+import serviceRouter from '@src/routes/service.routes';
+import packageRouter from '@src/routes/package.routes';
+import attachments from '@src/routes/attachments.routes';
+import paymentMethods from '@src/routes/paymentMethods.routes';
+import constants from '@src/routes/constants.routes';
+import { authRoute } from '@src/middleware/auth.middleware';
 
 const router = express.Router();
 

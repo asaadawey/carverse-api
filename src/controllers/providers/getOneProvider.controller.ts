@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import { colorGradiants } from '@prisma/client';
 //#region GetOneProvider
 type GetOneProviderParams = { id: string };

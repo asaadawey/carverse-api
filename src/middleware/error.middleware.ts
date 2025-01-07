@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import { Prisma } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
-import { HttpException } from 'src/errors';
+import { HttpException } from '@src/errors/index';
 import * as yup from 'yup';
-import envVars from 'src/config/environment';
-import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+import envVars from '@src/config/environment';
+import { HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 
 const errorMiddleware = (error: HttpException | any, req: Request, res: Response, next: NextFunction) => {
   try {

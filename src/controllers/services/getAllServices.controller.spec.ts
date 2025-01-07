@@ -1,5 +1,5 @@
-import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
-import { createSuccessResponse } from 'src/responses';
+import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
+import { createSuccessResponse } from '@src/responses/index';
 import getAllServices from './getAllServices.controller';
 
 describe('services/getAllServices', () => {

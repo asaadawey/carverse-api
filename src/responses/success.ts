@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { HTTPResponses } from 'src/interfaces/enums';
+import { HTTPResponses } from '@src/interfaces/enums';
 
 const createSuccessResponse = <T>(
   req: Request | any,

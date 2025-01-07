@@ -1,7 +1,7 @@
 import { Request, RequestHandler } from "express";
-import { HTTPErrorString, HTTPResponses, UserTypes } from "src/interfaces/enums";
-import { createFailResponse } from "src/responses";
-import { HttpException } from "src/errors";
+import { HTTPErrorString, HTTPResponses, UserTypes } from "@src/interfaces/enums";
+import { createFailResponse } from "@src/responses/index";
+import { HttpException } from "@src/errors/index";
 
 export const getUserType = (req: Request): UserTypes | undefined => {
     return req.user.userType as UserTypes

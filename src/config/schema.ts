@@ -22,7 +22,14 @@ const environmentSchema = yup.object().shape({
   STRIPE_API_KEY: yup.string().required(),
   COOKIE_KEY: yup.string().required(),
   COOKIE_SECRET: yup.string().required(),
-  PASSWORD_HASH_SEPERATOR: yup.string().required()
+  PASSWORD_HASH_SEPERATOR: yup.string().required(),
+
+  REDIS_HOST: yup.string().required(),
+  REDIS_USERNAME: yup.string().optional(),
+  REDIS_PASSWORD: yup.string().required(),
+  REDIS_PORT: yup.string().required(),
+
+  BASE_URL: yup.string().optional()
 });
 
 export default environmentSchema;

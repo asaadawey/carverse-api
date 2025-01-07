@@ -1,13 +1,38 @@
-module.exports = {
+const config = {
+  "preset": "ts-jest/presets/default-esm",
+  "extensionsToTreatAsEsm": [".ts"],
+  "testEnvironment": "node",
+  "globals": {
+    "ts-jest": {
+      "useESM": true
+    }
+  },
   transform: {
-    '^.+\\.ts?$': 'ts-jest',
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        tsconfig: {
+          module: 'NodeNext',  // Ensure Jest handles ESM correctly
+          target: 'ESNext',
+          esModuleInterop: true,
+          moduleResolution: 'node',
+        },
+        useESM: true,
+      },
+    ],
+  },
+  "extensionsToTreatAsEsm": [".ts"],
+  moduleNameMapper: {
+    "^@src/(.*)$": "<rootDir>/src/$1",
+    "^@assets/(.*)$": "<rootDir>/assets/$1",
   },
   testEnvironment: 'node',
   testRegex: '/.*\\.integration.test\\.ts$',
-  testSequencer: '<rootDir>/src/helpers/testHelpers/jestSequencer.js',
   moduleFileExtensions: ['js', 'ts'],
   modulePaths: ['<rootDir>/'],
   setupFilesAfterEnv: ['<rootDir>/src/helpers/testHelpers/integration-singeleton.ts'],
   clearMocks: true,
   forceExit: true,
 };
+
+export default config;

@@ -1,9 +1,9 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { apiPrefix, RouterLinks } from 'src/constants/links';
-import { commonHeaders } from 'src/helpers/testHelpers/defaults';
-import prisma from 'src/helpers/databaseHelpers/client';
-import { HTTPResponses, UserTypes } from 'src/interfaces/enums';
+import { apiPrefix, RouterLinks } from '@src/constants/links';
+import { commonHeaders } from '@src/helpers/testHelpers/defaults';
+import prisma from '@src/helpers/databaseHelpers/client';
+import { HTTPResponses, UserTypes } from '@src/interfaces/enums';
 
 describe('Integration user/addDeleteRequest', () => {
   let customerUserId

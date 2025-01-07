@@ -1,4 +1,4 @@
-import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 
 export default class HttpException extends Error {
   public status: number;

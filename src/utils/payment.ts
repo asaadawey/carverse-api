@@ -1,6 +1,6 @@
-import envVars from 'src/config/environment';
-import prisma from 'src/helpers/databaseHelpers/client';
-import { OrderHistory } from 'src/interfaces/enums';
+import envVars from '@src/config/environment';
+import prisma from '@src/helpers/databaseHelpers/client';
+import { OrderHistory } from '@src/interfaces/enums';
 import Stripe from 'stripe';
 
 type CreateAndGetIntentReturn = {

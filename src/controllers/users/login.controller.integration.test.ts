@@ -1,11 +1,11 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { apiPrefix, RouterLinks } from 'src/constants/links';
-import { commonHeaders } from 'src/helpers/testHelpers/defaults';
-import prisma from 'src/helpers/databaseHelpers/client';
+import { apiPrefix, RouterLinks } from '@src/constants/links';
+import { commonHeaders } from '@src/helpers/testHelpers/defaults';
+import prisma from '@src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
-import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
-import { encrypt, generateHashedString } from 'src/utils/encrypt';
+import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
+import { encrypt, generateHashedString } from '@src/utils/encrypt';
 
 
 describe('Integration users/login', () => {

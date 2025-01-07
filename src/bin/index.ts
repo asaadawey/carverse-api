@@ -1,10 +1,10 @@
 import http from 'http';
 
-import envVars from 'src/config/environment';
+import envVars from '@src/config/environment';
 
-import app from 'src';
+import app from '../index';
 
-import io from 'src/web-socket/index';
+import io from '@src/web-socket/index';
 
 const server = http.createServer(app);
 

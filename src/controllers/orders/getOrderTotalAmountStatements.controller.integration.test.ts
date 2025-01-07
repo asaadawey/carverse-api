@@ -1,12 +1,12 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { apiPrefix, RouterLinks } from 'src/constants/links';
-import { commonHeaders } from 'src/helpers/testHelpers/defaults';
-import prisma from 'src/helpers/databaseHelpers/client';
+import { apiPrefix, RouterLinks } from '@src/constants/links';
+import { commonHeaders } from '@src/helpers/testHelpers/defaults';
+import prisma from '@src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
-import { Constants, HTTPResponses } from 'src/interfaces/enums';
+import { Constants, HTTPResponses } from '@src/interfaces/enums';
 import { Decimal } from '@prisma/client/runtime/library';
-import { decrypt } from 'src/utils/encrypt';
+import { decrypt } from '@src/utils/encrypt';
 import { ConstantType } from '@prisma/client';
 
 describe('Integration orders/getOrderTotalAmountStatements', () => {

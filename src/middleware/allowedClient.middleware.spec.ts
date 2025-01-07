@@ -1,6 +1,6 @@
-import { encrypt } from "src/utils/encrypt";
-import { AllowedClients } from "src/interfaces/enums";
-import envVars from 'src/config/environment';
+import { encrypt } from "@src/utils/encrypt";
+import { AllowedClients } from "@src/interfaces/enums";
+import envVars from '@src/config/environment';
 import allowedClientMiddleware from "./allowedClient.middleware";
 
 describe('allowedClient.middlware', () => {

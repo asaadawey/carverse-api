@@ -1,17 +1,17 @@
-import { verify } from 'jsonwebtoken';
-import { HttpException } from 'src/errors';
-import envVars, { isDev, isTest } from 'src/config/environment';
-import { Token, tokens } from 'src/interfaces/token.types';
-import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
-import { decrypt } from 'src/utils/encrypt';
+import jwt from 'jsonwebtoken';
+import { HttpException } from '@src/errors/index';
+import envVars, { isDev, isTest } from '@src/config/environment';
+import { Token, tokens } from '@src/interfaces/token.types';
+import { HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
+import { decrypt } from '@src/utils/encrypt';
 import { RequestHandler } from 'express';
-import { createFailResponse } from 'src/responses';
+import { createFailResponse } from '@src/responses/index';
 
 const authMiddleware = (auth: string, allowedClient: string): Token /**User id */ => {
   if (!auth)
     throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Token header not exists');
 
-  const token = verify(auth, envVars.appSecret, { ignoreExpiration: true }) as Token;
+  const token = jwt.verify(auth, envVars.appSecret, { ignoreExpiration: true }) as Token;
 
   //No token
   if (!token)

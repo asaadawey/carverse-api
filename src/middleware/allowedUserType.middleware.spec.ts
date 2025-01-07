@@ -1,4 +1,4 @@
-import { UserTypes } from "src/interfaces/enums";
+import { UserTypes } from "@src/interfaces/enums";
 import allowedUserType from "./allowedUserType.middleware";
 
 describe('allowedClient.middlware', () => {

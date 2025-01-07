@@ -1,7 +1,7 @@
-import { PrismaClient } from '.prisma/client';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { AllowedClients, Constants, OrderHistory, PaymentMethods, UserTypes } from 'src/interfaces/enums';
-import { generateHashedString } from 'src/utils/encrypt';
+import { AllowedClients, Constants, OrderHistory, PaymentMethods, UserTypes } from '@src/interfaces/enums';
+import { generateHashedString } from '@src/utils/encrypt';
 
 const prisma = new PrismaClient();
 

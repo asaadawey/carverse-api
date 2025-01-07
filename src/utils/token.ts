@@ -1,11 +1,11 @@
-import { tokens, Token } from 'src/interfaces/token.types';
-import { sign } from 'jsonwebtoken';
-import envVars from 'src/config/environment';
+import { tokens, Token } from '@src/interfaces/token.types';
+import jwt from 'jsonwebtoken';
+import envVars from '@src/config/environment';
 
 type SignToken = Omit<Token, 'previousExpiredTokens'> & { previousExpiredTokens: string };
 
 export const generateToken = (payload: Omit<Token, 'timestamp' | 'name' | 'applicationVersion'>): string => {
-  const token = sign(
+  const token = jwt.sign(
     {
       id: payload.id,
       customerId: payload.customerId,

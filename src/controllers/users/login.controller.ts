@@ -1,14 +1,14 @@
 import { RequestHandler } from 'express';
-import { HttpException } from 'src/errors';
+import { HttpException } from '@src/errors/index';
 import * as yup from 'yup';
-import { createSuccessResponse, createFailResponse } from 'src/responses';
-import { HTTPErrorMessages, HTTPResponses } from 'src/interfaces/enums';
+import { createSuccessResponse, createFailResponse } from '@src/responses/index';
+import { HTTPErrorMessages, HTTPResponses } from '@src/interfaces/enums';
 import bcrypt from 'bcrypt';
-import constants from 'src/config/environment';
-import { generateToken } from 'src/utils/token';
-import { compareHashedString, decrypt } from 'src/utils/encrypt';
+import constants from '@src/config/environment';
+import { generateToken } from '@src/utils/token';
+import { compareHashedString, decrypt } from '@src/utils/encrypt';
 import { Prisma } from '@prisma/client';
-// import createFailResponse from 'src/responses';
+// import createFailResponse from '@src/responses/index';
 
 //#region Login
 export const loginSchema: yup.SchemaOf<{ body: LoginRequestBody }> = yup.object({

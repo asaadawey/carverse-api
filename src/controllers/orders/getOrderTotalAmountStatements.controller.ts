@@ -1,11 +1,11 @@
 import { RequestHandler } from 'express';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
-import * as _ from 'lodash';
-import { Constants, PaymentMethods } from 'src/interfaces/enums';
-import { getAmount } from 'src/utils/amountUtils';
+import _ from 'lodash';
+import { Constants, PaymentMethods } from '@src/interfaces/enums';
+import { getAmount } from '@src/utils/amountUtils';
 import { ConstantType } from '@prisma/client';
-import { decrypt, encrypt } from 'src/utils/encrypt';
+import { decrypt, encrypt } from '@src/utils/encrypt';
 import { Decimal } from '@prisma/client/runtime/library';
 
 //#region GetOrderTotalAmountStatements

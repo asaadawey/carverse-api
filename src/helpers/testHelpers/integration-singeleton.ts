@@ -1,4 +1,4 @@
-import prisma from 'src/helpers/databaseHelpers/client';
+import prisma from '@src/helpers/databaseHelpers/client';
 import { Prisma } from '@prisma/client';
 
 async function cleanDatabase() {

@@ -1,3 +1,4 @@
+
 import ioBack, {
   ActiveOrders,
   ClientToServerEvents,
@@ -11,9 +12,12 @@ import ioBack, {
 } from './index';
 import { io as ioClient, Socket } from 'socket.io-client';
 import http from 'http';
-import envVars from 'src/config/environment';
+import envVars from '@src/config/environment';
+
+
 
 describe('web-socket/index.ts [Socket logic]', () => {
+
   jest.mock('src/utils/sendNotification.ts');
   jest.mock('src/utils/payment.ts');
   jest.setTimeout(10000);
@@ -37,7 +41,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
 
     socketClientCustomer.emit('new-order', {
       customerNotificationToken: '123',
-      customerUuid: socketClientCustomer.id,
+      customerUuid: socketClientCustomer.id as string,
       orderId: orderId,
       providerId: randomClient.providerId,
       userId: randomClient.userId,
@@ -79,7 +83,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
         providerId: 1,
         status: ProviderStatus.Online,
         userId: 1,
-        uuid: socketClientCustomer.id,
+        uuid: socketClientCustomer.id as string,
         moduleId: 1,
       };
       isCustomerDone = true;
@@ -251,7 +255,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
 
     await createNewOrder(orderId);
 
-    socketClientProvider.emit('provider-accept-order', { customerUuid: socketClientCustomer.id, orderId });
+    socketClientProvider.emit('provider-accept-order', { customerUuid: socketClientCustomer.id as string, orderId });
 
     await delay(4500);
 
@@ -278,7 +282,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
 
     await createNewOrder(orderId);
 
-    socketClientProvider.emit('provider-reject-order', { customerUuid: socketClientCustomer.id, orderId });
+    socketClientProvider.emit('provider-reject-order', { customerUuid: socketClientCustomer.id as string, orderId });
 
     await delay(4500);
 
@@ -294,7 +298,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
 
     await delay(500);
 
-    socketClientProvider.emit('provider-accept-order', { customerUuid: socketClientCustomer.id, orderId });
+    socketClientProvider.emit('provider-accept-order', { customerUuid: socketClientCustomer.id as string, orderId });
 
     socketClientCustomer.emit('all-online-providers', 1);
 
@@ -318,7 +322,7 @@ describe('web-socket/index.ts [Socket logic]', () => {
 
     await delay(500);
 
-    socketClientProvider.emit('provider-accept-order', { customerUuid: socketClientCustomer.id, orderId });
+    socketClientProvider.emit('provider-accept-order', { customerUuid: socketClientCustomer.id as string, orderId });
 
     socketClientCustomer.emit('customer-reject-inprogress-order', {
       orderId: orderId,

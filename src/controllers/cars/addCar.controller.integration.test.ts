@@ -1,10 +1,10 @@
 import supertest from 'supertest';
 import app from '../../index';
-import { apiPrefix, RouterLinks } from 'src/constants/links';
-import { commonHeaders } from 'src/helpers/testHelpers/defaults';
-import prisma from 'src/helpers/databaseHelpers/client';
+import { apiPrefix, RouterLinks } from '@src/constants/links';
+import { commonHeaders } from '@src/helpers/testHelpers/defaults';
+import prisma from '@src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
-import { HTTPErrorString, HTTPResponses } from 'src/interfaces/enums';
+import { HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 
 describe('Integration cars/addCar', () => {
   let userId: number;

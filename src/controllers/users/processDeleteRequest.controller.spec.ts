@@ -1,7 +1,7 @@
-import { prismaMock } from 'src/helpers/testHelpers/unit-singeleton';
+import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
 import addDeleteRequest from './addDeleteRequest.controller';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
-import { UserTypes } from 'src/interfaces/enums';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
+import { UserTypes } from '@src/interfaces/enums';
 
 describe('users/addDeleteRequest', () => {
   it('Should success and add delete request for normal user', async () => {

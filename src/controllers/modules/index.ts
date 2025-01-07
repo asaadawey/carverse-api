@@ -1,3 +1,3 @@
-import getAllModules from 'src/controllers/modules/getAllModules.controller';
+import getAllModules from '@src/controllers/modules/getAllModules.controller';
 
 export { getAllModules };

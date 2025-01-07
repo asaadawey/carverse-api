@@ -1,4 +1,4 @@
-import environmentSchema from 'src/config/schema';
+import environmentSchema from '@src/config/schema';
 import { config } from 'dotenv';
 
 config();
@@ -62,5 +62,12 @@ export default {
     slugCommitId: variables[serverVariables.commitId] || "none",
     serverId: variables[serverVariables.serverId] || "localhost",
   },
+  redis: {
+    host: values.REDIS_HOST,
+    username: values.REDIS_USERNAME || "",
+    password: values.REDIS_PASSWORD,
+    port: values.REDIS_PORT,
+  },
+  baseUrl: values.BASE_URL,
   passwordHashSeperator: values.PASSWORD_HASH_SEPERATOR
 };

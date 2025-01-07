@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
-import { ResultResponse } from 'src/interfaces/express.types';
+import { ResultResponse } from '@src/interfaces/express.types';
 
 //#region ModifyConstant
 type ModifyConstantLinkQuery = {

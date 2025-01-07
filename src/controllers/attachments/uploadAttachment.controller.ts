@@ -1,9 +1,9 @@
 import { RequestHandler } from 'express';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
 import { S3 } from '@aws-sdk/client-s3';
-import { ResultResponse } from 'src/interfaces/express.types';
-import envVars from 'src/config/environment';
+import { ResultResponse } from '@src/interfaces/express.types';
+import envVars from '@src/config/environment';
 import mime from 'mime-db';
 import random from 'randomstring';
 

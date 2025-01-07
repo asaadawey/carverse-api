@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
-import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from 'src/interfaces/express.types';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
-// import * as _ from 'lodash';
+import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from '@src/interfaces/express.types';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
+// import _ from 'lodash';
 import * as yup from 'yup';
 
 //#region GetAllProviders

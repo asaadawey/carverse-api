@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
-import { HttpException } from 'src/errors';
-import { HTTPErrorString, HTTPResponses, UserTypes } from 'src/interfaces/enums';
-import { createFailResponse, createSuccessResponse } from 'src/responses';
+import { HttpException } from '@src/errors/index';
+import { HTTPErrorString, HTTPResponses, UserTypes } from '@src/interfaces/enums';
+import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
 
 //#region GetUserDetails

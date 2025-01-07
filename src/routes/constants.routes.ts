@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { RouterLinks } from 'src/constants/links';
-import { validate } from 'src/utils/schema';
+import { RouterLinks } from '@src/constants/links';
+import { validate } from '@src/utils/schema';
 
-import { getAllConstants, modifyConstant } from 'src/controllers/constants';
+import { getAllConstants, modifyConstant } from '@src/controllers/constants/index';
 
-import { getAllConstantsSchema } from 'src/controllers/constants/getAllConstants.controller';
-import { modifyConstantSchema } from 'src/controllers/constants/modifyConstant.controller';
+import { getAllConstantsSchema } from '@src/controllers/constants/getAllConstants.controller';
+import { modifyConstantSchema } from '@src/controllers/constants/modifyConstant.controller';
 
 const router = Router();
 
