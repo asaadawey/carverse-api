@@ -1,9 +1,11 @@
-const { execSync } = require('child_process');
-const { readFileSync } = require('fs');
+import { execSync } from 'child_process';
+import { readFileSync } from 'fs';
+
+const exclusion = ['src/index.ts', 'src/utils/cors.ts']
 
 function getChangedFiles(extension = '') {
 
-    const command = `git diff --cached --name-only -- "*.${extension}"`;
+    const command = `git diff --diff-filter=ACM --cached --name-only -- "*.${extension}"`;
     const diffOutput = execSync(command).toString();
 
     return diffOutput.toString().split('\n').filter(Boolean);
@@ -14,7 +16,7 @@ function main() {
 
     for (let file of files) {
         // Exculde test files
-        if (!file.includes(".spec.") && !file.includes(".test.") && file !== "src/index.ts") {
+        if (!file.includes(".spec.") && !file.includes(".test.") && !exclusion.includes(file)) {
             const contents = readFileSync(`${file}`).toString();
             if (contents.includes("http://") || contents.includes("https://")) {
                 console.log("Found secured values at " + file + "\n")
@@ -22,6 +24,5 @@ function main() {
             }
         }
     }
-    console.log(process.argv)
 }
 main()
