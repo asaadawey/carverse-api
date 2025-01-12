@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
 import { createFailResponse, createSuccessResponse } from '@src/responses/index';
-import { colorGradiants } from '@prisma/client';
+import _ from 'lodash';
 //#region GetOneProvider
 type GetOneProviderParams = { id: string };
 
@@ -9,21 +9,21 @@ type GetOneProvidersRequestBody = {};
 
 type GetOneProvidersResponse = {
   id: number;
+  ratingsAverage: string;
+  ratingNumber: number;
   users: {
     id: number;
     FirstName: string;
     LastName: string;
   };
-  ordersCount?: number | undefined;
   providerServices: {
     services: {
       ServiceName: string;
-      colorGradiants: colorGradiants;
-      ServiceIconLink: string;
       ServiceDescription: string;
+      ServiceIconLink: string;
     } | null;
   }[];
-};
+} | null;
 
 type GetOneProviderQuery = {};
 
@@ -41,34 +41,54 @@ const getOneProvider: RequestHandler<
 > = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const [provider, ordersCount] = await Promise.all([
-      req.prisma.provider.findFirst({
-        where: {
-          OR: [{ UserID: { equals: Number(id) } }, { id: { equals: Number(id) } }],
-        },
-        select: {
-          id: true,
-          users: { select: { FirstName: true, LastName: true, id: true } },
-          providerServices: {
-            select: {
-              services: {
-                select: {
-                  ServiceName: true,
-                  colorGradiants: true,
-                  ServiceIconLink: true,
-                  ServiceDescription: true,
-                },
+    const provider = await req.prisma.provider.findFirst({
+      where: {
+        OR: [{ UserID: { equals: Number(id) } }, { id: { equals: Number(id) } }],
+      },
+      select: {
+        orders: {
+          select: {
+            ratings: {
+              select: {
+                Rating: true,
               },
             },
           },
         },
-      }),
-      req.prisma.orders.count({
-        where: { ProviderID: Number(id) },
-      }),
-    ]);
-    //@ts-ignore
-    createSuccessResponse(req, res, { ...provider, ...(provider ? { ordersCount } : {}) }, next);
+        id: true,
+        users: { select: { FirstName: true, LastName: true, id: true } },
+        providerServices: {
+          select: {
+            services: {
+              select: {
+                ServiceName: true,
+                ServiceIconLink: true,
+                ServiceDescription: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    let finalResponse: GetOneProvidersResponse | null = null;
+
+    if (provider) {
+      const ratingNumber = provider.orders.filter((order) => Boolean(order.ratings?.Rating)).length;
+      const allRatings = provider.orders
+        .filter((order) => Boolean(order.ratings?.Rating))
+        .map((order) => order.ratings?.Rating.toNumber());
+
+      finalResponse = {
+        id: provider.id,
+        providerServices: provider.providerServices,
+        users: provider.users,
+        ratingsAverage: (_.sum(allRatings) / ratingNumber).toPrecision(2),
+        ratingNumber,
+      };
+    }
+
+    createSuccessResponse(req, res, finalResponse, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

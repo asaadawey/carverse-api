@@ -7,47 +7,54 @@ import * as yup from 'yup';
 //#region GetUserDetails
 type GetUserDetailsRequestQuery = {};
 
-type GetUserDetailsResponse = {
-    FirstName: string;
-    LastName: string;
-    Email: string;
-    PhoneNumber: string;
-} | {};
+type GetUserDetailsResponse =
+  | {
+      FirstName: string;
+      LastName: string;
+      Email: string;
+      PhoneNumber: string;
+    }
+  | {};
 
-type GetUserDetailsRequestBody = {
+type GetUserDetailsRequestBody = {};
 
-};
+type GetUserDetailsRequestParams = { userId?: string };
 
-type GetUserDetailsRequestParams = { userId?: string; };
-
-export const getUserDetailsSchema: yup.SchemaOf<{ params: GetUserDetailsRequestParams }> = yup.object({ params: yup.object({ userId: yup.string().optional() }) });
+export const getUserDetailsSchema: yup.SchemaOf<{ params: GetUserDetailsRequestParams }> = yup.object({
+  params: yup.object({ userId: yup.string().optional() }),
+});
 
 const getUserDetails: RequestHandler<
-    GetUserDetailsRequestParams,
-    GetUserDetailsResponse,
-    GetUserDetailsRequestBody,
-    GetUserDetailsRequestQuery
+  GetUserDetailsRequestParams,
+  GetUserDetailsResponse,
+  GetUserDetailsRequestBody,
+  GetUserDetailsRequestQuery
 > = async (req, res, next) => {
-    try {
-        if (req.params.userId && req.user.userType !== UserTypes.Admin)
-            throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedAPI, "body passed is not authorised")
+  try {
+    if (req.params.userId && req.user.userType !== UserTypes.Admin)
+      throw new HttpException(
+        HTTPResponses.Unauthorised,
+        HTTPErrorString.UnauthorisedAPI,
+        'body passed is not authorised',
+      );
 
-        const user = await req.prisma.users.findUnique({
-            where: {
-                id: Number(req.params.userId) || req.user.id
-            },
-            select: {
-                FirstName: true,
-                LastName: true,
-                Email: true,
-                PhoneNumber: true,
-            }
-        }) || {};
+    const user =
+      (await req.prisma.users.findUnique({
+        where: {
+          id: Number(req.params.userId) || req.user.id,
+        },
+        select: {
+          FirstName: true,
+          LastName: true,
+          Email: true,
+          PhoneNumber: true,
+        },
+      })) || {};
 
-        createSuccessResponse(req, res, { ...user }, next);
-    } catch (error: any) {
-        createFailResponse(req, res, error, next);
-    }
+    createSuccessResponse(req, res, { ...user }, next);
+  } catch (error: any) {
+    createFailResponse(req, res, error, next);
+  }
 };
 
 //#endregion

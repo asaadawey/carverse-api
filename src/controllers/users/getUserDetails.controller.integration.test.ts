@@ -7,7 +7,7 @@ import randomstring from 'randomstring';
 import { HTTPResponses, UserTypes } from '@src/interfaces/enums';
 
 describe('Integration user/getUserDetails', () => {
-  let customerUserId
+  let customerUserId;
   beforeAll(async () => {
     await prisma.users.deleteMany();
     const createResult = await prisma.users.create({
@@ -18,20 +18,21 @@ describe('Integration user/getUserDetails', () => {
         Nationality: 'testNation',
         Password: 'testPaswword',
         PhoneNumber: 'testPhone',
-        userTypes: { connectOrCreate: { where: { TypeName: UserTypes.Customer }, create: { TypeName: UserTypes.Customer } } },
+        userTypes: {
+          connectOrCreate: { where: { TypeName: UserTypes.Customer }, create: { TypeName: UserTypes.Customer } },
+        },
       },
       select: {
         id: true,
       },
     });
 
-    customerUserId = createResult.id
-  })
+    customerUserId = createResult.id;
+  });
 
   it('Should return logged in user details', async () => {
-
     const result = await supertest(app)
-      .get(apiPrefix + `${RouterLinks.getUserDetails.replace(':userId?', "")}`)
+      .get(apiPrefix + `${RouterLinks.getUserDetails.replace(':userId?', '')}`)
       .set(commonHeaders(customerUserId))
       .send()
       .expect(HTTPResponses.Success);
@@ -48,7 +49,9 @@ describe('Integration user/getUserDetails', () => {
         Nationality: 'testNation2',
         Password: 'testPaswword2',
         PhoneNumber: 'testPhone2',
-        userTypes: { connectOrCreate: { where: { TypeName: UserTypes.Customer }, create: { TypeName: UserTypes.Customer } } },
+        userTypes: {
+          connectOrCreate: { where: { TypeName: UserTypes.Customer }, create: { TypeName: UserTypes.Customer } },
+        },
       },
       select: {
         id: true,
@@ -60,7 +63,7 @@ describe('Integration user/getUserDetails', () => {
       .send()
       .expect(HTTPResponses.Unauthorised);
 
-    console.log({ result })
+    console.log({ result });
   });
 
   it('Should success when admin trying to get another user details', async () => {

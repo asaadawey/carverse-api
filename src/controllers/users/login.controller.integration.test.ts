@@ -7,7 +7,6 @@ import randomstring from 'randomstring';
 import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 import { encrypt, generateHashedString } from '@src/utils/encrypt';
 
-
 describe('Integration users/login', () => {
   it('Should fail if username and password is incorrect', async () => {
     const result = await supertest(app)
@@ -46,9 +45,10 @@ describe('Integration users/login', () => {
         FirstName: 'testFirst',
         LastName: 'testLast',
         Nationality: 'testNation2on',
-        Password: await generateHashedString("testPaswword"),
+        Password: await generateHashedString('testPaswword'),
         PhoneNumber: randomPhone,
         isActive: true,
+        customer: { create: {} },
         userTypes: { create: { TypeName: randomTypename, AllowedClients: ['cp'] } },
       },
     });

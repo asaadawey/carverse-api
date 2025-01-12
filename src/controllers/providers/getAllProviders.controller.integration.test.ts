@@ -33,14 +33,14 @@ describe('Integration providers/getAllProviders', () => {
                   bodyType: {
                     connectOrCreate: {
                       create: {
-                        TypeName: "Sedan"
+                        TypeName: 'Sedan',
                       },
                       where: {
-                        TypeName: "Sedan"
-                      }
-                    }
-                  }
-                }
+                        TypeName: 'Sedan',
+                      },
+                    },
+                  },
+                },
               },
             },
             {
@@ -50,14 +50,14 @@ describe('Integration providers/getAllProviders', () => {
                   bodyType: {
                     connectOrCreate: {
                       create: {
-                        TypeName: "Sedan"
+                        TypeName: 'Sedan',
                       },
                       where: {
-                        TypeName: "Sedan"
-                      }
-                    }
-                  }
-                }
+                        TypeName: 'Sedan',
+                      },
+                    },
+                  },
+                },
               },
             },
           ],
@@ -90,16 +90,16 @@ describe('Integration providers/getAllProviders', () => {
                   bodyType: {
                     connectOrCreate: {
                       create: {
-                        TypeName: "Sedan"
+                        TypeName: 'Sedan',
                       },
                       where: {
-                        TypeName: "Sedan"
-                      }
-                    }
-                  }
-                }
+                        TypeName: 'Sedan',
+                      },
+                    },
+                  },
+                },
               },
-            }
+            },
           ],
         },
       },
@@ -118,7 +118,6 @@ describe('Integration providers/getAllProviders', () => {
       .expect(HTTPResponses.Success);
     expect(Array.isArray(result.body.data)).toBe(true);
     expect(result.body.data.length).toBe(1);
-    expect(result.body.data[0].NumberOfOrders).toBe(231);
   });
 
   it('Should success with no average and only return providers with givin ids', async () => {

@@ -111,15 +111,6 @@ describe('Integration providers/getOneProvider', () => {
       .set(commonHeaders())
       .send()
       .expect(HTTPResponses.Success);
-    expect(Object.keys(result.body.data).length).toBe(0);
-  });
-
-  it('Should return zero orders', async () => {
-    const result = await supertest(app)
-      .get(apiPrefix + `${RouterLinks.getOneProvider.replace(':id', String(createdNoOrdersUserId))}`)
-      .set(commonHeaders())
-      .send()
-      .expect(HTTPResponses.Success);
-    expect(result.body.data.ordersCount).toBe(0);
+    expect(result.body.data).toBeNull();
   });
 });

@@ -18,7 +18,6 @@ export const createAndGetIntent = async (totalAmount: number): Promise<CreateAnd
 
     description: 'Carverse services',
     capture_method: 'manual',
-
   });
 
   return {

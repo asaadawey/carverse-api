@@ -15,7 +15,7 @@ type GetAllProviderServicesRequestBody = {};
 
 type GetAllProviderServicesResponse = (providerServices & {
   services: services | null;
-  providerServicesAllowedBodyTypes: providerServicesAllowedBodyTypes[]
+  providerServicesAllowedBodyTypes: providerServicesAllowedBodyTypes[];
 })[];
 
 type GetAllProviderServicesQuery = {
@@ -44,9 +44,13 @@ const getAllProviderServices: RequestHandler<
     let { moduleId, providerId } = req.params;
 
     // Authorization logic
-    if (req.user.userType === "Provider") {
-      if ((Number(providerId) != (req.user.providerId)))
-        throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorMessages.NoSufficientPermissions, "Unauthorised access to another provider")
+    if (req.user.userType === 'Provider') {
+      if (Number(providerId) != req.user.providerId)
+        throw new HttpException(
+          HTTPResponses.Unauthorised,
+          HTTPErrorMessages.NoSufficientPermissions,
+          'Unauthorised access to another provider',
+        );
     }
 
     const data = await req.prisma.providerServices.findMany({
@@ -57,8 +61,8 @@ const getAllProviderServices: RequestHandler<
       include: {
         providerServicesAllowedBodyTypes: {
           include: {
-            bodyType: true
-          }
+            bodyType: true,
+          },
         },
         services: true,
       },

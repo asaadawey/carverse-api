@@ -35,7 +35,7 @@ describe('Integration orders/addOrder', () => {
               Manufacturer: 'Mercedes',
               Model: '2010',
               PlateNumber: '58849',
-              bodyTypes: { connectOrCreate: { create: { TypeName: "Sedan" }, where: { TypeName: "Sedan" } } },
+              bodyTypes: { connectOrCreate: { create: { TypeName: 'Sedan' }, where: { TypeName: 'Sedan' } } },
             },
           },
           customer: { create: {} },
@@ -80,15 +80,13 @@ describe('Integration orders/addOrder', () => {
         Price: 40,
         bodyType: {
           connectOrCreate: {
-            create: { TypeName: "Sedan" },
-            where: { TypeName: "Sedan" }
-          }
+            create: { TypeName: 'Sedan' },
+            where: { TypeName: 'Sedan' },
+          },
         },
         providerService: {
-          create: {
-
-          }
-        }
+          create: {},
+        },
       },
 
       select: {
@@ -206,7 +204,7 @@ describe('Integration orders/addOrder', () => {
   });
 
   it('Should be false because method name is not active', async () => {
-    await prisma.paymentMethods.update({ where: { MethodName: "Cash" }, data: { isActive: false } });
+    await prisma.paymentMethods.update({ where: { MethodName: 'Cash' }, data: { isActive: false } });
     const result = await supertest(app)
       .post(apiPrefix + RouterLinks.addOrder)
       .set(commonHeaders())

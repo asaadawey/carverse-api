@@ -6,7 +6,7 @@ import prisma from '@src/helpers/databaseHelpers/client';
 import { HTTPResponses, UserTypes } from '@src/interfaces/enums';
 
 describe('Integration user/addDeleteRequest', () => {
-  let customerUserId
+  let customerUserId;
   beforeAll(async () => {
     await prisma.users.deleteMany();
     const createResult = await prisma.users.create({
@@ -17,20 +17,21 @@ describe('Integration user/addDeleteRequest', () => {
         Nationality: 'testNation',
         Password: 'testPaswword',
         PhoneNumber: 'testPhone',
-        userTypes: { connectOrCreate: { where: { TypeName: UserTypes.Customer }, create: { TypeName: UserTypes.Customer } } },
+        userTypes: {
+          connectOrCreate: { where: { TypeName: UserTypes.Customer }, create: { TypeName: UserTypes.Customer } },
+        },
       },
       select: {
         id: true,
       },
     });
 
-    customerUserId = createResult.id
-  })
+    customerUserId = createResult.id;
+  });
 
   it('Should add delete request', async () => {
-
     const result = await supertest(app)
-      .post(apiPrefix + `${RouterLinks.addDeleteRequest.replace(':userId?', "")}`)
+      .post(apiPrefix + `${RouterLinks.addDeleteRequest.replace(':userId?', '')}`)
       .set(commonHeaders(customerUserId))
       .send()
       .expect(HTTPResponses.Success);
@@ -47,7 +48,9 @@ describe('Integration user/addDeleteRequest', () => {
         Nationality: 'testNation2',
         Password: 'testPaswword2',
         PhoneNumber: 'testPhone2',
-        userTypes: { connectOrCreate: { where: { TypeName: UserTypes.Customer }, create: { TypeName: UserTypes.Customer } } },
+        userTypes: {
+          connectOrCreate: { where: { TypeName: UserTypes.Customer }, create: { TypeName: UserTypes.Customer } },
+        },
       },
       select: {
         id: true,
@@ -59,7 +62,7 @@ describe('Integration user/addDeleteRequest', () => {
       .send()
       .expect(HTTPResponses.Unauthorised);
 
-    console.log({ result })
+    console.log({ result });
   });
 
   it('Should success and process delete user when admin process it', async () => {
@@ -83,7 +86,7 @@ describe('Integration user/addDeleteRequest', () => {
       .send()
       .expect(HTTPResponses.Success);
 
-    const customerAfter = await prisma.users.findUnique({ where: { id: customerUserId } })
+    const customerAfter = await prisma.users.findUnique({ where: { id: customerUserId } });
 
     expect(customerAfter?.isActive).toBe(false);
   });

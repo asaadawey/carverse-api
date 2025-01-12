@@ -15,9 +15,9 @@ server.listen(envVars.port, () => {
 });
 
 process.on('uncaughtException', (error) => {
-  console.log({ error })
-})
+  console.log({ error });
+});
 
 process.on('unhandledRejection', (error) => {
-  console.log({ error })
-})
+  console.log({ error });
+});

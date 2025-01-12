@@ -7,7 +7,7 @@ import { Statements } from './getOrderTotalAmountStatements.controller';
 describe('orders/addOrder', () => {
   it('Should succeed', async () => {
     prismaMock.orders.create.mockResolvedValue({ id: 1 });
-    prismaMock.paymentMethods.findUnique.mockResolvedValue({ isActive: true })
+    prismaMock.paymentMethods.findUnique.mockResolvedValue({ isActive: true });
 
     global.mockReq.body = {
       providerId: 1,
@@ -39,7 +39,7 @@ describe('orders/addOrder', () => {
   });
   it('Should fail when payment is not active', async () => {
     prismaMock.orders.create.mockResolvedValue({ id: 1 });
-    prismaMock.paymentMethods.findUnique.mockResolvedValue({ isActive: false })
+    prismaMock.paymentMethods.findUnique.mockResolvedValue({ isActive: false });
 
     global.mockReq.body = {
       providerId: 1,

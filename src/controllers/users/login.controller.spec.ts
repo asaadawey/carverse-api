@@ -17,7 +17,7 @@ describe('users/login', () => {
 
   it('Should return fail because password is incorrect', async () => {
     //@ts-ignore
-    prismaMock.users.findFirst.mockResolvedValue({ Password: await generateHashedString("d"), });
+    prismaMock.users.findFirst.mockResolvedValue({ Password: await generateHashedString('d') });
 
     global.mockReq.body = { email: '1', password: '1' };
 
@@ -55,9 +55,12 @@ describe('users/login', () => {
   it('Should return fail because allowed clients is not right', async () => {
     //@ts-ignore
     prismaMock.users.findFirst.mockResolvedValue({
-      Password: await generateHashedString("1"),
+      Password: await generateHashedString('1'),
       userTypes: {
         AllowedClients: ['cp'],
+      },
+      provider: {
+        id: 1,
       },
     });
 
@@ -80,9 +83,12 @@ describe('users/login', () => {
     prismaMock.users.findFirst.mockResolvedValue({
       id: 1,
       Email: '1',
-      Password: await generateHashedString("1"),
+      Password: await generateHashedString('1'),
       userTypes: {
         AllowedClients: ['cp'],
+      },
+      provider: {
+        id: 1,
       },
       isActive: true,
     });
@@ -104,9 +110,12 @@ describe('users/login', () => {
     prismaMock.users.findFirst.mockResolvedValue({
       id: 1,
       Email: '1',
-      Password: await generateHashedString("1"),
+      Password: await generateHashedString('1'),
       userTypes: {
         AllowedClients: ['cp'],
+      },
+      provider: {
+        id: 1,
       },
       isActive: true,
     });
@@ -129,19 +138,23 @@ describe('users/login', () => {
     prismaMock.users.findFirst.mockResolvedValue({
       id: 1,
       Email: '1',
-      Password: await generateHashedString("1"),
+      Password: await generateHashedString('1'),
       userTypes: {
-        AllowedClients: ['cp'], TypeName: "Provider"
+        AllowedClients: ['cp'],
+        TypeName: 'Provider',
+      },
+      provider: {
+        id: 1,
       },
       isActive: false,
     });
     prismaMock.uploadedFiles.findFirst.mockResolvedValue({
-      test: "Test"
-    })
+      test: 'Test',
+    });
     global.mockReq.body = { email: '1', password: '1', encryptedClient: encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
-    ``
+    ``;
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,

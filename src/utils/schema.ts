@@ -8,11 +8,11 @@ export const validate =
     try {
       const sharedSchema = {
         query: yup.object().shape({
-          isActive: yup.string().optional().oneOf(['true', 'false', 'any'])
+          isActive: yup.string().optional().oneOf(['true', 'false', 'any']),
         }),
         body: yup.object(),
-        params: yup.object()
-      }
+        params: yup.object(),
+      };
 
       let modifiedSchema = yup.object({
         body: yup.object({}).concat(schema.fields.body).concat(sharedSchema.body).noUnknown(true).strict(),

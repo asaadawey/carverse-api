@@ -1,5 +1,6 @@
 import getOneOrder from './getOneOrder.controller';
 import addOrder from './addOrder.controller';
 import getOrderTotalAmountStatements from './getOrderTotalAmountStatements.controller';
+import confirmOrder from './confirmOrder.controller';
 
-export { getOneOrder, addOrder, getOrderTotalAmountStatements };
+export { getOneOrder, addOrder, getOrderTotalAmountStatements, confirmOrder };

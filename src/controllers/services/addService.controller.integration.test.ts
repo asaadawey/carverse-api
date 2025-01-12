@@ -27,14 +27,12 @@ describe('Integration providers/addService', () => {
 
   it('Should success and return services', async () => {
     const result = await supertest(app)
-      .post(apiPrefix +
-        RouterLinks.addServices
-      )
+      .post(apiPrefix + RouterLinks.addServices)
       .set(commonHeaders())
       .send({
         moduleId: createdModuleId,
-        serviceDescription: "Test",
-        serviceName: "test"
+        serviceDescription: 'Test',
+        serviceName: 'test',
       })
       .expect(HTTPResponses.Success);
     expect(result.body.data.createdItemId).toBeDefined();

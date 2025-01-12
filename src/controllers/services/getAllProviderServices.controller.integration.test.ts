@@ -43,15 +43,15 @@ describe('Integration providers/getAllProviderServices', () => {
             {
               services: {
                 create: {
-                  ServiceName: "test",
-                  ServiceDescription: "rt",
-                  ServiceIconLink: "tr",
+                  ServiceName: 'test',
+                  ServiceDescription: 'rt',
+                  ServiceIconLink: 'tr',
                   modules: {
                     connect: {
-                      id: createdModuleId
-                    }
-                  }
-                }
+                      id: createdModuleId,
+                    },
+                  },
+                },
               },
               Pofeciency: 'Expert',
               providerServicesAllowedBodyTypes: {
@@ -60,16 +60,16 @@ describe('Integration providers/getAllProviderServices', () => {
                   bodyType: {
                     connectOrCreate: {
                       create: {
-                        TypeName: "Sedan"
+                        TypeName: 'Sedan',
                       },
                       where: {
-                        TypeName: "Sedan"
-                      }
-                    }
-                  }
-                }
+                        TypeName: 'Sedan',
+                      },
+                    },
+                  },
+                },
               },
-            }
+            },
           ],
         },
       },
@@ -78,16 +78,16 @@ describe('Integration providers/getAllProviderServices', () => {
       },
     });
 
-
     createdProviderId = createdProvider.id;
   });
 
   it('Should success and return services', async () => {
     const result = await supertest(app)
-      .get(apiPrefix +
-        RouterLinks.getAllProviderServices
-          .replace(':moduleId', String(createdModuleId))
-          .replace(':providerId', String(createdProviderId)),
+      .get(
+        apiPrefix +
+          RouterLinks.getAllProviderServices
+            .replace(':moduleId', String(createdModuleId))
+            .replace(':providerId', String(createdProviderId)),
       )
       .set(commonHeaders())
       .send()
@@ -99,10 +99,11 @@ describe('Integration providers/getAllProviderServices', () => {
 
   it('Should return empty array becuase provider id is incorrect', async () => {
     const result = await supertest(app)
-      .get(apiPrefix +
-        RouterLinks.getAllProviderServices
-          .replace(':moduleId', String(createdModuleId))
-          .replace(':providerId', String(createdModuleId + 1234)),
+      .get(
+        apiPrefix +
+          RouterLinks.getAllProviderServices
+            .replace(':moduleId', String(createdModuleId))
+            .replace(':providerId', String(createdModuleId + 1234)),
       )
       .set(commonHeaders())
       .send()
@@ -113,12 +114,11 @@ describe('Integration providers/getAllProviderServices', () => {
 
   it('Should return unauthorised if the access person is incorrect', async () => {
     await supertest(app)
-      .get(apiPrefix +
-        RouterLinks.getAllProviderServices
-          .replace(':moduleId', String(createdModuleId))
-          .replace(":providerId", "2")
+      .get(
+        apiPrefix +
+          RouterLinks.getAllProviderServices.replace(':moduleId', String(createdModuleId)).replace(':providerId', '2'),
       )
-      .set(commonHeaders(1, false, { extrauser: { userType: "Provider" } }))
+      .set(commonHeaders(1, false, { extrauser: { userType: 'Provider' } }))
       .send()
       .expect(HTTPResponses.Unauthorised);
   });

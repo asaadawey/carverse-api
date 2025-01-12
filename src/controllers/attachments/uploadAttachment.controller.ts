@@ -41,8 +41,9 @@ const uploadAttachments: RequestHandler<
   try {
     const { attachmentTypeId, userId } = req.params;
 
-    const constructFileName = `${attachmentTypeId}__${userId}__${random.generate(7)}.${mime[req.file?.mimetype || '']?.extensions?.[0]
-      }`;
+    const constructFileName = `${attachmentTypeId}__${userId}__${random.generate(7)}.${
+      mime[req.file?.mimetype || '']?.extensions?.[0]
+    }`;
     const uploadedFile = await req.prisma.uploadedFiles.create({
       data: {
         FileName: constructFileName,
@@ -73,7 +74,12 @@ const uploadAttachments: RequestHandler<
       },
     });
 
-    createSuccessResponse(req, res, { result: Boolean(awsResult.$metadata.httpStatusCode === 200), createdItemId: uploadedFile.id }, next);
+    createSuccessResponse(
+      req,
+      res,
+      { result: Boolean(awsResult.$metadata.httpStatusCode === 200), createdItemId: uploadedFile.id },
+      next,
+    );
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

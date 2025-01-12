@@ -23,4 +23,4 @@ export type YupSchema<Body = undefined, Query = undefined, Params = undefined> =
   params?: yup.SchemaOf<Params> | undefined;
 }>;
 
-export type ResultResponse = { result: boolean, createdItemId: number; };
+export type ResultResponse = { result: boolean; createdItemId: number };

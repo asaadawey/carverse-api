@@ -13,8 +13,8 @@ export const decrypt = (text: string, key = envVars.auth.apiSalt): string => {
 export const generateHashedString = async (plainPassword: string): Promise<string> => {
   const salt = await bcrypt.genSalt(12);
   return `${await bcrypt.hash(plainPassword, salt)}${envVars.passwordHashSeperator}${salt}`;
-}
+};
 
 export const compareHashedString = async (hashedString: string, toCompareString: string): Promise<boolean> => {
   return await bcrypt.compare(toCompareString, hashedString.split(envVars.passwordHashSeperator)[0]);
-}
+};

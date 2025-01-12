@@ -24,6 +24,7 @@ type AddOrderRequestBody = {
   latitude: number;
   addressString: string;
   additionalAddressData: any;
+  additionalNotes?: string;
 };
 
 type AddOrderResponse = {
@@ -73,6 +74,7 @@ export const addOrderSchema: yup.SchemaOf<{ body: AddOrderRequestBody; query: Ad
     latitude: yup.number().required('latitude is required'),
     addressString: yup.string().required('address is required'),
     additionalAddressData: yup.object().optional(),
+    additionalNotes: yup.string().optional(),
   }),
   query: yup
     .object()
@@ -97,6 +99,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
     providerId,
     paymentMethodName,
     additionalAddressData,
+    additionalNotes,
   } = req.body;
 
   let createdOrderId: number | undefined;
@@ -114,25 +117,29 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
       throw new HttpException(HTTPResponses.BusinessError, '', "Order total amount doesn't match");
 
     // Check if order method is active
-    const orderMethod = await req.prisma.paymentMethods.findUnique({ where: { MethodName: paymentMethodName }, select: { isActive: true } });
+    const orderMethod = await req.prisma.paymentMethods.findUnique({
+      where: { MethodName: paymentMethodName },
+      select: { isActive: true },
+    });
 
-    if (!orderMethod)
-      throw new HttpException(HTTPResponses.BusinessError, "", "Order method is incorrect");
+    if (!orderMethod) throw new HttpException(HTTPResponses.BusinessError, '', 'Order method is incorrect');
 
     if (!orderMethod.isActive)
-      throw new HttpException(HTTPResponses.BusinessError, "", "Order method is not active : " + paymentMethodName);
+      throw new HttpException(HTTPResponses.BusinessError, '', 'Order method is not active : ' + paymentMethodName);
 
     // Check if the provided car have same body type for the services
     for (let service of orderServices) {
       const [car, providerService] = await Promise.all([
         req.prisma.cars.findUnique({ where: { id: service.carId }, select: { BodyTypeID: true } }),
-        req.prisma.providerServicesAllowedBodyTypes.findUnique({ where: { id: service.providerServiceBodyTypeId }, select: { BodyTypeID: true } })
+        req.prisma.providerServicesAllowedBodyTypes.findUnique({
+          where: { id: service.providerServiceBodyTypeId },
+          select: { BodyTypeID: true },
+        }),
       ]);
 
       if (car?.BodyTypeID !== providerService?.BodyTypeID)
-        throw new HttpException(HTTPResponses.BusinessError, "", "Not all cars match the body tpes")
+        throw new HttpException(HTTPResponses.BusinessError, '', 'Not all cars match the body tpes');
     }
-
 
     const createOrderResult = await req.prisma.orders.create({
       data: {
@@ -144,6 +151,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
             Name: amount.name,
           })),
         },
+        AdditionalNotes: additionalNotes,
         Longitude: longitude,
         Latitude: latitude,
         AddressString: addressString,

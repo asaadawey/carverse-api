@@ -16,6 +16,7 @@ type GetOneOrderResponse = {
   OrderTotalAmount: Prisma.Decimal;
   OrderCreatedDate: Date;
   AdditionalAddressData: any;
+  AdditionalNotes: string;
   customer: {
     id: Prisma.Decimal;
     users: {
@@ -67,6 +68,7 @@ const getOneOrder: RequestHandler<
         Latitude: true,
         AddressString: true,
         id: true,
+        AdditionalNotes: true,
         AdditionalAddressData: true,
         orderServices: {
           select: {
@@ -78,12 +80,12 @@ const getOneOrder: RequestHandler<
                     services: {
                       select: {
                         ServiceName: true,
-                        ServiceDescription: true
-                      }
-                    }
-                  }
-                }
-              }
+                        ServiceDescription: true,
+                      },
+                    },
+                  },
+                },
+              },
             },
             cars: {
               select: {
@@ -114,6 +116,5 @@ const getOneOrder: RequestHandler<
   }
 };
 //#endregion
-
 
 export default getOneOrder;

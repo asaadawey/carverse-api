@@ -30,7 +30,8 @@ const authMiddleware = (auth: string, allowedClient: string): Token /**User id *
     throw new HttpException(
       HTTPResponses.Unauthorised,
       HTTPErrorString.UnauthorisedToken,
-      'Token exist and active but not version doesnt match ' + JSON.stringify({ appVersion: envVars.appServer.version, token: token.applicationVersion }),
+      'Token exist and active but not version doesnt match ' +
+        JSON.stringify({ appVersion: envVars.appServer.version, token: token.applicationVersion }),
     );
 
   //No token id or user id
@@ -61,7 +62,7 @@ const authMiddleware = (auth: string, allowedClient: string): Token /**User id *
     );
 
   //Inject user id
-  return token
+  return token;
 };
 
 export const authRoute: RequestHandler = async (req, res, next) => {
@@ -73,8 +74,8 @@ export const authRoute: RequestHandler = async (req, res, next) => {
     // For testing
     if ((isDev || isTest) && envVars.auth.skipAuth) {
       //Explicit for userType
-      const additionalUserParams = JSON.parse(req.headers["extrauser"] as string || "{}");
-      req.user = { id: Number(req.headers['userid']), ...additionalUserParams }
+      const additionalUserParams = JSON.parse((req.headers['extrauser'] as string) || '{}');
+      req.user = { id: Number(req.headers['userid']), ...additionalUserParams };
     } else {
       req.user = authMiddleware(
         req.headers[envVars.auth.authKey] as string,
@@ -88,6 +89,6 @@ export const authRoute: RequestHandler = async (req, res, next) => {
   } catch (error: any) {
     createFailResponse(req, res, error, next, HTTPResponses.Unauthorised, error.message, error.additionalPramater);
   }
-}
+};
 
 export default authMiddleware;

@@ -1,6 +1,7 @@
 import { OrderHistory } from '@src/interfaces/enums';
 import * as socketFunctions from './index';
 import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
+import { jest } from '@jest/globals';
 
 jest.mock('socket.io');
 jest.mock('@prisma/client');
@@ -23,7 +24,7 @@ describe('web-socket/index.ts [Socket functions]', () => {
   });
 
   it('[addOrderHistory] Should pass and call orderHistory', async () => {
-    await socketFunctions.addOrderHistory(123, OrderHistory.Accepted);
+    await socketFunctions.addOrderHistory({} as any, OrderHistory.Accepted);
 
     expect(prismaMock.orderHistory.create).toHaveBeenCalled();
   });
@@ -32,49 +33,5 @@ describe('web-socket/index.ts [Socket functions]', () => {
     socketFunctions.broadcastOnlineProvider(mockSocket as any);
     expect(mockSocket.broadcast.emit).toHaveBeenCalledWith('online-users', expect.anything());
     expect(mockSocket.emit).toHaveBeenCalledWith('online-users', expect.anything());
-  });
-
-  it('[addUpdateOnlineProviders] Should pass and add new online providers', () => {
-    jest.spyOn(socketFunctions, 'broadcastOnlineProvider');
-    socketFunctions.addUpdateOnlineProvider(
-      {
-        moduleId: 1,
-        latitude: 123,
-        longitude: 123,
-        notifcationToken: '123',
-        providerId: 1,
-        status: socketFunctions.ProviderStatus.Online,
-        userId: 1,
-        uuid: '123',
-      },
-      mockSocket,
-      true
-    );
-    expect(mockSocket.join).toHaveBeenCalled();
-
-    expect(socketFunctions.broadcastOnlineProvider).toHaveBeenCalled();
-  });
-
-  it('[addUpdateOnlineProviders] Should pass and add new online providers', () => {
-    //@ts-ignore
-    global.onlineProviders = [];
-    jest.spyOn(socketFunctions, 'broadcastOnlineProvider');
-    socketFunctions.addUpdateOnlineProvider(
-      {
-        moduleId: 1,
-        latitude: 123,
-        longitude: 123,
-        notifcationToken: '123',
-        providerId: 1,
-        status: socketFunctions.ProviderStatus.Online,
-        userId: 1,
-        uuid: '123',
-      },
-      mockSocket,
-      true
-    );
-    expect(mockSocket.join).toHaveBeenCalled();
-
-    expect(socketFunctions.broadcastOnlineProvider).toHaveBeenCalled();
   });
 });

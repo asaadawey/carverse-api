@@ -1,30 +1,39 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { RequestHandler } from "express";
+import { Prisma, PrismaClient } from '@prisma/client';
+import { RequestHandler } from 'express';
 
 const prisma = new PrismaClient();
 
 export default ((req, res, next) => {
-    let tablesWithIsActiveField: string[] = []
+  let tablesWithIsActiveField: string[] = [];
 
-    Prisma.dmmf.datamodel.models.forEach((model) => {
-        if (model.fields.some(field => field.name === "isActive" && field.type === "Boolean"))
-            tablesWithIsActiveField.push(model.name);
-    })
+  Prisma.dmmf.datamodel.models.forEach((model) => {
+    if (model.fields.some((field) => field.name === 'isActive' && field.type === 'Boolean'))
+      tablesWithIsActiveField.push(model.name);
+  });
 
-    prisma.$extends({
-        query: {
-            $allModels: {
-                async findMany({ args, query, model, operation }) {
-                    if (tablesWithIsActiveField.includes(model))
-                        args.where = { ...args.where, isActive: { equals: req.query.isActive ? req.query.isActive === 'any' ? undefined : req.query.isActive === 'true' : true } }
+  prisma.$extends({
+    query: {
+      $allModels: {
+        async findMany({ args, query, model, operation }) {
+          if (tablesWithIsActiveField.includes(model))
+            args.where = {
+              ...args.where,
+              isActive: {
+                equals: req.query.isActive
+                  ? req.query.isActive === 'any'
+                    ? undefined
+                    : req.query.isActive === 'true'
+                  : true,
+              },
+            };
 
-                    return query(args)
-                },
-            },
+          return query(args);
         },
-    })
+      },
+    },
+  });
 
-    //@ts-ignore
-    req.prisma = prisma;
-    next();
+  //@ts-ignore
+  req.prisma = prisma;
+  next();
 }) as RequestHandler;

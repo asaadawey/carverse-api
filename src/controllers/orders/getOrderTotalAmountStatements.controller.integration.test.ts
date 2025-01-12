@@ -52,14 +52,14 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
             bodyType: {
               connectOrCreate: {
                 create: {
-                  TypeName: "Sedan"
+                  TypeName: 'Sedan',
                 },
                 where: {
-                  TypeName: "Sedan"
-                }
-              }
-            }
-          }
+                  TypeName: 'Sedan',
+                },
+              },
+            },
+          },
         },
         provider: { connect: { id: createdUser[0].provider?.id || 0 } },
         services: {
@@ -91,9 +91,9 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
         id: true,
         providerServicesAllowedBodyTypes: {
           select: {
-            id: true
-          }
-        }
+            id: true,
+          },
+        },
       },
     });
 
@@ -130,8 +130,9 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
   it('Should success and return right statements', async () => {
     const vat = providerServicePrice * ((vatPerc as number) / 100);
     const result = await supertest(app)
-      .get(apiPrefix +
-        `${RouterLinks.getOrderTotalAmountStatements}?paymentMethodName=Cash&providerServiceBodyTypesIds=${createdProviderServiceId}`,
+      .get(
+        apiPrefix +
+          `${RouterLinks.getOrderTotalAmountStatements}?paymentMethodName=Cash&providerServiceBodyTypesIds=${createdProviderServiceId}`,
       )
       .set(commonHeaders())
       .send({})

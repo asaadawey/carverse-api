@@ -14,13 +14,13 @@
     "dev": "dotenv -e .env -- tsx watch ./src/bin/index.ts",
     "seed": "tsx ./src/helpers/databaseHelpers/seed.ts --exit",
     "seed:local": "dotenv -e .env_local -- tsx ./src/helpers/databaseHelpers/seed.ts --exit",
-    "test": "dotenv -e .env_test -- jest --verbose --silent",
+    "test": "dotenv -e .env_test -- jest --verbose",
     "test:all": "yarn test:integration:docker && yarn test",
     "push:seed": "dotenv -e .env_test -- npx prisma db push && dotenv -e .env_test -- yarn seed",
-    "test:intg": "dotenv -e .env_test -- node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.integration.config.js --testTimeout=150000 --verbose --debug --silent --runInBand",
-    "jest:integration": "yarn push:seed && dotenv -e .env_test -- yarn test:intg",
-    "test:integration:docker": "yarn docker:up && yarn jest:integration && yarn docker:down",
-    "pre-commit": "node ./scripts/checkHardCoded.js"
+    "test:intg": "dotenv -e .env_test -- node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.integration.config.js --testTimeout=150000 --verbose --silent --runInBand",
+    "test:intg:no-docker": "yarn push:seed && dotenv -e .env_test -- yarn test:intg",
+    "test:intg:docker": "yarn docker:up && yarn test:intg:no-docker && yarn docker:down",
+    "pre-commit": "yarn prettier **/*.ts --fix --write && node ./scripts/checkHardCoded.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",

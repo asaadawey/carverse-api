@@ -64,7 +64,7 @@ const main = async () => {
     where: { ColorName: 'Purple' },
   });
   //#endregion
-  console.log("Seeding colorGradiants finish")
+  console.log('Seeding colorGradiants finish');
   //#region Modules
   await prisma.modules.upsert({
     create: {
@@ -115,7 +115,7 @@ const main = async () => {
     where: { ModuleName: 'Car washing' },
   });
   //#endregion
-  console.log("Seeding modules finish")
+  console.log('Seeding modules finish');
   //#region userTypes
   await prisma.userTypes.upsert({
     create: { TypeName: UserTypes.Customer, AllowedClients: [AllowedClients.MobileApp, AllowedClients.Web] },
@@ -133,12 +133,12 @@ const main = async () => {
     update: { AllowedClients: [AllowedClients.MobileApp] },
   });
   //#endregion
-  console.log("Seeding userTypes finish")
+  console.log('Seeding userTypes finish');
   //#region Users
   await prisma.users.upsert({
     create: {
       Email: 'a',
-      Password: await generateHashedString("a"),
+      Password: await generateHashedString('a'),
       FirstName: 'Ahmed',
       LastName: 'Customer',
       Nationality: 'Egypt',
@@ -146,7 +146,13 @@ const main = async () => {
       userTypes: { connect: { TypeName: 'Customer' } },
       customer: { create: {} },
     },
-    update: {},
+    update: {
+      userTypes: {
+        update: {
+          AllowedClients: { push: [AllowedClients.Web] },
+        },
+      },
+    },
     where: { Email: 'a' },
   });
 
@@ -156,7 +162,7 @@ const main = async () => {
       FirstName: 'Mohammed',
       LastName: 'Provider',
       Nationality: 'Egypt',
-      Password: await generateHashedString("a"),
+      Password: await generateHashedString('b'),
       PhoneNumber: '971501234567',
       provider: {
         create: {
@@ -172,11 +178,17 @@ const main = async () => {
       },
       userTypes: { connect: { TypeName: 'Provider' } },
     },
-    update: {},
+    update: {
+      userTypes: {
+        update: {
+          AllowedClients: { push: [AllowedClients.Web] },
+        },
+      },
+    },
     where: { Email: 'b' },
   });
   //#endregion
-  console.log("Seeding users finish")
+  console.log('Seeding users finish');
   //#region BodyTypes
   await prisma.bodyTypes.upsert({
     create: { TypeName: 'Sedan' },
@@ -194,7 +206,7 @@ const main = async () => {
     update: {},
   });
   //#endregion
-  console.log("Seeding bodyTypes finish")
+  console.log('Seeding bodyTypes finish');
   //#region PaymentMethods
   await prisma.paymentMethods.upsert({
     create: { MethodName: PaymentMethods.Cash, MethodDescription: '' },
@@ -207,7 +219,7 @@ const main = async () => {
     where: { MethodName: PaymentMethods.Credit },
   });
   //#endregion
-  console.log("Seeding paymentMethods finish")
+  console.log('Seeding paymentMethods finish');
   //#region OrderHistoryItems
   await prisma.orderHistoryItems.upsert({
     create: {
@@ -288,7 +300,7 @@ const main = async () => {
   });
 
   //#endregion
-  console.log("Seeding orderHistoryItems finish")
+  console.log('Seeding orderHistoryItems finish');
   //#region AttachmentsTypes
   await prisma.attachmentTypes.upsert({
     create: {
@@ -309,7 +321,7 @@ const main = async () => {
     update: {},
   });
   //#endregion
-  console.log("Seeding attachmentTypes finish")
+  console.log('Seeding attachmentTypes finish');
   //#region Attachments
   await prisma.attachments.upsert({
     create: {
@@ -323,7 +335,7 @@ const main = async () => {
     },
     update: {},
     where: {
-      Name: "Emirates id",
+      Name: 'Emirates id',
     },
   });
   await prisma.attachments.upsert({
@@ -387,7 +399,7 @@ const main = async () => {
     },
   });
   //#endregion
-  console.log("Seeding attachments finish")
+  console.log('Seeding attachments finish');
   //#region Constants
   await prisma.constants.upsert({
     create: {
@@ -438,7 +450,7 @@ const main = async () => {
     },
   });
   //#endregion
-  console.log("Seeding constants finish")
+  console.log('Seeding constants finish');
 };
 
 if (process.argv[2] === '--exit') {

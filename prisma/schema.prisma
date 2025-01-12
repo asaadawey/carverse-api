@@ -3,49 +3,49 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model users {
-  id            Int             @id @default(autoincrement())
-  UserTypeID    Int
-  FirstName     String
-  LastName      String
-  Password      String
-  Email         String          @unique
-  PhoneNumber   String          @unique
-  Nationality   String
-  CreatedOn     DateTime        @default(now())
-  ModifiedOn    DateTime        @updatedAt
-  isActive      Boolean         @default(true)
-  cars          cars[]
-  creditCards   creditCards[]
-  customer      customer?
-  provider      provider?
-  uploadedFiles uploadedFiles[]
-  userTypes     userTypes       @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
-  deleteRequests deleteRequests[] 
-  currentUserDeleteRequests deleteRequests[] @relation(name: "currentUserDeleteRequests")
-  processedUserDeletions deleteRequests[] @relation(name: "processedByUsers")
-  test          Int?
-  test2         Int?
+  id                        Int              @id @default(autoincrement())
+  UserTypeID                Int
+  FirstName                 String
+  LastName                  String
+  Password                  String
+  Email                     String           @unique
+  PhoneNumber               String           @unique
+  Nationality               String
+  CreatedOn                 DateTime         @default(now())
+  ModifiedOn                DateTime         @updatedAt
+  isActive                  Boolean          @default(true)
+  test                      Int?
+  test2                     Int?
+  cars                      cars[]
+  creditCards               creditCards[]
+  customer                  customer?
+  deleteRequests            deleteRequests[]
+  processedUserDeletions    deleteRequests[] @relation("processedByUsers")
+  currentUserDeleteRequests deleteRequests[] @relation("currentUserDeleteRequests")
+  provider                  provider?
+  uploadedFiles             uploadedFiles[]
+  userTypes                 userTypes        @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
 }
 
 model deleteRequests {
-    id            Int             @id @default(autoincrement())
-    UserID        Int             
-    DeletedBy     Int             
-    Comments      String?
-    ProcessedOn   DateTime?
-    IsProcessed   Boolean @default(false)
-    ProcessedBy   Int?
-  CreatedOn     DateTime        @default(now())
-  ModifiedOn    DateTime        @updatedAt
-  user      users      @relation(fields: [UserID],references: [id],name: "currentUserDeleteRequests")
-  deletedByUser users  @relation(fields: [DeletedBy],references: [id])
-  processedByUser users? @relation(fields: [ProcessedBy], references: [id], name: "processedByUsers")
+  id              Int       @id @default(autoincrement())
+  UserID          Int
+  DeletedBy       Int
+  Comments        String?
+  ProcessedOn     DateTime?
+  IsProcessed     Boolean   @default(false)
+  ProcessedBy     Int?
+  CreatedOn       DateTime  @default(now())
+  ModifiedOn      DateTime  @updatedAt
+  deletedByUser   users     @relation(fields: [DeletedBy], references: [id])
+  processedByUser users?    @relation("processedByUsers", fields: [ProcessedBy], references: [id])
+  user            users     @relation("currentUserDeleteRequests", fields: [UserID], references: [id])
 }
 
 model customer {
@@ -87,6 +87,15 @@ model services {
   modules            modules            @relation(fields: [ModuleID], references: [id], onDelete: Cascade)
 }
 
+model orderRating {
+  id        Int      @id @default(autoincrement())
+  OrderID   Int @unique
+  Rating    Decimal
+  Feedback   String?
+  CreatedOn DateTime @default(now())
+  order    orders   @relation(fields: [OrderID], references: [id], onDelete: Cascade)
+}
+
 model orders {
   id                       Int                        @id @default(autoincrement())
   PaymentMethodID          Int
@@ -99,6 +108,7 @@ model orders {
   AddressString            String
   PaymentIntentID          String?                    @unique
   AdditionalAddressData    Json?
+  AdditionalNotes          String?
   orderAmountStatements    orderAmountStatements[]
   orderCreditCardsPurchase orderCreditCardsPurchase[]
   orderHistory             orderHistory[]
@@ -106,14 +116,15 @@ model orders {
   customer                 customer                   @relation(fields: [CustomerID], references: [id], onDelete: Cascade)
   paymentMethods           paymentMethods             @relation(fields: [PaymentMethodID], references: [id], onDelete: Cascade)
   provider                 provider                   @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
+  ratings                  orderRating?
 }
 
 model orderServices {
   id                               Int                              @id @default(autoincrement())
-  ProviderServiceBodyTypeID        Int
   OrderID                          Int
   CarID                            Int
   CreatedOn                        DateTime?                        @default(now()) @db.Timestamptz(6)
+  ProviderServiceBodyTypeID        Int
   cars                             cars                             @relation(fields: [CarID], references: [id], onDelete: Cascade)
   orders                           orders                           @relation(fields: [OrderID], references: [id], onDelete: Cascade)
   providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes @relation(fields: [ProviderServiceBodyTypeID], references: [id], onDelete: Cascade)
@@ -211,10 +222,10 @@ model providerServicesAllowedBodyTypes {
   ProviderServiceID     Int
   BodyTypeID            Int
   Price                 Decimal
-  providerService       providerServices        @relation(fields: [ProviderServiceID], references: [id], onDelete: Cascade)
-  bodyType              bodyTypes               @relation(fields: [BodyTypeID], references: [id], onDelete: Cascade)
   orderAmountStatements orderAmountStatements[]
   orderServices         orderServices[]
+  bodyType              bodyTypes               @relation(fields: [BodyTypeID], references: [id], onDelete: Cascade)
+  providerService       providerServices        @relation(fields: [ProviderServiceID], references: [id], onDelete: Cascade)
 
   @@unique([ProviderServiceID, BodyTypeID])
 }

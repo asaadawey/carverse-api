@@ -29,7 +29,7 @@ const environmentSchema = yup.object().shape({
   REDIS_PASSWORD: yup.string().required(),
   REDIS_PORT: yup.string().required(),
 
-  BASE_URL: yup.string().optional()
+  BASE_URL: yup.string().optional(),
 });
 
 export default environmentSchema;

@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { HttpException } from '@src/errors/index';
 import * as yup from 'yup';
 import { createSuccessResponse, createFailResponse } from '@src/responses/index';
-import { HTTPErrorMessages, HTTPResponses } from '@src/interfaces/enums';
+import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 import bcrypt from 'bcrypt';
 import constants from '@src/config/environment';
 import { generateToken } from '@src/utils/token';
@@ -31,7 +31,7 @@ type LoginRequestBody = {
 
 export type LoginResponse = {
   isUserActive: boolean;
-  isDocumentsFullfilled: boolean | undefined,
+  isDocumentsFullfilled: boolean | undefined;
   token: string;
   userInfo: {
     FirstName: string;
@@ -92,10 +92,25 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         'Password incorrect',
       );
 
+    // Extra check if user have either provider id or customer id
+    if (!user.provider?.id && !user.customer?.id)
+      throw new HttpException(
+        HTTPResponses.InternalServerError,
+        HTTPErrorString.SomethingWentWrong,
+        'Why no customer or provider id ? ' + JSON.stringify([user]),
+      );
+
     // Check delete requests for the user
-    const deleteRequest = await req.prisma.deleteRequests.findFirst({ where: { UserID: user.id }, select: { IsProcessed: true, id: true } })
+    const deleteRequest = await req.prisma.deleteRequests.findFirst({
+      where: { UserID: user.id },
+      select: { IsProcessed: true, id: true },
+    });
     if (deleteRequest !== undefined && deleteRequest !== null)
-      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.AccountDeleted, "Delete request id " + deleteRequest?.id)
+      throw new HttpException(
+        HTTPResponses.BusinessError,
+        HTTPErrorMessages.AccountDeleted,
+        'Delete request id ' + deleteRequest?.id,
+      );
     // const headerSalt = req.headers['salt'];
 
     // const envSalt = envVars.auth.apiSalt;
@@ -122,8 +137,10 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
 
     // Check if provider has uploaded documents or not
     let isDocumentsFullfilled: boolean | undefined = undefined;
-    if (user.userTypes.TypeName === "Provider" && !user.isActive) {
-      const attachments = await req.prisma.uploadedFiles.findFirst({ where: { AND: [{ UserID: { equals: user.id } }, { JsonData: { equals: Prisma.JsonNull } }] } })
+    if (user.userTypes.TypeName === 'Provider' && !user.isActive) {
+      const attachments = await req.prisma.uploadedFiles.findFirst({
+        where: { AND: [{ UserID: { equals: user.id } }, { JsonData: { equals: Prisma.JsonNull } }] },
+      });
       isDocumentsFullfilled = Boolean(attachments);
     }
 

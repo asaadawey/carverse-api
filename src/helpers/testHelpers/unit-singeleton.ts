@@ -20,7 +20,7 @@ beforeEach(() => {
   req = httpMocks.createRequest({
     body: {},
     user: {},
-    prisma: prismaMock
+    prisma: prismaMock,
   });
   res = httpMocks.createResponse();
   next = jest.fn();

@@ -46,7 +46,7 @@ const modifyConstant: RequestHandler<
       },
       select: {
         id: true,
-      }
+      },
     });
     createSuccessResponse(req, res, { result: true, createdItemId: modifiedConstant.id }, next);
   } catch (error: any) {

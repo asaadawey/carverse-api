@@ -11,7 +11,8 @@ const createFailResponse = (
   additionalPramater: any = null,
 ) => {
   console.error(
-    `POST-LOG [${status}] [RESPONSE-FUNC] [${req.method}] ${req.url} ${JSON.stringify(error)} ${additionalPramater || error?.additionalPramater || ''
+    `POST-LOG [${status}] [RESPONSE-FUNC] [${req.method}] ${req.url} ${JSON.stringify(error)} ${
+      additionalPramater || error?.additionalPramater || ''
     }`,
   );
 

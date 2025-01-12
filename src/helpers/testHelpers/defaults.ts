@@ -3,23 +3,21 @@ import envVars from '@src/config/environment';
 
 export const commonHeaders = (userId: number = 1, disableAuth = false, addtionalHeaders = {}): any => {
   let extraObjectToPass = {};
-  Object.keys(addtionalHeaders).forEach(key => {
-    if (typeof addtionalHeaders[key] === 'object')
-      extraObjectToPass[key] = JSON.stringify(addtionalHeaders[key])
-    else
-      extraObjectToPass[key] = addtionalHeaders[key]
-  })
+  Object.keys(addtionalHeaders).forEach((key) => {
+    if (typeof addtionalHeaders[key] === 'object') extraObjectToPass[key] = JSON.stringify(addtionalHeaders[key]);
+    else extraObjectToPass[key] = addtionalHeaders[key];
+  });
   return {
     [envVars.auth.apiKey]: envVars.auth.apiValue,
     'content-type': 'application/json',
     accept: '*/*',
     userId,
     user: {
-      id: userId
+      id: userId,
     },
     authorization: disableAuth ? '' : 'test',
     'accept-encoding': 'gzip, deflate, br',
     connection: 'keep-alive',
-    ...extraObjectToPass
-  }
+    ...extraObjectToPass,
+  };
 };

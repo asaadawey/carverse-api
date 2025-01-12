@@ -64,10 +64,10 @@ const getOrderTotalAmountStatements: RequestHandler<
             services: {
               select: {
                 ServiceName: true,
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       },
     });
 
@@ -75,7 +75,9 @@ const getOrderTotalAmountStatements: RequestHandler<
       providerServices.map((service) => ({
         name: service.providerService?.services?.ServiceName || '',
         label: service.providerService?.services?.ServiceName || '',
-        encryptedValue: encrypt(String(getAmount(new Decimal(service.Price), ConstantType.Amount, new Decimal(totalAmount)))),
+        encryptedValue: encrypt(
+          String(getAmount(new Decimal(service.Price), ConstantType.Amount, new Decimal(totalAmount))),
+        ),
         relatedProviderServiceId: service.id,
       })),
     );
@@ -108,7 +110,7 @@ const getOrderTotalAmountStatements: RequestHandler<
     totalAmount = _.sumBy(statements, (statement) => Number(decrypt(statement.encryptedValue as string)));
     statements = statements.concat({
       name: vat?.Name || '',
-      label: vat?.Label,
+      label: `${vat?.Label}${vat?.Type === ConstantType.Percentage ? ` (${vat.Value}%)` : ''} `,
       encryptedValue: encrypt(String(getAmount(vat?.Value, vat?.Type, new Decimal(totalAmount)))),
       relatedConstantId: vat?.id,
     });
@@ -119,7 +121,7 @@ const getOrderTotalAmountStatements: RequestHandler<
     statements = statements.concat(
       [serviceCharges, onlineCharges].filter(Boolean).map((value: any) => ({
         name: value?.Name || '',
-        label: value?.Label,
+        label: `${value?.Label}${value?.Type === ConstantType.Percentage ? ` (${value.Value}%)` : ''} `,
         encryptedValue: encrypt(String(getAmount(value?.Value || 0, value?.Type, new Decimal(totalAmount)))),
         relatedConstantId: value.id,
       })),

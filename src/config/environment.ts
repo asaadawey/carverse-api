@@ -6,18 +6,19 @@ config();
 const variables: Record<string, any> = { ...process.env };
 
 const serverVariables = {
-  version: "HEROKU_RELEASE_VERSION", serverId: "HEROKU_DYNO_ID", releaseCreatedAt: "HEROKU_RELEASE_CREATED_AT", commitId: "HEROKU_SLUG_COMMIT",
-}
+  version: 'HEROKU_RELEASE_VERSION',
+  serverId: 'HEROKU_DYNO_ID',
+  releaseCreatedAt: 'HEROKU_RELEASE_CREATED_AT',
+  commitId: 'HEROKU_SLUG_COMMIT',
+};
 
 // Don't validate in case of CI
 let values;
-if (process.env.CI)
-  values = process.env;
+if (process.env.CI) values = process.env;
 else {
   const { ...allValues } = environmentSchema.validateSync(variables);
   values = allValues;
 }
-
 
 export const isDev = values.NODE_ENV === 'development';
 export const isTest = values.NODE_ENV === 'test';
@@ -54,20 +55,20 @@ export default {
   },
   cookies: {
     secret: values.COOKIE_SECRET,
-    key: values.COOKIE_KEY
+    key: values.COOKIE_KEY,
   },
   appServer: {
-    version: variables[serverVariables.version] || values.VERSION || "1.0-dev",
+    version: variables[serverVariables.version] || values.VERSION || '1.0-dev',
     releaseDate: variables[serverVariables.releaseCreatedAt] || new Date().toISOString(),
-    slugCommitId: variables[serverVariables.commitId] || "none",
-    serverId: variables[serverVariables.serverId] || "localhost",
+    slugCommitId: variables[serverVariables.commitId] || 'none',
+    serverId: variables[serverVariables.serverId] || 'localhost',
   },
   redis: {
     host: values.REDIS_HOST,
-    username: values.REDIS_USERNAME || "",
+    username: values.REDIS_USERNAME || '',
     password: values.REDIS_PASSWORD,
     port: values.REDIS_PORT,
   },
   baseUrl: values.BASE_URL,
-  passwordHashSeperator: values.PASSWORD_HASH_SEPERATOR
+  passwordHashSeperator: values.PASSWORD_HASH_SEPERATOR,
 };

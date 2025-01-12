@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import * as yup from 'yup';
 import bcrypt from 'bcrypt';
-import constants from '@src/config/environment'
+import constants from '@src/config/environment';
 import { createSuccessResponse, createFailResponse } from '@src/responses/index';
 import { generateHashedString } from '@src/utils/encrypt';
 
@@ -56,6 +56,7 @@ const registerUser: RequestHandler<
         userTypes: { connect: { TypeName: UserTypeName } },
         // Only active in case of customer
         isActive: UserTypeName.toLowerCase() === 'customer',
+        ...(UserTypeName === 'Customer' ? { customer: { create: {} } } : { provider: { create: {} } }),
       },
       select: { id: true },
     });

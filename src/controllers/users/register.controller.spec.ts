@@ -5,7 +5,7 @@ import { createSuccessResponse } from '@src/responses/index';
 describe('users/register', () => {
   it('Should success', async () => {
     prismaMock.users.create.mockResolvedValue({ id: 1 });
-    global.mockReq = { ...global.mockReq, body: { UserTypeName: 'Test', Password: "Test" } };
+    global.mockReq = { ...global.mockReq, body: { UserTypeName: 'Test', Password: 'Test' } };
     await register(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);

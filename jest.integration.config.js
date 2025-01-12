@@ -21,7 +21,6 @@ const config = {
       },
     ],
   },
-  "extensionsToTreatAsEsm": [".ts"],
   moduleNameMapper: {
     "^@src/(.*)$": "<rootDir>/src/$1",
     "^@assets/(.*)$": "<rootDir>/assets/$1",

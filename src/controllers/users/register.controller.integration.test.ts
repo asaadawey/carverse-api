@@ -53,7 +53,7 @@ describe('Integration users/register', () => {
         UserTypeName: 'Provider',
       })
       .expect(HTTPResponses.Success);
-    expect(result.body.data.result).toEqual(true)
+    expect(result.body.data.result).toEqual(true);
   });
 
   it('Should fail because of schema validation', async () => {

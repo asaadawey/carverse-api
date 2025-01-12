@@ -25,15 +25,15 @@ import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 
 import corsOptions from './utils/cors';
-import Redis from 'ioredis';
+// import Redis from 'ioredis';
 
 const app = express();
 
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
 
 if (!isTest) {
   const redisClient = createClient({
-    url: `redis://${envVars.redis.username}:${envVars.redis.password}@${envVars.redis.host}:${envVars.redis.port}`
+    url: `redis://${envVars.redis.username}:${envVars.redis.password}@${envVars.redis.host}:${envVars.redis.port}`,
   });
 
   await redisClient.connect();
@@ -64,41 +64,41 @@ if (!isTest) {
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     // Redis store configuration
     store: new RedisStore({
-      sendCommand: (...args: any): any =>
-        redisClient.sendCommand(args),
+      sendCommand: (...args: any): any => redisClient.sendCommand(args),
     }),
     message: {
-      error: true
-    }
-  })
-  app.use(limiter)
+      error: true,
+    },
+  });
+  app.use(limiter);
 }
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
-app.use(cookieParser(envVars.appSecret))
+app.use(cookieParser(envVars.appSecret));
 
 app.use(preLogmiddleware);
 
 // API Auth middleware
 app.use(apiAuthRoute);
 
-app.get('/health', ({ }, res) => {
-  console.log("Health")
+app.get('/health', ({}, res) => {
+  console.log('Health');
 
   res.json({
-    status: 200, message: "OK", hostname: os.hostname(),
-    ...envVars.appServer
-  })
-})
+    status: 200,
+    message: 'OK',
+    hostname: os.hostname(),
+    ...envVars.appServer,
+  });
+});
 
 // Csrf
 app.use(mobileCookieInjector);
 
-if (!isTest)
-  app.use(doubleCsrfProtection);
+if (!isTest) app.use(doubleCsrfProtection);
 
 app.get('/cvapi-csrf', getCsrfRoute);
 
@@ -109,14 +109,12 @@ app.get('/cvapi-csrf', getCsrfRoute);
 //   next();
 // });
 
-
 // app.use('/icons', [express.static(path.join(process.cwd(), 'public', 'icons'))]);
 
-app.use(prismaInjectorMiddleware)
+app.use(prismaInjectorMiddleware);
 
 app.use(apiPrefix, routes);
 
 app.use(errorMiddleware);
-
 
 export default app;

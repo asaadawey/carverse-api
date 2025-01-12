@@ -20,7 +20,7 @@ describe('orders/getOrderTotalAmount', () => {
           services: {
             ServiceName: 'Service fee',
           },
-        }
+        },
       },
     ]);
 

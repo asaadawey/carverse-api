@@ -5,9 +5,9 @@
 // import prisma from '@src/helpers/databaseHelpers/client';
 // import randomstring from 'randomstring';
 // import { HTTPResponses } from '@src/interfaces/enums';
-test("", () => {
-  expect(true).toBe(true)
-})
+test('', () => {
+  expect(true).toBe(true);
+});
 // describe('Integration providers/upsertProviderServices', () => {
 //   let providerUserId: number;
 //   let providerId: number;

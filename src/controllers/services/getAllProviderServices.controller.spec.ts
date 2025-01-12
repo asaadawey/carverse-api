@@ -7,13 +7,13 @@ describe('services/getAllProviderServices', () => {
     global.mockReq = {
       ...global.mockReq,
       user: {
-        userType: "Provider",
-        providerId: "1"
+        userType: 'Provider',
+        providerId: '1',
       },
       params: {
-        providerId: "1",
-      }
-    }
+        providerId: '1',
+      },
+    };
     prismaMock.providerServices.findMany.mockResolvedValue([
       {
         test: 'test',
@@ -38,13 +38,13 @@ describe('services/getAllProviderServices', () => {
     global.mockReq = {
       ...global.mockReq,
       user: {
-        userType: "Provider",
-        providerId: "1" // Different than the one provided in the params
+        userType: 'Provider',
+        providerId: '1', // Different than the one provided in the params
       },
       params: {
-        providerId: "2",
-      }
-    }
+        providerId: '2',
+      },
+    };
     prismaMock.providerServices.findMany.mockResolvedValue([
       {
         test: 'test',

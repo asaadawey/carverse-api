@@ -10,6 +10,6 @@ const router = Router();
 
 router.get(RouterLinks.getAllProviderServices, validate(getAllProviderServicesSchema), getAllProviderServices);
 router.get(RouterLinks.getAllServices, validate(getAllServicesSchema), getAllServices);
-router.post(RouterLinks.addServices, validate(addServiceSchema), addService)
+router.post(RouterLinks.addServices, validate(addServiceSchema), addService);
 
 export default router;

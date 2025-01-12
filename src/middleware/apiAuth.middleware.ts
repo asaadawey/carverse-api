@@ -28,6 +28,6 @@ export const apiAuthRoute = (req, res, next) => {
   } catch (error: any) {
     createFailResponse(req, res, error, next, HTTPResponses.Unauthorised);
   }
-}
+};
 
 export default apiAuthMiddleware;
