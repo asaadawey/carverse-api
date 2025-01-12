@@ -640,13 +640,11 @@ io.on('connection', (socket) => {
 
       cancelOnHoldPayment(args.orderId);
 
-      socket
-        .to(args.customerUuid)
-        .emit('order-rejected', {
-          result: false,
-          orderId: args.orderId,
-          orderStep: OrderStep.stillNotAcceptedByProvider1,
-        });
+      socket.to(args.customerUuid).emit('order-rejected', {
+        result: false,
+        orderId: args.orderId,
+        orderStep: OrderStep.stillNotAcceptedByProvider1,
+      });
     }
   });
 
