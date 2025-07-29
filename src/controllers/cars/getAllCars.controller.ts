@@ -16,6 +16,7 @@ type GetAllCarsResponse = {
   PlateNumber: string;
 
   bodyTypes: {
+    id: number;
     TypeName: string;
   };
 }[];
@@ -38,7 +39,7 @@ const getAllCars: RequestHandler<
       where: { UserID: Number(req.user.id) },
       select: {
         id: true,
-        bodyTypes: { select: { TypeName: true } },
+        bodyTypes: { select: { TypeName: true, id: true } },
         Color: true,
         Manufacturer: true,
         Model: true,

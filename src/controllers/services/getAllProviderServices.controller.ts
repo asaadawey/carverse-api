@@ -21,6 +21,7 @@ type GetAllProviderServicesResponse = (providerServices & {
 type GetAllProviderServicesQuery = {
   take?: string;
   skip?: string;
+  bodyTypeId?: string; // New optional query parameter
 };
 
 export const getAllProviderServicesSchema: yup.SchemaOf<{
@@ -31,7 +32,12 @@ export const getAllProviderServicesSchema: yup.SchemaOf<{
     moduleId: yup.string().required('Module id is required'),
     providerId: yup.string().optional(),
   }),
-  query: yup.object().concat(paginationSchema),
+  query: yup
+    .object()
+    .shape({
+      bodyTypeId: yup.string().optional(), // Validation for the new query parameter
+    })
+    .concat(paginationSchema),
 });
 
 const getAllProviderServices: RequestHandler<
@@ -42,6 +48,7 @@ const getAllProviderServices: RequestHandler<
 > = async (req, res, next) => {
   try {
     let { moduleId, providerId } = req.params;
+    const { bodyTypeId } = req.query; // Extract the new query parameter
 
     // Authorization logic
     if (req.user.userType === 'Provider') {
@@ -55,7 +62,13 @@ const getAllProviderServices: RequestHandler<
 
     const data = await req.prisma.providerServices.findMany({
       where: {
-        AND: [{ ProviderID: { equals: Number(providerId) } }, { services: { ModuleID: { equals: Number(moduleId) } } }],
+        AND: [
+          { ProviderID: { equals: Number(providerId) } },
+          { services: { ModuleID: { equals: Number(moduleId) } } },
+          bodyTypeId
+            ? { providerServicesAllowedBodyTypes: { some: { BodyTypeID: { equals: Number(bodyTypeId) } } } }
+            : {},
+        ],
       },
       ...spreadPaginationParams(req.query),
       include: {

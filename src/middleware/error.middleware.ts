@@ -10,7 +10,7 @@ const errorMiddleware = (error: HttpException | any, req: Request, res: Response
   try {
     let status: number = error.status || HTTPResponses.InternalServerError;
     let message: string = error.message || HTTPErrorString.SomethingWentWrong;
-    let additionalData = error.additionalData;
+    let additionalData = error.additionalData || error.additionalParameters || null;
     let originalError = error.message;
 
     if (error instanceof Prisma.PrismaClientUnknownRequestError || (error.clientVersion && !error.code)) {

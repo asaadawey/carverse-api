@@ -1,0 +1,2097 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Car Wash API",
+    "version": "1.0.0",
+    "description": "A comprehensive API for car wash services management",
+    "contact": {
+      "name": "Car Wash API Support",
+      "email": "support@carwash.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User authentication operations"
+    },
+    {
+      "name": "Users",
+      "description": "User management operations"
+    },
+    {
+      "name": "Services",
+      "description": "Car wash service operations"
+    },
+    {
+      "name": "Orders",
+      "description": "Order management operations"
+    },
+    {
+      "name": "Providers",
+      "description": "Service provider operations"
+    },
+    {
+      "name": "Cars",
+      "description": "Car management operations"
+    },
+    {
+      "name": "Payment",
+      "description": "Payment method operations"
+    },
+    {
+      "name": "Modules",
+      "description": "Service module operations"
+    },
+    {
+      "name": "Packages",
+      "description": "Service package operations"
+    },
+    {
+      "name": "Attachments",
+      "description": "File attachment operations"
+    },
+    {
+      "name": "Constants",
+      "description": "System constants operations"
+    },
+    {
+      "name": "System",
+      "description": "System health and monitoring"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Error message"
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "Success": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Operation successful"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "PaginationQuery": {
+        "type": "object",
+        "properties": {
+          "take": {
+            "type": "string",
+            "description": "Number of items to take",
+            "example": "10"
+          },
+          "skip": {
+            "type": "string",
+            "description": "Number of items to skip",
+            "example": "0"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "FirstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "LastName": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "Email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "MobileNumber": {
+            "type": "string",
+            "example": "+1234567890"
+          },
+          "UserTypeName": {
+            "type": "string",
+            "example": "Customer"
+          }
+        }
+      },
+      "Service": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "ServiceName": {
+            "type": "string",
+            "example": "Basic Wash"
+          },
+          "ServiceDescription": {
+            "type": "string",
+            "example": "Basic car washing service"
+          }
+        }
+      },
+      "Provider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "ProviderName": {
+            "type": "string",
+            "example": "Premium Car Wash"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "float",
+            "example": -122.4194
+          },
+          "latitude": {
+            "type": "number",
+            "format": "float",
+            "example": 37.7749
+          }
+        }
+      },
+      "Car": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "PlateNumber": {
+            "type": "string",
+            "example": "ABC123"
+          },
+          "Model": {
+            "type": "string",
+            "example": "Toyota Camry"
+          },
+          "Color": {
+            "type": "string",
+            "example": "Blue"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "providerId": {
+            "type": "integer",
+            "example": 1
+          },
+          "orderAmount": {
+            "type": "number",
+            "format": "float",
+            "example": 25.99
+          },
+          "addressString": {
+            "type": "string",
+            "example": "123 Main St, City, State"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "float",
+            "example": -122.4194
+          },
+          "latitude": {
+            "type": "number",
+            "format": "float",
+            "example": 37.7749
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "API endpoint not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "example": 404
+                },
+                "message": {
+                  "type": "string",
+                  "example": "API endpoint not found"
+                },
+                "path": {
+                  "type": "string",
+                  "example": "/api/invalid-endpoint"
+                },
+                "method": {
+                  "type": "string",
+                  "example": "GET"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2024-01-15T10:30:00.000Z"
+                },
+                "requestId": {
+                  "type": "string",
+                  "example": "req-12345"
+                },
+                "availableEndpoints": {
+                  "type": "object",
+                  "description": "Only included in development environment",
+                  "properties": {
+                    "documentation": {
+                      "type": "string",
+                      "example": "/api-docs"
+                    },
+                    "health": {
+                      "type": "string",
+                      "example": "/health"
+                    },
+                    "authentication": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "/api/login",
+                        "/api/register"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    },
+    {
+      "cookieAuth": []
+    }
+  ],
+  "paths": {
+    "/attachments/getTypes": {
+      "get": {
+        "summary": "Get all attachment types",
+        "description": "Retrieve a list of all available attachment types",
+        "tags": [
+          "Attachments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Attachment types retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "TypeName": {
+                                "type": "string",
+                                "example": "Profile Picture"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attachments/getListOfAttachments/{typeName}": {
+      "get": {
+        "summary": "Get list of attachments by type",
+        "description": "Retrieve attachments for a specific type",
+        "tags": [
+          "Attachments"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "typeName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Attachment type name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attachments retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "fileName": {
+                                "type": "string",
+                                "example": "profile.jpg"
+                              },
+                              "url": {
+                                "type": "string",
+                                "example": "https://example.com/profile.jpg"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attachments/getImages": {
+      "get": {
+        "summary": "Get image",
+        "description": "Retrieve a specific image",
+        "tags": [
+          "Attachments"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "fileName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Image file name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image retrieved successfully",
+            "content": {
+              "image/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/attachments/upload/{userId}/{attachmentTypeId}": {
+      "post": {
+        "summary": "Upload attachment",
+        "description": "Upload a new attachment file",
+        "tags": [
+          "Attachments"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "User ID"
+          },
+          {
+            "in": "path",
+            "name": "attachmentTypeId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Attachment type ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image file to upload"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "fileName": {
+                              "type": "string",
+                              "example": "uploaded_file.jpg"
+                            },
+                            "url": {
+                              "type": "string",
+                              "example": "https://example.com/uploaded_file.jpg"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cars": {
+      "get": {
+        "summary": "Get all cars",
+        "description": "Retrieve a list of cars for the authenticated user",
+        "tags": [
+          "Cars"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "take",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to take"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cars retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Car"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cars/bodyTypes": {
+      "get": {
+        "summary": "Get all car body types",
+        "description": "Retrieve a list of available car body types",
+        "tags": [
+          "Cars"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "take",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to take"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Body types retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "TypeName": {
+                                "type": "string",
+                                "example": "Sedan"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cars/add": {
+      "post": {
+        "summary": "Add a new car",
+        "description": "Add a new car to the user's garage",
+        "tags": [
+          "Cars"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "PlateNumber",
+                  "Model",
+                  "Color",
+                  "bodyTypeId"
+                ],
+                "properties": {
+                  "PlateNumber": {
+                    "type": "string",
+                    "example": "ABC123"
+                  },
+                  "Model": {
+                    "type": "string",
+                    "example": "Toyota Camry"
+                  },
+                  "Color": {
+                    "type": "string",
+                    "example": "Blue"
+                  },
+                  "bodyTypeId": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Car added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Car"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/car/checkCarExist/{plateNumber}": {
+      "get": {
+        "summary": "Verify car number",
+        "description": "Check if a car with the given plate number exists",
+        "tags": [
+          "Cars"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plateNumber",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Car plate number to verify"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Car verification result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "exists": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/constants": {
+      "get": {
+        "summary": "Get all constants",
+        "description": "Retrieve all system constants and configuration values",
+        "tags": [
+          "Constants"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Constants retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "ConstantName": {
+                                "type": "string",
+                                "example": "SERVICE_FEE"
+                              },
+                              "ConstantValue": {
+                                "type": "string",
+                                "example": "2.50"
+                              },
+                              "Description": {
+                                "type": "string",
+                                "example": "Service fee percentage"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/constants/update": {
+      "put": {
+        "summary": "Update a constant",
+        "description": "Modify the value of a system constant (Admin only)",
+        "tags": [
+          "Constants"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "value"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "value": {
+                    "type": "string",
+                    "example": "3.00"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Constant updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "updated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modules": {
+      "get": {
+        "summary": "Get all modules",
+        "description": "Retrieve a list of all available service modules",
+        "tags": [
+          "Modules"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "take",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to take"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Modules retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "ModuleName": {
+                                "type": "string",
+                                "example": "Car Wash"
+                              },
+                              "ModuleDescription": {
+                                "type": "string",
+                                "example": "Basic car washing services"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/add": {
+      "post": {
+        "summary": "Create a new order",
+        "description": "Add a new car wash order to the system",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skipCardPayment",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Skip card payment process"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "providerId",
+                  "orderServices",
+                  "orderTotalAmountStatement",
+                  "paymentMethodName",
+                  "orderAmount",
+                  "longitude",
+                  "latitude",
+                  "addressString",
+                  "additionalAddressData"
+                ],
+                "properties": {
+                  "providerId": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "orderServices": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "carId": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "providerServiceBodyTypeId": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      }
+                    }
+                  },
+                  "orderTotalAmountStatement": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "amount": {
+                          "type": "number",
+                          "example": 25.99
+                        }
+                      }
+                    }
+                  },
+                  "paymentMethodName": {
+                    "type": "string",
+                    "example": "Credit Card"
+                  },
+                  "orderAmount": {
+                    "type": "number",
+                    "example": 25.99
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "example": -122.4194
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "example": 37.7749
+                  },
+                  "addressString": {
+                    "type": "string",
+                    "example": "123 Main St, City, State"
+                  },
+                  "additionalAddressData": {
+                    "type": "object",
+                    "example": {}
+                  },
+                  "additionalNotes": {
+                    "type": "string",
+                    "example": "Please call when arrived"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "clientSecret": {
+                              "type": "string",
+                              "nullable": true,
+                              "example": "pi_1234567890_secret_abcdef"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/one/{id}": {
+      "get": {
+        "summary": "Get order details",
+        "description": "Retrieve detailed information about a specific order",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Order ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Order"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/getOrderStatements": {
+      "get": {
+        "summary": "Get order total amount statements",
+        "description": "Calculate and retrieve order total amount breakdown",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order statements retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "example": "Service Fee"
+                              },
+                              "amount": {
+                                "type": "number",
+                                "example": 25.99
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/confirmOrder/{orderId}": {
+      "post": {
+        "summary": "Confirm an order",
+        "description": "Confirm a pending order",
+        "tags": [
+          "Orders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Order ID to confirm"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order confirmed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "confirmed": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/packages/{moduleId}": {
+      "get": {
+        "summary": "Get all packages for a module",
+        "description": "Retrieve all service packages available for a specific module",
+        "tags": [
+          "Packages"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "moduleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Module ID"
+          },
+          {
+            "in": "query",
+            "name": "take",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to take"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Packages retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "PackageName": {
+                                "type": "string",
+                                "example": "Basic Package"
+                              },
+                              "PackageDescription": {
+                                "type": "string",
+                                "example": "Basic car wash package"
+                              },
+                              "Price": {
+                                "type": "number",
+                                "example": 29.99
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payment/methods": {
+      "get": {
+        "summary": "Get all payment methods",
+        "description": "Retrieve a list of available payment methods",
+        "tags": [
+          "Payment"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "take",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to take"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment methods retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "example": 1
+                              },
+                              "MethodName": {
+                                "type": "string",
+                                "example": "Credit Card"
+                              },
+                              "isActive": {
+                                "type": "boolean",
+                                "example": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/providers": {
+      "get": {
+        "summary": "Get all providers",
+        "description": "Retrieve a list of all car wash service providers",
+        "tags": [
+          "Providers"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "take",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to take"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Providers retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Provider"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/providers/one/{id}": {
+      "get": {
+        "summary": "Get provider details",
+        "description": "Retrieve detailed information about a specific provider",
+        "tags": [
+          "Providers"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Provider ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provider details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Provider"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/providers/services/add": {
+      "post": {
+        "summary": "Add provider service",
+        "description": "Add or update a service for a provider",
+        "tags": [
+          "Providers"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "providerId",
+                  "serviceId"
+                ],
+                "properties": {
+                  "providerId": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "serviceId": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "price": {
+                    "type": "number",
+                    "example": 25.99
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Provider service added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "example": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{moduleId}/{providerId}": {
+      "get": {
+        "summary": "Get all services for a specific provider and module",
+        "description": "Retrieve all services offered by a provider for a specific module",
+        "tags": [
+          "Services"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "moduleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Module ID"
+          },
+          {
+            "in": "path",
+            "name": "providerId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Provider ID"
+          },
+          {
+            "in": "query",
+            "name": "take",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to take"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provider services retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Service"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{moduleId}": {
+      "get": {
+        "summary": "Get all services for a module",
+        "description": "Retrieve all services available for a specific module",
+        "tags": [
+          "Services"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "moduleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Module ID"
+          },
+          {
+            "in": "query",
+            "name": "take",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to take"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Number of items to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Services retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Service"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/add": {
+      "post": {
+        "summary": "Add a new service",
+        "description": "Create a new service in the system",
+        "tags": [
+          "Services"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ServiceName",
+                  "ServiceDescription",
+                  "ModuleID"
+                ],
+                "properties": {
+                  "ServiceName": {
+                    "type": "string",
+                    "example": "Premium Wash"
+                  },
+                  "ServiceDescription": {
+                    "type": "string",
+                    "example": "Premium car washing service with wax"
+                  },
+                  "ModuleID": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Service added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Service"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "User login",
+        "description": "Authenticate user with email and password",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/LoginResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "summary": "User registration",
+        "description": "Register a new user account",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "FirstName",
+                  "LastName",
+                  "Email",
+                  "Password",
+                  "Nationality",
+                  "PhoneNumber",
+                  "UserTypeName"
+                ],
+                "properties": {
+                  "FirstName": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "LastName": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "Email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john.doe@example.com"
+                  },
+                  "Password": {
+                    "type": "string",
+                    "example": "password123"
+                  },
+                  "Nationality": {
+                    "type": "string",
+                    "example": "US"
+                  },
+                  "PhoneNumber": {
+                    "type": "string",
+                    "example": "+1234567890"
+                  },
+                  "UserTypeName": {
+                    "type": "string",
+                    "example": "Customer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "result": {
+                              "type": "boolean",
+                              "example": true
+                            },
+                            "id": {
+                              "type": "integer",
+                              "example": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checkUserExist": {
+      "post": {
+        "summary": "Check if user exists",
+        "description": "Check if a user exists with the given email",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User existence check result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "exists": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getUserDetails/{userId}": {
+      "get": {
+        "summary": "Get user details",
+        "description": "Retrieve detailed information about a user",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "User ID (optional, defaults to current user)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Success"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

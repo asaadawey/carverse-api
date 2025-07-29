@@ -36,6 +36,9 @@ export enum RouterLinks {
   addDeleteRequest = '/addDeleteRequest/:userId?',
   processDeleteRequest = '/processDeleteRequest/:deleteRequestId',
   getPreviousAddresses = '/getPreviousAddresses',
+  updatePassword = '/updatePassword',
+  sendEmailOtp = '/sendEmailOtp',
+  verifyEmailOtp = '/verifyEmailOtp',
   //#endregion
   //#region Values
   getValues = '/values',
@@ -56,10 +59,14 @@ export enum RouterLinks {
   getOneOrder = '/orders/one/:id',
   getOrderTotalAmountStatements = '/orders/getOrderStatements',
   confirmOrder = '/orders/confirmOrder/:orderId',
+  getAllOrders = '/orders',
   //#endregion
   //#region Constants
   getAllConstants = '/constants',
   modifyConstant = '/constants/update',
   //#endregion
+  //#region System
   getCsrfToken = '/cvapi-csrf',
+  notFound = '*', // Catch-all for 404 responses
+  //#endregion
 }

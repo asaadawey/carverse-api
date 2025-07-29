@@ -35,7 +35,12 @@ describe('orders/addOrder', () => {
     await addOrder(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
-    expect(createSuccessResponse).toHaveBeenCalledWith(global.mockReq, global.mockRes, { id: 1 }, global.mockNext);
+    expect(createSuccessResponse).toHaveBeenCalledWith(
+      global.mockReq,
+      global.mockRes,
+      { id: 1, clientSecret: null },
+      global.mockNext,
+    );
   });
   it('Should fail when payment is not active', async () => {
     prismaMock.orders.create.mockResolvedValue({ id: 1 });

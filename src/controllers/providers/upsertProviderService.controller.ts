@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import * as yup from 'yup';
 import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import { ResultResponse } from '@src/interfaces/express.types';
+import logger, { loggerUtils } from '@src/utils/logger';
 
 //#region AddProviderService
 type upsertProviderServiceParams = {};
@@ -83,6 +84,14 @@ const addProviderService: RequestHandler<
   let createdOrUpdatedId: number = -1;
 
   try {
+    logger.info('Provider service upsert initiated', {
+      providerId: req.user?.providerId,
+      serviceId,
+      createCount: toCreateServicesBodyTypes?.length || 0,
+      updateCount: toUpdateServices?.length || 0,
+      removeCount: (providerServicesBodyTypeToRemove?.length || 0) + (providerServicesToRemove?.length || 0),
+      reqId: req.headers['req_id'],
+    });
     if (toCreateServicesBodyTypes && serviceId) {
       const isProviderHaveService = await req.prisma.providerServices.findFirst({
         where: { ServiceID: serviceId },
@@ -146,6 +155,14 @@ const addProviderService: RequestHandler<
       }
     }
 
+    logger.info('Provider service upsert completed successfully', {
+      providerId: req.user?.providerId,
+      serviceId,
+      createdOrUpdatedId,
+      wasSuccessful: createdOrUpdatedId !== -1,
+      reqId: req.headers['req_id'],
+    });
+
     createSuccessResponse(
       req,
       res,
@@ -156,6 +173,11 @@ const addProviderService: RequestHandler<
       next,
     );
   } catch (error: any) {
+    loggerUtils.logError(error as Error, 'Upsert Provider Service Controller', {
+      providerId: req.user?.providerId,
+      serviceId,
+      reqId: req.headers['req_id'],
+    });
     createFailResponse(req, res, error, next);
   }
 };

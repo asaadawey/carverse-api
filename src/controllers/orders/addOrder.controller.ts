@@ -8,6 +8,7 @@ import { HttpException } from '@src/errors/index';
 import { Constants, HTTPResponses, OrderHistory, PaymentMethods } from '@src/interfaces/enums';
 import { Decimal } from '@prisma/client/runtime/library';
 import { createAndGetIntent } from '@src/utils/payment';
+import logger, { loggerUtils } from '@src/utils/logger';
 //#region AddOrder
 type AddOrderQuery = {};
 
@@ -104,6 +105,15 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
 
   let createdOrderId: number | undefined;
   try {
+    logger.info('Order creation initiated', {
+      providerId,
+      orderAmount,
+      servicesCount: orderServices.length,
+      paymentMethod: paymentMethodName,
+      customerId: req.user?.customerId,
+      reqId: req.headers['req_id'],
+    });
+
     orderTotalAmountStatement = orderTotalAmountStatement.map((statement) => ({
       ...statement,
       encryptedValue: new Decimal(decrypt(statement.encryptedValue as string)),
@@ -186,7 +196,7 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
 
     createdOrderId = createOrderResult.id;
 
-    let clientSecret: string | null;
+    let clientSecret: string | null = null;
     if (paymentMethodName === PaymentMethods.Credit && !req.query.skipCardPayment) {
       const companyFees = [Constants.OnlinePaymentCharges, Constants.VAT, Constants.ServiceCharges];
 
@@ -211,11 +221,30 @@ const addOrder: RequestHandler<AddOrderQuery, AddOrderResponse, AddOrderRequestB
         },
       });
     }
+
+    logger.info('Order created successfully', {
+      orderId: createOrderResult.id,
+      customerId: req.user?.customerId,
+      providerId,
+      orderAmount,
+      hasPaymentIntent: !!clientSecret,
+      reqId: req.headers['req_id'],
+    });
+
     //@ts-ignore
     createSuccessResponse(req, res, { id: createOrderResult.id, clientSecret }, next);
   } catch (error: any) {
+    loggerUtils.logError(error as Error, 'Add Order Controller', {
+      providerId,
+      orderAmount,
+      customerId: req.user?.customerId,
+      reqId: req.headers['req_id'],
+    });
     createFailResponse(req, res, error, next);
-    if (createdOrderId) await req.prisma.orders.delete({ where: { id: createdOrderId } });
+    if (createdOrderId) {
+      logger.warn('Cleaning up created order due to error', { orderId: createdOrderId });
+      await req.prisma.orders.delete({ where: { id: createdOrderId } });
+    }
   }
 };
 //#endregion

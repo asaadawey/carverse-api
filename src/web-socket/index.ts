@@ -12,6 +12,7 @@ import sendNotification from '@src/utils/sendNotification';
 import { cancelOnHoldPayment, capturePayment } from '@src/utils/payment';
 import corsOptions from '@src/utils/cors';
 import { Redis } from 'ioredis';
+import logger from '@src/utils/logger';
 
 //#region Enums & Interfaces
 export enum ProviderStatus {
@@ -107,7 +108,7 @@ type RemoveService<T, TSecondArg = undefined, THirdArg = undefined> = (
   arg2?: TSecondArg,
   arg3?: THirdArg,
 ) => T | undefined;
-
+console.log('a7a elshbesheb da3');
 export interface ServerToClientEvents {
   'provider-online-finish': (data: Result) => void;
   'provider-offline-finish': (data: Result) => void;
@@ -204,9 +205,12 @@ const broadcasterHelper = (
 
 export const addOrderHistory = async (order: ActiveOrders, reason: OrderHistory) => {
   const prisma = prismaClient;
-  console.log(
-    '[SOCKET - Add order history] Add order history, Order ID : ' + order.orderId + ' Reason : ' + reason.toString(),
-  );
+  logger.info('Adding order history', {
+    orderId: order.orderId,
+    reason: reason.toString(),
+    providerUuid: order.providerUuid,
+    customerUuid: order.customerUuid,
+  });
   await prisma.orderHistory.create({
     data: {
       orders: { connect: { id: order.orderId } },
@@ -428,10 +432,16 @@ io.use((socket, next) => {
     apiAuthMiddleware(apiValue);
     // inject user id coming from socket
     socket.data.userInfo = socket.handshake.auth['userInfo'];
-    console.log('Connected');
+    logger.info('Socket connected successfully', {
+      socketId: socket.id,
+      userId: socket.data.userInfo?.id,
+    });
     next();
   } catch (error: any) {
-    console.log('Socket Error : ' + { error });
+    logger.error('Socket connection error', {
+      error: error?.message || error,
+      socketId: socket.id,
+    });
     next(error);
   }
 });

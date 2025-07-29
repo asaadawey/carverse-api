@@ -9,7 +9,11 @@ type GetAllProvidersParams = {};
 
 type GetAllProvidersRequestBody = {};
 
-type GetAllProvidersResponse = ({ id: number } & { ratingsAverage: string; ratingNumber: number } & {
+type GetAllProvidersResponse = ({ id: number } & {
+  feedbacks: { feedback?: string; rating?: number }[];
+  ratingsAverage?: string;
+  ratingNumber?: number;
+} & {
   users: { FirstName: string; LastName: string; id: number };
 })[];
 
@@ -52,6 +56,7 @@ const getAllProviders: RequestHandler<
           select: {
             ratings: {
               select: {
+                Feedback: true,
                 Rating: true,
               },
             },
@@ -66,16 +71,23 @@ const getAllProviders: RequestHandler<
     let response: GetAllProvidersResponse = [];
 
     providers.forEach((provider) => {
-      const ratingNumber = provider.orders?.filter?.((order) => Boolean(order.ratings?.Rating)).length;
       const allRatings = provider.orders
         ?.filter?.((order) => Boolean(order.ratings?.Rating))
         .map((order) => order.ratings?.Rating.toNumber());
 
+      const totalFeedbacks = provider.orders
+        .filter((order) => Boolean(order.ratings?.Feedback))
+        .map((order) => ({
+          feedback: order.ratings?.Feedback ?? undefined,
+          rating: order.ratings?.Rating?.toNumber(),
+        }));
+
       response.push({
         id: provider.id,
         users: provider.users,
-        ratingNumber,
-        ratingsAverage: (_.sum(allRatings) / ratingNumber).toPrecision(2),
+        feedbacks: totalFeedbacks,
+        ratingNumber: totalFeedbacks?.length ?? 0,
+        ratingsAverage: (_.sum(allRatings) / (allRatings?.length || 1)).toPrecision(2),
       });
     });
 

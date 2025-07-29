@@ -1,29 +1,22 @@
 const config = {
-  "preset": "ts-jest/presets/default-esm",
-  "extensionsToTreatAsEsm": [".ts"],
-  "testEnvironment": "node",
-  "globals": {
-    "ts-jest": {
-      "useESM": true
-    }
-  },
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   transform: {
-    "^.+\\.ts$": [
-      "ts-jest",
+    '^.+\\.ts$': [
+      'ts-jest',
       {
         tsconfig: {
-          module: 'NodeNext',  // Ensure Jest handles ESM correctly
-          target: 'ESNext',
+          module: 'CommonJS', // Use CommonJS for Jest
+          target: 'ES2020',
           esModuleInterop: true,
           moduleResolution: 'node',
         },
-        useESM: true,
       },
     ],
   },
   moduleNameMapper: {
-    "^@src/(.*)$": "<rootDir>/src/$1",
-    "^@assets/(.*)$": "<rootDir>/assets/$1",
+    '^@src/(.*)$': '<rootDir>/src/$1',
+    '^@assets/(.*)$': '<rootDir>/assets/$1',
   },
   testEnvironment: 'node',
   testRegex: '\\.(spec)\\.ts?$',

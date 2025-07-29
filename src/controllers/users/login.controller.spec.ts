@@ -8,6 +8,9 @@ import { HTTPErrorMessages, HTTPResponses } from '@src/interfaces/enums';
 import { encrypt, generateHashedString } from '@src/utils/encrypt';
 
 jest.mock('jsonwebtoken');
+jest.mock('@src/utils/token', () => ({
+  generateToken: jest.fn(() => 'mocked-token'),
+}));
 
 describe('users/login', () => {
   beforeEach(() => {
@@ -58,13 +61,15 @@ describe('users/login', () => {
       Password: await generateHashedString('1'),
       userTypes: {
         AllowedClients: ['cp'],
+        TypeName: 'Provider',
       },
       provider: {
         id: 1,
       },
     });
 
-    global.mockReq.body = { email: '1', password: '1', encryptedClient: 'Not right client' };
+    global.mockReq.body = { email: '1', password: '1' };
+    global.mockReq.headers = { 'allowed-client': encrypt('wrong_client') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
 
@@ -73,7 +78,7 @@ describe('users/login', () => {
       global.mockReq,
       global.mockRes,
 
-      new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.NoSufficientPermissions, expect.any(Object)),
+      new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.NoSufficientPermissions, expect.any(String)),
       global.mockNext,
     );
   });
@@ -86,13 +91,16 @@ describe('users/login', () => {
       Password: await generateHashedString('1'),
       userTypes: {
         AllowedClients: ['cp'],
+        TypeName: 'Customer',
       },
-      provider: {
+      customer: {
         id: 1,
       },
       isActive: true,
     });
-    global.mockReq.body = { email: '1', password: '1', encryptedClient: encrypt('cp') };
+    prismaMock.deleteRequests.findFirst.mockResolvedValue(null);
+    global.mockReq.body = { email: '1', password: '1' };
+    global.mockReq.headers = { 'allowed-client': encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
 
@@ -113,13 +121,16 @@ describe('users/login', () => {
       Password: await generateHashedString('1'),
       userTypes: {
         AllowedClients: ['cp'],
+        TypeName: 'Provider',
       },
       provider: {
         id: 1,
       },
       isActive: true,
     });
-    global.mockReq.body = { email: '1', password: '1', encryptedClient: encrypt('cp') };
+    prismaMock.deleteRequests.findFirst.mockResolvedValue(null);
+    global.mockReq.body = { email: '1', password: '1' };
+    global.mockReq.headers = { 'allowed-client': encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
 
@@ -148,10 +159,12 @@ describe('users/login', () => {
       },
       isActive: false,
     });
+    prismaMock.deleteRequests.findFirst.mockResolvedValue(null);
     prismaMock.uploadedFiles.findFirst.mockResolvedValue({
       test: 'Test',
     });
-    global.mockReq.body = { email: '1', password: '1', encryptedClient: encrypt('cp') };
+    global.mockReq.body = { email: '1', password: '1' };
+    global.mockReq.headers = { 'allowed-client': encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
     ``;

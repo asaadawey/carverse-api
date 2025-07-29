@@ -3,12 +3,10 @@ import { HttpException } from '@src/errors/index';
 import * as yup from 'yup';
 import { createSuccessResponse, createFailResponse } from '@src/responses/index';
 import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
-import bcrypt from 'bcrypt';
-import constants from '@src/config/environment';
 import { generateToken } from '@src/utils/token';
 import { compareHashedString, decrypt } from '@src/utils/encrypt';
 import { Prisma } from '@prisma/client';
-// import createFailResponse from '@src/responses/index';
+import logger, { loggerUtils } from '@src/utils/logger';
 
 //#region Login
 export const loginSchema: yup.SchemaOf<{ body: LoginRequestBody }> = yup.object({
@@ -16,7 +14,7 @@ export const loginSchema: yup.SchemaOf<{ body: LoginRequestBody }> = yup.object(
     email: yup.string().required('Email is required'),
     password: yup.string().required('Password is required'),
     keepLoggedIn: yup.bool().optional(),
-    encryptedClient: yup.string().required('client is required'),
+    encryptedClient: yup.string(),
   }),
 });
 
@@ -26,7 +24,7 @@ type LoginRequestBody = {
   email: string;
   password: string;
   keepLoggedIn?: boolean;
-  encryptedClient: string;
+  encryptedClient?: string;
 };
 
 export type LoginResponse = {
@@ -55,6 +53,8 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
   try {
     const { email, password } = req.body;
 
+    logger.info('Login attempt initiated', { email, reqId: req.headers['req_id'] });
+
     const user = await req.prisma.users.findFirst({
       where: { Email: { equals: email } },
       select: {
@@ -75,22 +75,27 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         provider: { select: { id: true } },
       },
     });
+
     //TODO HASH PASSWORDS
-    if (!user)
+    if (!user) {
+      loggerUtils.logAuthEvent('Login failed - User not found', undefined, false, { email });
       throw new HttpException(
         HTTPResponses.BusinessError,
         HTTPErrorMessages.InvalidUsernameOrPassowrd,
         'No user found',
       );
+    }
 
     const isValid = await compareHashedString(user.Password, password);
 
-    if (!isValid)
+    if (!isValid) {
+      loggerUtils.logAuthEvent('Login failed - Invalid password', user.id, false, { email });
       throw new HttpException(
         HTTPResponses.BusinessError,
         HTTPErrorMessages.InvalidUsernameOrPassowrd,
         'Password incorrect',
       );
+    }
 
     // Extra check if user have either provider id or customer id
     if (!user.provider?.id && !user.customer?.id)
@@ -111,14 +116,9 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
         HTTPErrorMessages.AccountDeleted,
         'Delete request id ' + deleteRequest?.id,
       );
-    // const headerSalt = req.headers['salt'];
-
-    // const envSalt = envVars.auth.apiSalt;
-
-    // const isSame = headerSalt === envSalt;
 
     // Check if received exists in allowed client
-    const decryptedClient = decrypt(req.body.encryptedClient);
+    const decryptedClient = decrypt(req.headers['allowed-client'] as string);
     if (!user.userTypes.AllowedClients.includes(decryptedClient))
       throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.NoSufficientPermissions, {
         decryptedClient,
@@ -132,7 +132,7 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
       exp: Boolean(req.body.keepLoggedIn) ? '30d' : '',
       userType: user.userTypes.TypeName,
       keepLoggedIn: true,
-      authorisedEncryptedClient: req.body.encryptedClient,
+      authorisedEncryptedClient: req.headers['allowed-client'] as string,
     });
 
     // Check if provider has uploaded documents or not
@@ -143,6 +143,13 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
       });
       isDocumentsFullfilled = Boolean(attachments);
     }
+
+    // Log successful login
+    loggerUtils.logAuthEvent('Login successful', user.id, true, {
+      email,
+      userType: user.userTypes.TypeName,
+      hasDocuments: isDocumentsFullfilled,
+    });
 
     createSuccessResponse(
       req,
@@ -165,6 +172,11 @@ const login: RequestHandler<LoginRequestQuery, LoginResponse, LoginRequestBody, 
       next,
     );
   } catch (error: any) {
+    loggerUtils.logError(error as Error, 'Login Controller', {
+      email: req.body.email,
+      reqId: req.headers['req_id'],
+      error,
+    });
     createFailResponse(req, res, error, next);
   }
 };
