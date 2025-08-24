@@ -12,6 +12,9 @@ describe('Integration attachments/getAllAttachmentTypes', () => {
   beforeAll(async () => {
     const createdAttachment = await prisma.attachments.create({
       data: {
+        canUploadFromCamera: true,
+        canUploadFromGallery: true,
+        isRequired: true,
         Description: 'Test',
         Name: generatedAttachmentName,
         attachmentType: {
