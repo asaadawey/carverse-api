@@ -21,7 +21,7 @@ type AddCarQueryParams = {};
 export const addCarSchema: yup.SchemaOf<{}> = yup.object({
   body: yup.object({
     BodyTypeID: yup.number().required().min(1),
-    PlateNumber: yup.string().max(5).required(),
+    PlateNumber: yup.string().max(8).required(),
     PlateCity: yup.string().required(),
     Color: yup.string().required(),
     Manufacturer: yup.string().required(),

@@ -4,12 +4,16 @@ import * as yup from 'yup';
 import { createSuccessResponse, createFailResponse } from '@src/responses/index';
 import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 import logger, { loggerUtils } from '@src/utils/logger';
+import { verifyOtp } from '@src/services/otpService';
+import { getLocalizedMessage } from '@src/utils/localization';
 
 //#region VerifyEmailOtp
+//@ts-ignore
 export const verifyEmailOtpSchema: yup.SchemaOf<{ body: VerifyEmailOtpRequestBody }> = yup.object({
   body: yup.object({
     email: yup.string().email('Invalid email format').required('Email is required'),
-    otp: yup.string().required('OTP is required'),
+    otp: yup.string().min(6).required('OTP is required'),
+    type: yup.string().oneOf(['EMAIL_VERIFICATION', 'PASSWORD_RESET']).required('Type is required'),
   }),
 });
 
@@ -18,6 +22,7 @@ type VerifyEmailOtpRequestQuery = {};
 type VerifyEmailOtpRequestBody = {
   email: string;
   otp: string;
+  type: 'EMAIL_VERIFICATION' | 'PASSWORD_RESET';
 };
 
 export type VerifyEmailOtpResponse = {
@@ -29,13 +34,13 @@ export type VerifyEmailOtpResponse = {
 type VerifyEmailOtpRequestParams = {};
 
 const verifyEmailOtp: RequestHandler<
-  VerifyEmailOtpRequestQuery,
+  VerifyEmailOtpRequestParams,
   VerifyEmailOtpResponse,
   VerifyEmailOtpRequestBody,
-  VerifyEmailOtpRequestParams
+  VerifyEmailOtpRequestQuery
 > = async (req, res, next) => {
   try {
-    const { email, otp } = req.body;
+    const { email, otp, type } = req.body;
 
     logger.info('Email OTP verification initiated', { email, reqId: req.headers['req_id'] });
 
@@ -45,49 +50,43 @@ const verifyEmailOtp: RequestHandler<
       select: {
         id: true,
         Email: true,
-        isActive: true,
+        isEmailVerified: true,
       },
     });
 
     if (!user) {
-      loggerUtils.logAuthEvent('OTP verification failed - User not found', undefined, false, { email });
       throw new HttpException(
         HTTPResponses.BusinessError,
-        HTTPErrorMessages.InvalidUsernameOrPassowrd,
+        getLocalizedMessage(req, 'error.emailNotVerified'),
         'User not found',
       );
     }
 
-    if (!user.isActive) {
-      loggerUtils.logAuthEvent('OTP verification failed - User inactive', user.id, false, { email });
-      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.AccountInactive, {
-        userId: user.id,
+    if (user.isEmailVerified && type === 'EMAIL_VERIFICATION') {
+      loggerUtils.logAuthEvent('OTP verification failed - User Email Already Verified', user.id, false, { user });
+      throw new HttpException(
+        HTTPResponses.BusinessError,
+        getLocalizedMessage(req, 'error.emailAlreadyVerified'),
+        'Email already verified',
+      );
+    }
+
+    // Verify OTP using OTP service
+    const verificationResult = await verifyOtp(email, otp, type, req.prisma, type === 'EMAIL_VERIFICATION');
+
+    if (!verificationResult.success) {
+      throw new HttpException(
+        HTTPResponses.BusinessError,
+        HTTPErrorString.BadRequest,
+        verificationResult.error || 'OTP verification failed',
+      );
+    }
+
+    if (type === 'EMAIL_VERIFICATION')
+      await req.prisma.users.update({
+        where: { id: user.id },
+        data: { isEmailVerified: true },
       });
-    }
-
-    // Verify OTP
-    // In a real implementation, you would:
-    // 1. Check OTP against stored value in database
-    // 2. Verify OTP is not expired
-    // 3. Mark OTP as used to prevent reuse
-
-    // For demo purposes, we'll do basic validation
-    if (!otp || otp.length !== 6 || !/^\d{6}$/.test(otp)) {
-      loggerUtils.logAuthEvent('OTP verification failed - Invalid OTP format', user.id, false, { email });
-      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorString.BadRequest, 'Invalid OTP format');
-    }
-
-    // TODO: Implement actual OTP verification logic here
-    // Example:
-    // const storedOtp = await otpService.getOTP(email);
-    // if (!storedOtp || storedOtp.otp !== otp || storedOtp.isExpired()) {
-    //   throw new HttpException(HTTPResponses.BusinessError, 'Invalid or expired OTP');
-    // }
-    // await otpService.markOtpAsUsed(email, otp);
-
-    loggerUtils.logAuthEvent('OTP verified successfully', user.id, true, {
-      email,
-    });
 
     logger.info('Email OTP verified successfully', {
       userId: user.id,

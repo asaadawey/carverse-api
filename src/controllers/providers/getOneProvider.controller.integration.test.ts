@@ -24,8 +24,10 @@ describe('Integration providers/getOneProvider', () => {
         },
         provider: {
           create: {
+            CompanyName: randomstring.generate(7),
             orders: {
               create: {
+                ProviderNetProfit: 123,
                 paymentMethods: {
                   connectOrCreate: {
                     create: { MethodName: 'Cash', MethodDescription: 's' },
@@ -72,7 +74,7 @@ describe('Integration providers/getOneProvider', () => {
         userTypes: {
           connectOrCreate: { where: { TypeName: 'Test' }, create: { TypeName: randomstring.generate(7) } },
         },
-        provider: { create: {} },
+        provider: { create: { CompanyName: randomstring.generate(7) } },
       },
       select: {
         id: true,

@@ -10,7 +10,7 @@ describe('orders/getOrderTotalAmount', () => {
   it('Should success and return the order', async () => {
     const providerServiceFees = new Decimal(40);
     const vatPerc = new Decimal(10.9);
-    const serviceCharges = 10;
+    const serviceCharges = new Decimal(10);
     const vat = providerServiceFees.mul(vatPerc.div(100));
     prismaMock.providerServicesAllowedBodyTypes.findMany.mockResolvedValue([
       {

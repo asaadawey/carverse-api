@@ -8,6 +8,8 @@ import getPreviousAddressesController from '@src/controllers/users/getPreviousAd
 import updatePasswordController from '@src/controllers/users/updatePassword.controller';
 import sendEmailOtpController from '@src/controllers/users/sendEmailOtp.controller';
 import verifyEmailOtpController from '@src/controllers/users/verifyEmailOtp.controller';
+import changeUserStatusController from '@src/controllers/users/changeUserStatus.controller';
+import getAllUsersController from '@src/controllers/users/getAllUsers.controller';
 
 export {
   loginController,
@@ -20,4 +22,6 @@ export {
   updatePasswordController,
   sendEmailOtpController,
   verifyEmailOtpController,
+  changeUserStatusController,
+  getAllUsersController,
 };

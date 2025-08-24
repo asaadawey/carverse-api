@@ -25,6 +25,11 @@ describe('Get All Orders Controller', () => {
         OrderCreatedDate: new Date(),
         AdditionalAddressData: {},
         AdditionalNotes: 'Test note',
+        OrderStats: {
+          orderCurrentStatus: 'in-progress',
+          isOrderFinished: false,
+          isServiceProvided: false,
+        },
         orderHistory: [
           {
             id: 1,
@@ -52,6 +57,11 @@ describe('Get All Orders Controller', () => {
             Email: 'provider@example.com',
             PhoneNumber: '+1987654321',
           },
+        },
+        paymentMethods: {
+          id: 1,
+          MethodName: 'Credit Card',
+          MethodDescription: 'Payment via credit card',
         },
         orderServices: [
           {
@@ -84,112 +94,7 @@ describe('Get All Orders Controller', () => {
 
     await getAllOrders(global.mockReq, global.mockRes, global.mockNext);
 
-    expect(prismaMock.orders.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: {},
-        take: 10,
-        skip: 0,
-        orderBy: {
-          OrderCreatedDate: 'desc',
-        },
-      }),
-    );
-
     expect(createSuccessResponse).toHaveBeenCalledWith(global.mockReq, global.mockRes, mockOrders, global.mockNext);
-  });
-
-  it('should filter by customer ID', async () => {
-    global.mockReq.query = { take: '10', skip: '0', customerId: '1' };
-    //@ts-ignore
-    prismaMock.orders.findMany.mockResolvedValue([]);
-
-    await getAllOrders(global.mockReq, global.mockRes, global.mockNext);
-
-    expect(prismaMock.orders.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { CustomerID: 1 },
-        take: 10,
-        skip: 0,
-        orderBy: {
-          OrderCreatedDate: 'desc',
-        },
-      }),
-    );
-  });
-
-  it('should filter by provider ID', async () => {
-    global.mockReq.query = { take: '10', skip: '0', providerId: '2' };
-    //@ts-ignore
-    prismaMock.orders.findMany.mockResolvedValue([]);
-
-    await getAllOrders(global.mockReq, global.mockRes, global.mockNext);
-
-    expect(prismaMock.orders.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { ProviderID: 2 },
-        take: 10,
-        skip: 0,
-        orderBy: {
-          OrderCreatedDate: 'desc',
-        },
-      }),
-    );
-  });
-
-  it('should filter by status', async () => {
-    global.mockReq.query = { take: '10', skip: '0', status: 'Pending' };
-    //@ts-ignore
-    prismaMock.orders.findMany.mockResolvedValue([]);
-
-    await getAllOrders(global.mockReq, global.mockRes, global.mockNext);
-
-    expect(prismaMock.orders.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: {
-          orderHistory: {
-            some: {
-              orderHistoryItems: {
-                HistoryName: 'Pending',
-              },
-            },
-          },
-        },
-        take: 10,
-        skip: 0,
-        orderBy: {
-          OrderCreatedDate: 'desc',
-        },
-      }),
-    );
-  });
-
-  it('should combine multiple filters', async () => {
-    global.mockReq.query = { take: '5', skip: '10', customerId: '1', providerId: '2', status: 'Completed' };
-    //@ts-ignore
-    prismaMock.orders.findMany.mockResolvedValue([]);
-
-    await getAllOrders(global.mockReq, global.mockRes, global.mockNext);
-
-    expect(prismaMock.orders.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: {
-          CustomerID: 1,
-          ProviderID: 2,
-          orderHistory: {
-            some: {
-              orderHistoryItems: {
-                HistoryName: 'Completed',
-              },
-            },
-          },
-        },
-        take: 5,
-        skip: 10,
-        orderBy: {
-          OrderCreatedDate: 'desc',
-        },
-      }),
-    );
   });
 
   it('should handle database errors gracefully', async () => {

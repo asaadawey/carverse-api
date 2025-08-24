@@ -3,6 +3,7 @@ import { getAllModulesSchema } from '@src/controllers/modules/getAllModules.cont
 import { getAllModules } from '@src/controllers/modules/index';
 import { RouterLinks } from '@src/constants/links';
 import { validate } from '@src/utils/schema';
+import { cacheMiddleware, cacheTTL } from '@src/middleware/cache.middleware';
 
 const router = Router();
 
@@ -49,6 +50,11 @@ const router = Router();
  *                             type: string
  *                             example: "Basic car washing services"
  */
-router.get(RouterLinks.getModules, validate(getAllModulesSchema), getAllModules);
+router.get(
+  RouterLinks.getModules,
+  validate(getAllModulesSchema),
+  cacheMiddleware(() => `modules`, cacheTTL.long),
+  getAllModules,
+);
 
 export default router;

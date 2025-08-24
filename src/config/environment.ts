@@ -14,8 +14,9 @@ const serverVariables = {
 
 // Don't validate in case of CI
 let values;
-if (process.env.CI) values = process.env;
-else {
+if (process.env.CI || process.env.NODE_ENV === 'test') {
+  values = process.env;
+} else {
   const { ...allValues } = environmentSchema.validateSync(variables);
   values = allValues;
 }
@@ -26,7 +27,6 @@ export const isTest = values.NODE_ENV === 'test';
 export default {
   mode: values.NODE_ENV,
   appSecret: values.APP_SECRET,
-  orderTimeout: values.ORDER_TIMEOUT,
   port: values.PORT,
   herokuPostgresqlGreenUrl: values.HEROKU_POSTGRESQL_GREEN_URL,
   databaseUrl: values.DATABASE_URL,
@@ -64,11 +64,44 @@ export default {
     serverId: variables[serverVariables.serverId] || 'localhost',
   },
   redis: {
+    url: values.REDIS_URL || '',
     host: values.REDIS_HOST,
     username: values.REDIS_USERNAME || '',
     password: values.REDIS_PASSWORD,
     port: values.REDIS_PORT,
   },
+  email: {
+    service: values.EMAIL_SERVICE,
+    host: values.EMAIL_HOST,
+    port: values.EMAIL_PORT,
+    secure: values.EMAIL_SECURE === 'true',
+    user: values.EMAIL_USER,
+    password: values.EMAIL_PASSWORD,
+    fromName: values.EMAIL_FROM_NAME,
+    fromAddress: values.EMAIL_FROM_ADDRESS,
+  },
+  otpEmail: {
+    user: values.OTP_EMAIL_USER,
+    password: values.OTP_EMAIL_PASSWORD,
+  },
+  supportEmail: {
+    user: values.SUPPORT_EMAIL_USER,
+    password: values.SUPPORT_EMAIL_PASSWORD,
+  },
+  firebase: {
+    projectId: values.FIREBASE_PROJECT_ID,
+    clientEmail: values.FIREBASE_CLIENT_EMAIL,
+    privateKey: values.FIREBASE_PRIVATE_KEY,
+  },
+  paymob: {
+    baseUrl: values.PAYMOB_BASE_URL,
+    apiKey: values.PAYMOB_API_KEY,
+  },
+  carQuery: {
+    makesUrl: values.CARQUERY_API_URL,
+    modelsUrl: values.CARQUERY_MODELS_URL,
+  },
   baseUrl: values.BASE_URL,
   passwordHashSeperator: values.PASSWORD_HASH_SEPERATOR,
+  superCachePassword: values.SUPER_CACHE_PASSWORD,
 };

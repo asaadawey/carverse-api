@@ -14,7 +14,14 @@ type GetAllProviderServicesParams = {
 type GetAllProviderServicesRequestBody = {};
 
 type GetAllProviderServicesResponse = (providerServices & {
-  services: services | null;
+  services:
+    | (services & {
+        isAvailableForAutoSelect: boolean;
+        minimumServicePrice: number;
+        maximumServicePrice: number;
+        averageServicePrice: number;
+      })
+    | null;
   providerServicesAllowedBodyTypes: providerServicesAllowedBodyTypes[];
 })[];
 
@@ -81,7 +88,41 @@ const getAllProviderServices: RequestHandler<
       },
     });
 
-    return createSuccessResponse(req, res, data, next);
+    // Transform data to include price calculations and isAvailableForAutoSelect
+    const transformedData = data.map((providerService) => {
+      if (!providerService.services) {
+        return {
+          ...providerService,
+          services: null,
+        };
+      }
+
+      // Calculate price statistics from providerServicesAllowedBodyTypes
+      const prices = providerService.providerServicesAllowedBodyTypes.map((bodyType) => Number(bodyType.Price));
+
+      let minimumServicePrice = 0;
+      let maximumServicePrice = 0;
+      let averageServicePrice = 0;
+
+      if (prices.length > 0) {
+        minimumServicePrice = Math.min(...prices);
+        maximumServicePrice = Math.max(...prices);
+        averageServicePrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+      }
+
+      return {
+        ...providerService,
+        services: {
+          ...providerService.services,
+          isAvailableForAutoSelect: providerService.services.isAvailableForAutoSelect,
+          minimumServicePrice,
+          maximumServicePrice,
+          averageServicePrice: Math.round(averageServicePrice * 100) / 100, // Round to 2 decimal places
+        },
+      };
+    });
+
+    return createSuccessResponse(req, res, transformedData, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

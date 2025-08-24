@@ -40,6 +40,7 @@ describe('Integration user/getPreviousAddresses', () => {
 
     await prisma.orders.create({
       data: {
+        ProviderNetProfit: 124,
         paymentMethods: {
           connectOrCreate: {
             create: { MethodName: 'Cash', MethodDescription: 's' },
@@ -57,6 +58,7 @@ describe('Integration user/getPreviousAddresses', () => {
         },
         provider: {
           create: {
+            CompanyName: randomstring.generate(7),
             users: {
               create: {
                 Email: randomstring.generate(7),
@@ -77,6 +79,7 @@ describe('Integration user/getPreviousAddresses', () => {
     });
     await prisma.orders.create({
       data: {
+        ProviderNetProfit: 125,
         paymentMethods: {
           connectOrCreate: {
             create: { MethodName: 'Cash', MethodDescription: 's' },
@@ -94,6 +97,7 @@ describe('Integration user/getPreviousAddresses', () => {
         },
         provider: {
           create: {
+            CompanyName: randomstring.generate(7),
             users: {
               create: {
                 Email: randomstring.generate(7),

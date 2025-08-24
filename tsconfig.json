@@ -4,9 +4,9 @@
     "require": ["tsconfig-paths/register"],
 
     "files": true,
-       "moduleTypes": {
-            "jest.config.ts": "cjs"
-        }
+    "moduleTypes": {
+      "jest.config.ts": "cjs"
+    }
   },
 
   "compilerOptions": {
@@ -33,10 +33,10 @@
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
   "tsc-alias": {
-    "verbose" : true,
+    "verbose": true,
     "replaceExtensions": true,
     "resolveFullPaths": true,
-    "resolveFullExtension" : ".js"
+    "resolveFullExtension": ".js"
   },
   "typeAcquisition": { "include": ["jest"] },
   "include": [
@@ -47,7 +47,6 @@
     "singleton.ts",
     "jest.config.js",
     "src/helpers/testHelpers/unit-singeleton.ts",
-    "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.spec.ts"
   ]
 }

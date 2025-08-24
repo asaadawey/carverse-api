@@ -12,15 +12,15 @@ const createSuccessResponse = <T>(
   const requestId = req.headers['req_id'] || req.header('req_id') || '';
 
   // Log success response with appropriate level
-  logger.info('Success response sent', {
-    ip: req.ip,
-    status,
-    requestId,
-    route: req.route?.path,
-    method: req.method,
-    hasData: !!data,
-    data,
-  });
+  // logger.info('Success response sent', {
+  //   ip: req.ip,
+  //   status,
+  //   requestId,
+  //   route: req.route?.path,
+  //   method: req.method,
+  //   hasData: !!data,
+  //   data,
+  // });
 
   if (!res.headersSent) res.setHeader('req_id', requestId);
 

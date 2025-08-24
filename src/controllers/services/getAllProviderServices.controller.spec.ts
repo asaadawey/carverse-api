@@ -27,6 +27,7 @@ describe('services/getAllProviderServices', () => {
       global.mockRes,
       [
         {
+          services: null,
           test: 'test',
         },
       ],
@@ -96,11 +97,13 @@ describe('services/getAllProviderServices', () => {
     );
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
+    expect(createSuccessResponse).toHaveBeenCalledTimes(1);
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
       [
         {
+          services: null,
           test: 'test',
         },
       ],

@@ -6,8 +6,8 @@ import prisma from '@src/helpers/databaseHelpers/client';
 import randomstring from 'randomstring';
 import { HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 // import { ConstantType } from '@prisma/client';
-import { Statements } from './getOrderTotalAmountStatements.controller';
 import { encrypt } from '@src/utils/encrypt';
+import { Statements } from '@src/utils/orderUtils';
 
 describe('Integration orders/addOrder', () => {
   let customerId: number;
@@ -55,7 +55,7 @@ describe('Integration orders/addOrder', () => {
           Password: 'testPaswword',
           PhoneNumber: randomstring.generate(7),
           userTypes: { create: { TypeName: randomstring.generate(7) } },
-          provider: { create: {} },
+          provider: { create: { CompanyName: randomstring.generate(7) } },
         },
         select: {
           id: true,

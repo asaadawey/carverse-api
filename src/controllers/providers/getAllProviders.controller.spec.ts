@@ -9,7 +9,10 @@ describe('providers/getAllProviders', () => {
       {
         id: 'test',
         users: {},
-        orders: [{ ratings: { Rating: new Decimal(3) } }, { ratings: { Rating: new Decimal(3) } }],
+        orders: [
+          { ratings: { Rating: new Decimal(3), Feedback: 'He is fashee5' } },
+          { ratings: { Rating: new Decimal(3), Feedback: 'He is cooool' } },
+        ],
       },
     ]);
     await getAllProviders(global.mockReq, global.mockRes, global.mockNext);
@@ -18,7 +21,18 @@ describe('providers/getAllProviders', () => {
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
-      [{ id: 'test', users: {}, ratingNumber: 2, ratingsAverage: '3.0' }],
+      [
+        {
+          id: 'test',
+          users: {},
+          ratingNumber: 2,
+          ratingsAverage: '3.0',
+          feedbacks: [
+            { feedback: 'He is fashee5', rating: 3 },
+            { feedback: 'He is cooool', rating: 3 },
+          ],
+        },
+      ],
       global.mockNext,
     );
   });

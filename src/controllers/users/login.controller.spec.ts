@@ -8,6 +8,7 @@ import { HTTPErrorMessages, HTTPResponses } from '@src/interfaces/enums';
 import { encrypt, generateHashedString } from '@src/utils/encrypt';
 
 jest.mock('jsonwebtoken');
+
 jest.mock('@src/utils/token', () => ({
   generateToken: jest.fn(() => 'mocked-token'),
 }));
@@ -20,9 +21,9 @@ describe('users/login', () => {
 
   it('Should return fail because password is incorrect', async () => {
     //@ts-ignore
-    prismaMock.users.findFirst.mockResolvedValue({ Password: await generateHashedString('d') });
+    prismaMock.users.findFirst.mockResolvedValueOnce({ Password: await generateHashedString('d') });
 
-    global.mockReq.body = { email: '1', password: '1' };
+    global.mockReq.body = { email: '1', password: '111111' };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
 
@@ -41,7 +42,7 @@ describe('users/login', () => {
 
   it('Should return fail because no user found', async () => {
     //@ts-ignore
-    prismaMock.users.findFirst.mockResolvedValue();
+    prismaMock.users.findFirst.mockResolvedValueOnce();
 
     await login(global.mockReq, global.mockRes, global.mockNext);
 
@@ -57,8 +58,9 @@ describe('users/login', () => {
 
   it('Should return fail because allowed clients is not right', async () => {
     //@ts-ignore
-    prismaMock.users.findFirst.mockResolvedValue({
-      Password: await generateHashedString('1'),
+    prismaMock.users.findFirst.mockResolvedValueOnce({
+      isEmailVerified: true,
+      Password: await generateHashedString('111111'),
       userTypes: {
         AllowedClients: ['cp'],
         TypeName: 'Provider',
@@ -68,7 +70,8 @@ describe('users/login', () => {
       },
     });
 
-    global.mockReq.body = { email: '1', password: '1' };
+    // password in request must be plain text (not pre-hashed) so compareHashedString can compare correctly
+    global.mockReq.body = { email: '1', password: '111111' };
     global.mockReq.headers = { 'allowed-client': encrypt('wrong_client') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
@@ -83,12 +86,43 @@ describe('users/login', () => {
     );
   });
 
+  it('Should return fail because email is not verified', async () => {
+    //@ts-ignore
+    prismaMock.users.findFirst.mockResolvedValueOnce({
+      isEmailVerified: false,
+      Password: await generateHashedString('111111'),
+      userTypes: {
+        AllowedClients: ['cp'],
+        TypeName: 'Provider',
+      },
+      provider: {
+        id: 1,
+      },
+    });
+
+    // password in request must be plain text (not pre-hashed) so compareHashedString can compare correctly
+    global.mockReq.body = { email: '1', password: '111111' };
+    global.mockReq.headers = { 'allowed-client': encrypt('wrong_client') };
+
+    await login(global.mockReq, global.mockRes, global.mockNext);
+
+    expect(createFailResponse).toHaveBeenCalledTimes(1);
+    expect(createFailResponse).toHaveBeenCalledWith(
+      global.mockReq,
+      global.mockRes,
+
+      new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.NoEmailVerified, expect.any(String)),
+      global.mockNext,
+    );
+  });
+
   it('Should succeed', async () => {
     //@ts-ignore
-    prismaMock.users.findFirst.mockResolvedValue({
+    prismaMock.users.findFirst.mockResolvedValueOnce({
       id: 1,
       Email: '1',
-      Password: await generateHashedString('1'),
+      isEmailVerified: true,
+      Password: await generateHashedString('111111'),
       userTypes: {
         AllowedClients: ['cp'],
         TypeName: 'Customer',
@@ -99,7 +133,7 @@ describe('users/login', () => {
       isActive: true,
     });
     prismaMock.deleteRequests.findFirst.mockResolvedValue(null);
-    global.mockReq.body = { email: '1', password: '1' };
+    global.mockReq.body = { email: '1', password: '111111' };
     global.mockReq.headers = { 'allowed-client': encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
@@ -115,10 +149,10 @@ describe('users/login', () => {
 
   it('Should succeed and return isUserActive as atrue', async () => {
     //@ts-ignore
-    prismaMock.users.findFirst.mockResolvedValue({
+    prismaMock.users.findFirst.mockResolvedValueOnce({
       id: 1,
       Email: '1',
-      Password: await generateHashedString('1'),
+      Password: await generateHashedString('111111'),
       userTypes: {
         AllowedClients: ['cp'],
         TypeName: 'Provider',
@@ -127,9 +161,10 @@ describe('users/login', () => {
         id: 1,
       },
       isActive: true,
+      isEmailVerified: true,
     });
     prismaMock.deleteRequests.findFirst.mockResolvedValue(null);
-    global.mockReq.body = { email: '1', password: '1' };
+    global.mockReq.body = { email: '1', password: '111111' };
     global.mockReq.headers = { 'allowed-client': encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
@@ -139,17 +174,23 @@ describe('users/login', () => {
       global.mockReq,
       global.mockRes,
       expect.objectContaining({
-        isUserActive: true,
+        userData: expect.objectContaining({
+          isUserActive: true,
+        }),
+        providerData: expect.objectContaining({
+          isDocumentsFullfilled: undefined,
+        }),
       }),
       global.mockNext,
     );
   });
   it('Should succeed and return isUserActive as true and document fullfilled true', async () => {
     //@ts-ignore
-    prismaMock.users.findFirst.mockResolvedValue({
+    prismaMock.users.findFirst.mockResolvedValueOnce({
       id: 1,
       Email: '1',
-      Password: await generateHashedString('1'),
+      isEmailVerified: true,
+      Password: await generateHashedString('111111'),
       userTypes: {
         AllowedClients: ['cp'],
         TypeName: 'Provider',
@@ -160,21 +201,26 @@ describe('users/login', () => {
       isActive: false,
     });
     prismaMock.deleteRequests.findFirst.mockResolvedValue(null);
-    prismaMock.uploadedFiles.findFirst.mockResolvedValue({
-      test: 'Test',
-    });
-    global.mockReq.body = { email: '1', password: '1' };
+
+    prismaMock.uploadedFiles.count.mockResolvedValue(1);
+    prismaMock.attachments.count.mockResolvedValue(1);
+
+    global.mockReq.body = { email: '1', password: '111111' };
     global.mockReq.headers = { 'allowed-client': encrypt('cp') };
 
     await login(global.mockReq, global.mockRes, global.mockNext);
-    ``;
+
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
       expect.objectContaining({
-        isUserActive: false,
-        isDocumentsFullfilled: true,
+        userData: expect.objectContaining({
+          isUserActive: false,
+        }),
+        providerData: expect.objectContaining({
+          isDocumentsFullfilled: true,
+        }),
       }),
       global.mockNext,
     );

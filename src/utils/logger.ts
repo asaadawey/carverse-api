@@ -189,7 +189,7 @@ export const loggerUtils = {
 
   // Log API request end
   logRequestEnd: (req: any, res: any, responseTime: number, responseData?: any) => {
-    const { method, url } = req;
+    const { method, url, user } = req;
     const { statusCode } = res;
     const reqId = req.headers['req_id'] || 'unknown';
 
@@ -198,10 +198,44 @@ export const loggerUtils = {
 
     enhancedLogger.log(level, `[RESPONSE] ${message}`, {
       reqId,
+      user,
       statusCode,
       responseTime,
       response: responseData,
       timestamp: new Date().toISOString(),
+    });
+  },
+
+  // Enhanced info logger that automatically includes request body for POST/PUT/PATCH requests
+  logInfo: (message: string, meta: any, req?: any) => {
+    const enhancedMeta = { ...meta };
+
+    // Automatically include request body for mutating HTTP methods
+    if (req && ['POST', 'PUT', 'PATCH'].includes(req.method?.toUpperCase())) {
+      enhancedMeta.body = req.body;
+    }
+
+    enhancedLogger.info(message, enhancedMeta);
+  },
+
+  // Enhanced error logger that automatically includes request body for POST/PUT/PATCH requests
+  logError: (error: Error, context?: string, meta?: any, req?: any) => {
+    const enhancedMeta = { ...meta };
+
+    // Automatically include request body for mutating HTTP methods
+    if (req && ['POST', 'PUT', 'PATCH'].includes(req.method?.toUpperCase())) {
+      enhancedMeta.body = req.body;
+    }
+
+    enhancedLogger.error(`${context ? `[${context}] ` : ''}${error.message}`, {
+      error: {
+        name: error.name,
+        message: error.message,
+      },
+      stack: error.stack,
+      context,
+      timestamp: new Date().toISOString(),
+      ...enhancedMeta,
     });
   },
 
@@ -239,7 +273,7 @@ export const loggerUtils = {
   },
 
   // Log errors with context
-  logError: (error: Error, context?: string, meta?: any) => {
+  logErrorOld: (error: Error, context?: string, meta?: any) => {
     enhancedLogger.error(`${context ? `[${context}] ` : ''}${error.message}`, {
       error: {
         name: error.name,

@@ -46,7 +46,7 @@ const getAllProviders: RequestHandler<
       ...(ids
         ? {
             where: {
-              users: { id: { in: ids.split(',').map(Number) } },
+              id: { in: ids.split(',').map(Number) },
             },
           }
         : {}),
@@ -76,7 +76,7 @@ const getAllProviders: RequestHandler<
         .map((order) => order.ratings?.Rating.toNumber());
 
       const totalFeedbacks = provider.orders
-        .filter((order) => Boolean(order.ratings?.Feedback))
+        // .filter((order) => Boolean(order.ratings?.Feedback))
         .map((order) => ({
           feedback: order.ratings?.Feedback ?? undefined,
           rating: order.ratings?.Rating?.toNumber(),

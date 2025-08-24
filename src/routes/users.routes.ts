@@ -19,6 +19,8 @@ import {
   updatePasswordController,
   sendEmailOtpController,
   verifyEmailOtpController,
+  changeUserStatusController,
+  getAllUsersController,
 } from '@src/controllers/users/index';
 
 import { checkUserExistSchema } from '@src/controllers/users/checkUserExist.controller';
@@ -28,6 +30,8 @@ import { registerSchema } from '@src/controllers/users/register.controller';
 import { updatePasswordSchema } from '@src/controllers/users/updatePassword.controller';
 import { sendEmailOtpSchema } from '@src/controllers/users/sendEmailOtp.controller';
 import { verifyEmailOtpSchema } from '@src/controllers/users/verifyEmailOtp.controller';
+import { changeUserStatusSchema } from '@src/controllers/users/changeUserStatus.controller';
+import { getAllUsersSchema } from '@src/controllers/users/getAllUsers.controller';
 
 import { addDeleteRequestSchema } from '@src/controllers/users/addDeleteRequest.controller';
 import { processDeleteRequestSchema } from '@src/controllers/users/processDeleteRequest.controller';
@@ -416,5 +420,119 @@ router.post(RouterLinks.sendEmailOtp, validate(sendEmailOtpSchema), sendEmailOtp
  *               $ref: '#/components/schemas/Error'
  */
 router.post(RouterLinks.verifyEmailOtp, validate(verifyEmailOtpSchema), verifyEmailOtpController);
+
+// Admin-only routes
+/**
+ * @swagger
+ * /admin/users:
+ *   get:
+ *     summary: Get all users (Admin only)
+ *     description: Retrieve all users with filtering and pagination capabilities. Only accessible by admin users.
+ *     tags: [Admin, Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term for email or name
+ *       - in: query
+ *         name: userType
+ *         schema:
+ *           type: string
+ *           enum: [Customer, Provider, Admin]
+ *         description: Filter by user type
+ *       - in: query
+ *         name: isActive
+ *         schema:
+ *           type: boolean
+ *         description: Filter by active status
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ */
+router.get(
+  RouterLinks.getAllUsers,
+  authRoute,
+  allowedUserTypeMiddleware([UserTypes.Admin]),
+  allowedClientMiddleware([AllowedClients.Web]),
+  validate(getAllUsersSchema),
+  getAllUsersController,
+);
+
+/**
+ * @swagger
+ * /admin/users/{userId}/status:
+ *   put:
+ *     summary: Change user status (Admin only)
+ *     description: Activate or deactivate a user account. Only accessible by admin users.
+ *     tags: [Admin, Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to update
+ *         example: "user-123"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - isActive
+ *             properties:
+ *               isActive:
+ *                 type: boolean
+ *                 description: New active status for the user
+ *                 example: false
+ *               reason:
+ *                 type: string
+ *                 description: Optional reason for the status change
+ *                 example: "Account suspended due to policy violation"
+ *     responses:
+ *       200:
+ *         description: User status updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: User not found
+ *       409:
+ *         description: Conflict - Admins cannot deactivate themselves
+ */
+router.put(
+  RouterLinks.changeUserStatus,
+  authRoute,
+  allowedUserTypeMiddleware([UserTypes.Admin]),
+  allowedClientMiddleware([AllowedClients.Web]),
+  validate(changeUserStatusSchema),
+  changeUserStatusController,
+);
 
 export default router;

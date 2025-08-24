@@ -14,6 +14,7 @@ const createFailResponse = (
   // Log failure response with structured logging
   logger.error('Failure response sent', {
     status,
+    user: req.user,
     method: req.method,
     url: req.url,
     error: error?.message || error,

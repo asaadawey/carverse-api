@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import { ResultResponse } from '@src/interfaces/express.types';
 import logger, { loggerUtils } from '@src/utils/logger';
+import { clearCacheByProviderId } from '@src/middleware/cache.middleware';
 
 //#region AddProviderService
 type upsertProviderServiceParams = {};
@@ -21,7 +22,7 @@ type upsertProviderServicesRequestBody = {
   providerServicesToRemove?: number[];
 };
 
-type upsertProviderServicesResponse = ResultResponse;
+type upsertProviderServicesResponse = ResultResponse & { removedCount?: number };
 
 type upsertProvideServiceQuery = {};
 
@@ -81,23 +82,23 @@ const addProviderService: RequestHandler<
     toUpdateServices,
   } = req.body;
 
+  let removedCount = -1;
   let createdOrUpdatedId: number = -1;
 
   try {
-    logger.info('Provider service upsert initiated', {
+    req.logger.info('Provider service upsert initiated', {
       providerId: req.user?.providerId,
       serviceId,
       createCount: toCreateServicesBodyTypes?.length || 0,
       updateCount: toUpdateServices?.length || 0,
       removeCount: (providerServicesBodyTypeToRemove?.length || 0) + (providerServicesToRemove?.length || 0),
-      reqId: req.headers['req_id'],
     });
     if (toCreateServicesBodyTypes && serviceId) {
       const isProviderHaveService = await req.prisma.providerServices.findFirst({
-        where: { ServiceID: serviceId },
+        where: { AND: [{ ProviderID: { equals: req.user?.providerId } }, { ServiceID: serviceId }] },
         select: { id: true },
       });
-
+      console.log('isProviderHaveService', isProviderHaveService, req.user?.providerId, serviceId);
       if (isProviderHaveService?.id) {
         const result = await req.prisma.providerServicesAllowedBodyTypes.createManyAndReturn({
           data: toCreateServicesBodyTypes.map((body) => ({
@@ -134,10 +135,27 @@ const addProviderService: RequestHandler<
     }
 
     if (providerServicesBodyTypeToRemove) {
+      const onesWillBeRemoved = await req.prisma.providerServicesAllowedBodyTypes.findMany({
+        where: { id: { in: providerServicesBodyTypeToRemove } },
+        select: { id: true, ProviderServiceID: true },
+      });
       const result = await req.prisma.providerServicesAllowedBodyTypes.deleteMany({
         where: { id: { in: providerServicesBodyTypeToRemove } },
       });
-      createdOrUpdatedId = result.count;
+
+      // Check if we need to remove the service if all body types are removed
+      if (onesWillBeRemoved.length > 0) {
+        for (const item of onesWillBeRemoved) {
+          const count = await req.prisma.providerServicesAllowedBodyTypes.count({
+            where: { ProviderServiceID: item.ProviderServiceID },
+          });
+          if (count === 0) {
+            await req.prisma.providerServices.delete({ where: { id: item.ProviderServiceID } });
+          }
+        }
+      }
+
+      removedCount = result.count;
     }
 
     if (toUpdateServices) {
@@ -155,13 +173,22 @@ const addProviderService: RequestHandler<
       }
     }
 
-    logger.info('Provider service upsert completed successfully', {
+    req.logger.info('Provider service upsert completed successfully', {
       providerId: req.user?.providerId,
       serviceId,
       createdOrUpdatedId,
       wasSuccessful: createdOrUpdatedId !== -1,
-      reqId: req.headers['req_id'],
     });
+
+    // Clear cache for provider services after successful upsert
+    // This clears cache only for the specific provider's cached entries
+    if (createdOrUpdatedId !== -1 && req.user?.providerId) {
+      const deletedCount = clearCacheByProviderId(req.user.providerId, 'services');
+      req.logger.info('Cache cleared for provider services', {
+        providerId: req.user.providerId,
+        deletedCacheEntries: deletedCount,
+      });
+    }
 
     createSuccessResponse(
       req,
@@ -169,14 +196,14 @@ const addProviderService: RequestHandler<
       {
         result: createdOrUpdatedId !== -1,
         createdItemId: createdOrUpdatedId,
+        removedCount,
       },
       next,
     );
   } catch (error: any) {
-    loggerUtils.logError(error as Error, 'Upsert Provider Service Controller', {
+    req.logger.error(error as Error, 'Upsert Provider Service Controller', {
       providerId: req.user?.providerId,
       serviceId,
-      reqId: req.headers['req_id'],
     });
     createFailResponse(req, res, error, next);
   }

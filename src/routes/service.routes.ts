@@ -5,6 +5,7 @@ import { validate } from '@src/utils/schema';
 import { getAllProviderServicesSchema } from '@src/controllers/services/getAllProviderServices.controller';
 import { getAllServicesSchema } from '@src/controllers/services/getAllServices.controller';
 import { addServiceSchema } from '@src/controllers/services/addService.controller';
+import { cacheMiddleware, cacheTTL } from '@src/middleware/cache.middleware';
 
 const router = Router();
 
@@ -53,7 +54,15 @@ const router = Router();
  *                       items:
  *                         $ref: '#/components/schemas/Service'
  */
-router.get(RouterLinks.getAllProviderServices, validate(getAllProviderServicesSchema), getAllProviderServices);
+router.get(
+  RouterLinks.getAllProviderServices,
+  validate(getAllProviderServicesSchema),
+  cacheMiddleware(
+    (req) => `providerServices:${JSON.stringify({ query: req.query, params: req.params, user: req.user })}`,
+    cacheTTL.short,
+  ),
+  getAllProviderServices,
+);
 
 /**
  * @swagger
@@ -94,7 +103,12 @@ router.get(RouterLinks.getAllProviderServices, validate(getAllProviderServicesSc
  *                       items:
  *                         $ref: '#/components/schemas/Service'
  */
-router.get(RouterLinks.getAllServices, validate(getAllServicesSchema), getAllServices);
+router.get(
+  RouterLinks.getAllServices,
+  validate(getAllServicesSchema),
+  cacheMiddleware((req) => `services:${JSON.stringify({ query: req.query, params: req.params })}`, cacheTTL.medium),
+  getAllServices,
+);
 
 /**
  * @swagger

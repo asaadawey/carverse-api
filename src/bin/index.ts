@@ -2,6 +2,9 @@ import http from 'http';
 
 import envVars from '@src/config/environment';
 import logger, { logStartup, logShutdown } from '@src/utils/logger';
+import prisma from '@src/helpers/databaseHelpers/client';
+import { getEmailServiceStatus, verifyEmailConnection } from '@src/services/emailService';
+import { performProductionSafetyCheck, validateSensitiveConfig } from '@src/utils/productionSafetyCheck';
 
 import app from '../index';
 
@@ -11,12 +14,45 @@ const server = http.createServer(app);
 
 io.listen(server);
 
-server.listen(envVars.port, () => {
+server.listen(envVars.port, async () => {
   logStartup();
+
+  // Perform production safety checks
+  if (envVars.mode === 'production') {
+    const safetyCheck = performProductionSafetyCheck();
+    const sensitiveConfigValid = validateSensitiveConfig();
+
+    if (!safetyCheck.passed || !sensitiveConfigValid) {
+      logger.error('🚨 Application failed production safety checks - review configuration before deployment');
+      if (safetyCheck.errors.length > 0) {
+        logger.error('Critical errors found:', { errors: safetyCheck.errors });
+      }
+    }
+  }
+
   logger.info(`🌐 Server listening on port ${envVars.port}`, {
     port: envVars.port,
+    environment: envVars.mode,
     startTime: new Date().toISOString(),
   });
+
+  // Verify email service connection
+  const emailStatus = getEmailServiceStatus();
+  if (emailStatus.otp.configured && emailStatus.support.configured) {
+    const connectionOk = await verifyEmailConnection();
+    logger.info('📧 Email service status', {
+      configuredOtp: emailStatus.otp.configured,
+      readyOtp: emailStatus.otp.ready,
+      configuredSupport: emailStatus.support.configured,
+      readySupport: emailStatus.support.ready,
+      connectionVerified: connectionOk,
+    });
+  } else {
+    logger.warn('📧 Email service not configured - OTPs will be logged instead');
+  }
+
+  // Start OTP cleanup job
+  // startOtpCleanupJob(prisma);
 });
 
 process.on('uncaughtException', (error) => {
@@ -43,7 +79,7 @@ process.on('unhandledRejection', (error) => {
     stack: error instanceof Error ? error.stack : undefined,
   });
   logShutdown('UNHANDLED_REJECTION');
-  process.exit(1);
+  // process.exit(1);
 });
 
 // Graceful shutdown handlers

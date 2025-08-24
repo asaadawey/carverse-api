@@ -4,10 +4,12 @@ import { HttpException } from '@src/errors/index';
 import { createSuccessResponse, createFailResponse } from '@src/responses/index';
 import { HTTPErrorMessages, HTTPResponses } from '@src/interfaces/enums';
 import { generateHashedString } from '@src/utils/encrypt';
+import { verifyOtp } from '@src/services/otpService';
 
 // Mock dependencies
 jest.mock('@src/utils/encrypt');
 jest.mock('@src/utils/logger');
+jest.mock('@src/services/otpService');
 
 const mockGenerateHashedString = generateHashedString as jest.MockedFunction<typeof generateHashedString>;
 
@@ -24,7 +26,7 @@ describe('Update Password Controller', () => {
       Email: 'test@example.com',
       isActive: true,
     };
-
+    (verifyOtp as jest.MockedFunction<typeof verifyOtp>).mockResolvedValueOnce({ success: true });
     //@ts-ignore
     prismaMock.users.findUnique.mockResolvedValue(mockUser);
     mockGenerateHashedString.mockResolvedValue('hashedNewPassword');
@@ -67,6 +69,8 @@ describe('Update Password Controller', () => {
     //@ts-ignore
     prismaMock.users.findUnique.mockResolvedValue(null);
 
+    (verifyOtp as jest.MockedFunction<typeof verifyOtp>).mockResolvedValueOnce({ success: true });
+
     await updatePassword(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createFailResponse).toHaveBeenCalledWith(
@@ -84,6 +88,7 @@ describe('Update Password Controller', () => {
       isActive: false,
     };
 
+    (verifyOtp as jest.MockedFunction<typeof verifyOtp>).mockResolvedValueOnce({ success: true });
     //@ts-ignore
     prismaMock.users.findUnique.mockResolvedValue(mockUser);
 
@@ -105,6 +110,7 @@ describe('Update Password Controller', () => {
       Email: 'test@example.com',
       isActive: true,
     };
+    (verifyOtp as jest.MockedFunction<typeof verifyOtp>).mockResolvedValueOnce({ success: false });
 
     global.mockReq.body.otp = '123'; // Invalid OTP (too short)
     //@ts-ignore

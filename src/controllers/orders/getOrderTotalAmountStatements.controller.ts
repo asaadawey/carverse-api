@@ -2,20 +2,16 @@ import { RequestHandler } from 'express';
 import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
 import _ from 'lodash';
-import { Constants, PaymentMethods } from '@src/interfaces/enums';
+import { Constants, HTTPErrorString, HTTPResponses, PaymentMethods } from '@src/interfaces/enums';
 import { getAmount } from '@src/utils/amountUtils';
 import { ConstantType } from '@prisma/client';
 import { decrypt, encrypt } from '@src/utils/encrypt';
 import { Decimal } from '@prisma/client/runtime/library';
+import HttpException from '@src/errors/HttpException';
+import { calculateTotalAmount, Statements } from '@src/utils/orderUtils';
+import { logger } from '@src/middleware/log.middleware.enhanced';
 
 //#region GetOrderTotalAmountStatements
-export type Statements = {
-  name: string;
-  label: string;
-  encryptedValue: string | Decimal;
-  relatedProviderServiceId?: number;
-  relatedConstantId?: number;
-};
 
 type GetOrderTotalAmountStatementsLinkQuery = {};
 
@@ -26,14 +22,56 @@ type GetOrderTotalAmountStatementsResponse = {
   statements: Statements[];
 };
 
-type GetOrderTotalAmountStatementsQueryParams = { paymentMethodName: string; providerServiceBodyTypesIds: string };
+type GetOrderTotalAmountStatementsQueryParams = {
+  paymentMethodName: string;
+  providerServiceBodyTypesIds?: string;
+  autoSelectServiceIds?: string;
+  autoSelectProposedServicePrice?: string;
+  voucherCode?: string;
+};
 
 export const getOrderTotalAmountStatementsSchema: yup.SchemaOf<{ query: GetOrderTotalAmountStatementsQueryParams }> =
   yup.object({
-    query: yup.object().shape({
-      paymentMethodName: yup.string().required(),
-      providerServiceBodyTypesIds: yup.string().required(),
-    }),
+    query: yup
+      .object()
+      .shape({
+        paymentMethodName: yup.string().required(),
+        providerServiceBodyTypesIds: yup.string().optional(),
+        autoSelectServiceIds: yup.string().optional(),
+        autoSelectProposedServicePrice: yup.string().optional(),
+        voucherCode: yup.string().optional(),
+      })
+      .test({
+        message: 'Provider service Id or auto select service Ids must be provided',
+        test: (value) => {
+          if (
+            value.providerServiceBodyTypesIds &&
+            !value.autoSelectServiceIds &&
+            !value.autoSelectProposedServicePrice
+          ) {
+            return true;
+          } else if (
+            value.autoSelectServiceIds &&
+            value.autoSelectProposedServicePrice &&
+            !value.providerServiceBodyTypesIds
+          ) {
+            return true;
+          }
+          return false;
+        },
+      })
+      .test({
+        message: 'Auto select service Ids and auto select proposed service price cannot be provided together',
+        test: (value) => {
+          if (
+            (value.autoSelectServiceIds && value.providerServiceBodyTypesIds) ||
+            (value.providerServiceBodyTypesIds && value.autoSelectProposedServicePrice)
+          ) {
+            return false;
+          }
+          return true;
+        },
+      }),
   });
 
 const getOrderTotalAmountStatements: RequestHandler<
@@ -43,93 +81,33 @@ const getOrderTotalAmountStatements: RequestHandler<
   GetOrderTotalAmountStatementsQueryParams
 > = async (req, res, next) => {
   try {
-    const { paymentMethodName, providerServiceBodyTypesIds } = req.query;
+    const {
+      paymentMethodName,
+      providerServiceBodyTypesIds,
+      autoSelectProposedServicePrice,
+      autoSelectServiceIds,
+      voucherCode,
+    } = req.query;
 
-    let totalAmount: number = 0;
-
-    let statements: Statements[] = [];
-
-    // Calculate provider services
-    const providerServices = await req.prisma.providerServicesAllowedBodyTypes.findMany({
-      where: {
-        id: {
-          in: providerServiceBodyTypesIds.split(',').map(Number),
-        },
+    const calculatedStatement = await calculateTotalAmount(
+      req.prisma,
+      {
+        paymentMethodName,
+        autoSelectProposedServicePrice,
+        autoSelectServiceIds,
+        providerServiceBodyTypesIds,
+        userId: req.user.id,
+        voucherCode,
       },
-      select: {
-        id: true,
-        Price: true,
-        providerService: {
-          select: {
-            services: {
-              select: {
-                ServiceName: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    statements = statements.concat(
-      providerServices.map((service) => ({
-        name: service.providerService?.services?.ServiceName || '',
-        label: service.providerService?.services?.ServiceName || '',
-        encryptedValue: encrypt(
-          String(getAmount(new Decimal(service.Price), ConstantType.Amount, new Decimal(totalAmount))),
-        ),
-        relatedProviderServiceId: service.id,
-      })),
+      logger.info,
     );
 
-    let constantsToGet = [Constants.VAT, Constants.ServiceCharges];
-    if (paymentMethodName === PaymentMethods.Credit) constantsToGet.push(Constants.OnlinePaymentCharges);
-
-    const constants = await req.prisma.constants.findMany({
-      where: {
-        AND: [
-          {
-            Name: {
-              in: constantsToGet,
-            },
-          },
-          { isActive: { equals: true } },
-        ],
-      },
-      select: {
-        id: true,
-        Name: true,
-        Label: true,
-        Value: true,
-        Type: true,
-      },
-    });
-
-    // Calculate VAT
-    const vat = constants.find((value) => value.Name === Constants.VAT) as any;
-    totalAmount = _.sumBy(statements, (statement) => Number(decrypt(statement.encryptedValue as string)));
-    statements = statements.concat({
-      name: vat?.Name || '',
-      label: `${vat?.Label}${vat?.Type === ConstantType.Percentage ? ` (${vat.Value}%)` : ''} `,
-      encryptedValue: encrypt(String(getAmount(vat?.Value, vat?.Type, new Decimal(totalAmount)))),
-      relatedConstantId: vat?.id,
-    });
-
-    const serviceCharges = constants.find((value) => value.Name === Constants.ServiceCharges);
-    const onlineCharges = constants.find((value) => value.Name === Constants.OnlinePaymentCharges);
-
-    statements = statements.concat(
-      [serviceCharges, onlineCharges].filter(Boolean).map((value: any) => ({
-        name: value?.Name || '',
-        label: `${value?.Label}${value?.Type === ConstantType.Percentage ? ` (${value.Value}%)` : ''} `,
-        encryptedValue: encrypt(String(getAmount(value?.Value || 0, value?.Type, new Decimal(totalAmount)))),
-        relatedConstantId: value.id,
-      })),
+    createSuccessResponse(
+      req,
+      res,
+      { statements: calculatedStatement.statements, totalAmount: encrypt('' + calculatedStatement.totalAmount) },
+      next,
     );
-
-    totalAmount = _.sumBy(statements, (statement) => Number(decrypt(statement.encryptedValue as string)));
-
-    createSuccessResponse(req, res, { statements, totalAmount: encrypt('' + totalAmount) }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);
   }

@@ -52,7 +52,7 @@ describe('Get All Orders Integration Tests', () => {
     testProvider = await prisma.provider.create({
       data: {
         UserID: providerUser.id,
-        NumberOfOrders: 0,
+        CompanyName: '123',
       },
     });
 
@@ -76,6 +76,7 @@ describe('Get All Orders Integration Tests', () => {
     // Create a test order
     testOrder = await prisma.orders.create({
       data: {
+        ProviderNetProfit: 1,
         CustomerID: testCustomer.id,
         ProviderID: testProvider.id,
         PaymentMethodID: paymentMethod?.id || 1,

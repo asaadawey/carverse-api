@@ -5,6 +5,8 @@ import { createSuccessResponse, createFailResponse } from '@src/responses/index'
 import { HTTPErrorMessages, HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 import { generateHashedString } from '@src/utils/encrypt';
 import logger, { loggerUtils } from '@src/utils/logger';
+import { verifyOtp } from '@src/services/otpService';
+import { getLocalizedMessage } from '@src/utils/localization';
 
 //#region UpdatePassword
 export const updatePasswordSchema: yup.SchemaOf<{ body: UpdatePasswordRequestBody }> = yup.object({
@@ -39,7 +41,12 @@ const updatePassword: RequestHandler<
   try {
     const { email, newPassword, otp } = req.body;
 
-    logger.info('Password update attempt initiated', { email, reqId: req.headers['req_id'] });
+    req.logger.info('Password update attempt initiated', { email, reqId: req.headers['req_id'] });
+
+    const isOtpVerified = await verifyOtp(email, otp, 'PASSWORD_RESET', req.prisma, true);
+
+    if (!isOtpVerified.success)
+      throw new HttpException(HTTPResponses.BusinessError, getLocalizedMessage(req, 'error.invalidOtp'), 'Invalid OTP');
 
     // Find user by email
     const user = await req.prisma.users.findUnique({
@@ -52,7 +59,6 @@ const updatePassword: RequestHandler<
     });
 
     if (!user) {
-      loggerUtils.logAuthEvent('Password update failed - User not found', undefined, false, { email });
       throw new HttpException(
         HTTPResponses.BusinessError,
         HTTPErrorMessages.InvalidUsernameOrPassowrd,
@@ -61,18 +67,9 @@ const updatePassword: RequestHandler<
     }
 
     if (!user.isActive) {
-      loggerUtils.logAuthEvent('Password update failed - User inactive', user.id, false, { email });
       throw new HttpException(HTTPResponses.BusinessError, HTTPErrorMessages.AccountInactive, {
         userId: user.id,
       });
-    }
-
-    // Verify OTP (In a real implementation, you would check against a stored OTP)
-    // For now, we'll assume a simple verification mechanism
-    // This should be replaced with actual OTP verification logic
-    if (!otp || otp.length < 4) {
-      loggerUtils.logAuthEvent('Password update failed - Invalid OTP', user.id, false, { email });
-      throw new HttpException(HTTPResponses.BusinessError, HTTPErrorString.BadRequest, 'Invalid OTP');
     }
 
     // Hash the new password
@@ -87,11 +84,7 @@ const updatePassword: RequestHandler<
       },
     });
 
-    loggerUtils.logAuthEvent('Password updated successfully', user.id, true, {
-      email,
-    });
-
-    logger.info('Password update completed successfully', {
+    req.logger.info('Password update completed successfully', {
       userId: user.id,
       email,
       reqId: req.headers['req_id'],
@@ -107,9 +100,8 @@ const updatePassword: RequestHandler<
       next,
     );
   } catch (error: any) {
-    loggerUtils.logError(error as Error, 'Update Password Controller', {
+    req.logger.error(error as Error, 'Update Password Controller', {
       email: req.body.email,
-      reqId: req.headers['req_id'],
     });
     createFailResponse(req, res, error, next);
   }

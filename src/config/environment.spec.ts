@@ -12,6 +12,15 @@ describe('config/environment.ts', () => {
       env[String($1)] = $2;
       return '';
     });
+
+    // Override weak secrets for testing
+    if (env.COOKIE_SECRET === 'N') {
+      env.COOKIE_SECRET = 'test-strong-cookie-secret-32-chars-minimum';
+    }
+    if (env.APP_SECRET && env.APP_SECRET.length < 32) {
+      env.APP_SECRET = 'test-strong-app-secret-32-chars-minimum';
+    }
+
     const func = () => {
       schema.validateSync(env);
     };

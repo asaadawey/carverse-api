@@ -91,14 +91,14 @@ export const postLogMiddleware: RequestHandler = (
   loggerUtils.logRequestEnd(req, res, responseTime, responseData);
 
   // Log slow requests as performance warnings
-  if (responseTime > 1000) {
-    loggerUtils.logPerformance('Slow request detected', responseTime, {
-      reqId: req.reqId,
-      method: req.method,
-      url: req.url,
-      statusCode: res.statusCode,
-    });
-  }
+  // if (responseTime > 1000) {
+  //   loggerUtils.logPerformance('Slow request detected', responseTime, {
+  //     reqId: req.reqId,
+  //     method: req.method,
+  //     url: req.url,
+  //     statusCode: res.statusCode,
+  //   });
+  // }
 
   // Log security events for failed authentication
   if (res.statusCode === 401 || res.statusCode === 403) {

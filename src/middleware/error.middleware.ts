@@ -2,38 +2,70 @@
 import { Prisma } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { HttpException } from '@src/errors/index';
+import LocalizedHttpException from '@src/errors/LocalizedHttpException';
+import { isLocalizedError, getLocalizedMessage, mapLegacyErrorToLocalized } from '@src/utils/localization';
 import * as yup from 'yup';
 import envVars from '@src/config/environment';
 import { HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
+import { SupportedLanguages } from '@src/locales/index';
 
-const errorMiddleware = (error: HttpException | any, req: Request, res: Response, next: NextFunction) => {
+const errorMiddleware = (
+  error: HttpException | LocalizedHttpException | any,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     let status: number = error.status || HTTPResponses.InternalServerError;
-    let message: string = error.message || HTTPErrorString.SomethingWentWrong;
+    let message: string;
     let additionalData = error.additionalData || error.additionalParameters || null;
     let originalError = error.message;
+    const language = req.language || SupportedLanguages.EN;
 
-    if (error instanceof Prisma.PrismaClientUnknownRequestError || (error.clientVersion && !error.code)) {
-      //Prisma unknown errors custom handler
-      if (message.includes('Unknown arg'))
-        message = message.slice(message.indexOf('Unknown'), message.indexOf('Available')).trim();
+    // Handle localized errors first
+    if (isLocalizedError(error)) {
+      message = error.localizedMessage;
+      status = error.status;
+      additionalData = error.additionalParameters || additionalData;
+    }
+    // Handle legacy HttpException errors by converting them to localized messages
+    else if (error instanceof HttpException) {
+      const messageKey = mapLegacyErrorToLocalized(error.message);
+      message = getLocalizedMessage(req, messageKey);
+      status = error.status;
+      additionalData = error.additionalParameters || additionalData;
+    }
+    // Handle Prisma and other errors
+    else {
+      if (error instanceof Prisma.PrismaClientUnknownRequestError || (error.clientVersion && !error.code)) {
+        //Prisma unknown errors custom handler
+        let errorMessage = error.message || 'Database error occurred';
+        if (errorMessage.includes('Unknown arg'))
+          errorMessage = errorMessage.slice(errorMessage.indexOf('Unknown'), errorMessage.indexOf('Available')).trim();
 
-      // console.error(error.message);
-    } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      const newMessage =
-        "Cannot proceed with this operation as it's seems to be duplicated. Please try again with other data";
-      if (error.code === 'P2002')
-        additionalData = (additionalData || '') + message.slice(message.indexOf('Unique constraint'));
-      else if (error.code === 'P2025')
-        additionalData = (additionalData || '') + message.slice(message.indexOf('An operation failed'));
-      message = newMessage;
-    } else if (error instanceof yup.ValidationError) {
-      message = 'Bad request';
-      status = 400;
-      additionalData = error.errors[0] || error.message || (error as any) || additionalData;
-    } else if (error instanceof SyntaxError || error instanceof TypeError) {
-      message = envVars.logVerbose === 'all' ? message : HTTPErrorString.SomethingWentWrong;
-      additionalData = { ...additionalData, error };
+        message = getLocalizedMessage(req, 'error.somethingWentWrong');
+        additionalData = envVars.logVerbose === 'all' ? errorMessage : null;
+      } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          message = getLocalizedMessage(req, 'error.duplicateData');
+          additionalData = (additionalData || '') + error.message.slice(error.message.indexOf('Unique constraint'));
+        } else if (error.code === 'P2025') {
+          message = getLocalizedMessage(req, 'error.operationFailed');
+          additionalData = (additionalData || '') + error.message.slice(error.message.indexOf('An operation failed'));
+        } else {
+          message = getLocalizedMessage(req, 'error.somethingWentWrong');
+        }
+      } else if (error instanceof yup.ValidationError) {
+        message = getLocalizedMessage(req, 'error.validationError');
+        status = HTTPResponses.ValidationError;
+        additionalData = error.errors[0] || error.message || (error as any) || additionalData;
+      } else if (error instanceof SyntaxError || error instanceof TypeError) {
+        message = envVars.logVerbose === 'all' ? error.message : getLocalizedMessage(req, 'error.somethingWentWrong');
+        additionalData = { ...additionalData, error };
+      } else {
+        // Fallback for any other error
+        message = error.message || getLocalizedMessage(req, 'error.somethingWentWrong');
+      }
     }
     console.log(`ERROR-BUILDER [${req.method}] ${req.path} ${status}, ${message}`);
     console.log({

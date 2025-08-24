@@ -12,6 +12,7 @@ describe('Integration providers/getAllProviders', () => {
     await prisma.provider.deleteMany();
     await prisma.provider.create({
       data: {
+        CompanyName: randomstring.generate(7),
         users: {
           create: {
             Email: randomstring.generate(7),
@@ -23,7 +24,6 @@ describe('Integration providers/getAllProviders', () => {
             userTypes: { create: { TypeName: randomstring.generate(7) } },
           },
         },
-        NumberOfOrders: 231,
         providerServices: {
           create: [
             {
@@ -69,6 +69,7 @@ describe('Integration providers/getAllProviders', () => {
     });
     createdProvider = await prisma.provider.create({
       data: {
+        CompanyName: randomstring.generate(7),
         users: {
           create: {
             Email: randomstring.generate(7),
@@ -80,7 +81,6 @@ describe('Integration providers/getAllProviders', () => {
             userTypes: { create: { TypeName: randomstring.generate(7) } },
           },
         },
-        NumberOfOrders: 231,
         providerServices: {
           create: [
             {

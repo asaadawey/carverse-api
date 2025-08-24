@@ -6,19 +6,22 @@ const config = {
       'ts-jest',
       {
         tsconfig: {
-          module: 'CommonJS', // Use CommonJS for Jest
+          module: 'CommonJS',
           target: 'ES2020',
           esModuleInterop: true,
+          allowSyntheticDefaultImports: true,
           moduleResolution: 'node',
         },
       },
     ],
   },
+  transformIgnorePatterns: ['node_modules/(?!(nanoid|@socket\\.io|socket\\.io-client|@noble|@isaacs)/)'],
   moduleNameMapper: {
     '^@src/(.*)$': '<rootDir>/src/$1',
     '^@assets/(.*)$': '<rootDir>/assets/$1',
+    '^nanoid$': '<rootDir>/src/__mocks__/nanoid.js',
+    '^nanoid/(.*)$': '<rootDir>/src/__mocks__/nanoid.js',
   },
-  testEnvironment: 'node',
   testRegex: '\\.(spec)\\.ts?$',
   moduleFileExtensions: ['js', 'ts'],
   modulePaths: ['<rootDir>/'],

@@ -4,6 +4,7 @@ import { createFailResponse } from '@src/responses/index';
 import { HttpException } from '@src/errors/index';
 
 export const getUserType = (req: Request): UserTypes | undefined => {
+  console.log('User Type:', req.user);
   return req.user.userType as UserTypes;
 };
 
