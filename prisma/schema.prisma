@@ -22,6 +22,9 @@ model users {
   isActive                  Boolean          @default(true)
   test                      Int?
   test2                     Int?
+  isEmailVerified           Boolean         @default(false)
+  LastLoginDate             DateTime?
+  LastKnownNotificationToken String?
   cars                      cars[]
   creditCards               creditCards[]
   customer                  customer?
@@ -30,7 +33,18 @@ model users {
   currentUserDeleteRequests deleteRequests[] @relation("currentUserDeleteRequests")
   provider                  provider?
   uploadedFiles             uploadedFiles[]
+  chatSessions              chatSessions[]
   userTypes                 userTypes        @relation(fields: [UserTypeID], references: [id], onDelete: Cascade)
+  
+  // Order Messages Relations
+  sentOrderMessages         orderMessages[] @relation("SentOrderMessages")
+  
+  // Support Relations
+  supportRequests           supportRequests[] @relation("UserSupportRequests")
+
+  // Performance indexes
+  @@index([FirstName, LastName])
+  @@index([isActive])
 }
 
 model deleteRequests {
@@ -58,10 +72,15 @@ model customer {
 model provider {
   id               Int                @id @default(autoincrement())
   UserID           Int                @unique
-  NumberOfOrders   Int                @default(0)
+  CompanyName       String            
+  CompanyRepresentativeMobileNumber String @default("0")
+  ProviderEmiratesID String @default("0")
   orders           orders[]
   users            users              @relation(fields: [UserID], references: [id], onDelete: Cascade)
   providerServices providerServices[]
+
+  @@index([UserID])
+  @@index([CompanyName])
 }
 
 model additionalFees {
@@ -72,19 +91,26 @@ model additionalFees {
 }
 
 model services {
-  id                 Int                @id @default(autoincrement())
-  ServiceName        String             @unique
-  ServiceDescription String
-  ServiceIconLink    String
-  IsActive           Boolean            @default(true)
-  CreatedOn          DateTime           @default(now())
-  ModifiedOn         DateTime           @updatedAt
-  ModuleID           Int
-  GradientID         Int?
-  packageServices    packageServices[]
-  providerServices   providerServices[]
-  colorGradiants     colorGradiants?    @relation(fields: [GradientID], references: [id], onDelete: Cascade)
-  modules            modules            @relation(fields: [ModuleID], references: [id], onDelete: Cascade)
+  id                      Int                @id @default(autoincrement())
+  ServiceName             String             @unique
+  ServiceDescription      String
+  ServiceIconLink         String
+  IsActive                Boolean            @default(true)
+  isAvailableForAutoSelect Boolean           @default(true)
+  CreatedOn               DateTime           @default(now())
+  ModifiedOn              DateTime           @updatedAt
+  ModuleID                Int
+  GradientID              Int?
+  orderServices                   orderServices[]
+  orderAmountStatements   orderAmountStatements[]
+  packageServices         packageServices[]
+  providerServices        providerServices[]
+  colorGradiants          colorGradiants?    @relation(fields: [GradientID], references: [id], onDelete: Cascade)
+  modules                 modules            @relation(fields: [ModuleID], references: [id], onDelete: Cascade)
+
+  // Performance indexes
+  @@index([IsActive, isAvailableForAutoSelect])
+  @@index([ServiceName])
 }
 
 model orderRating {
@@ -92,6 +118,8 @@ model orderRating {
   OrderID   Int @unique
   Rating    Decimal
   Feedback   String?
+  isOrderCompleted Boolean @default(false)
+  Notes   String?
   CreatedOn DateTime @default(now())
   order    orders   @relation(fields: [OrderID], references: [id], onDelete: Cascade)
 }
@@ -100,7 +128,9 @@ model orders {
   id                       Int                        @id @default(autoincrement())
   PaymentMethodID          Int
   CustomerID               Int
-  ProviderID               Int
+  ProviderID               Int?
+  OrderSubmissionType      OrderSubmissionType        @default(PROVIDER_SELECT)
+  OrderTimeoutSeconds      Int                       @default(1800) // Default to 30 minutes
   OrderTotalAmount         Float
   OrderCreatedDate         DateTime                   @default(now())
   Longitude                Float
@@ -109,14 +139,25 @@ model orders {
   PaymentIntentID          String?                    @unique
   AdditionalAddressData    Json?
   AdditionalNotes          String?
+  ProviderNetProfit        Decimal
   orderAmountStatements    orderAmountStatements[]
   orderCreditCardsPurchase orderCreditCardsPurchase[]
   orderHistory             orderHistory[]
   orderServices            orderServices[]
+  chatSessions             chatSessions[]
   customer                 customer                   @relation(fields: [CustomerID], references: [id], onDelete: Cascade)
   paymentMethods           paymentMethods             @relation(fields: [PaymentMethodID], references: [id], onDelete: Cascade)
-  provider                 provider                   @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
+  provider                 provider?                   @relation(fields: [ProviderID], references: [id], onDelete: Cascade)
   ratings                  orderRating?
+  orderMessages            orderMessages[]
+  
+  // Support Relations
+  supportRequests          supportRequests[] @relation("OrderSupportRequests")
+
+  // Performance indexes
+  @@index([CustomerID, OrderCreatedDate])
+  @@index([ProviderID, OrderCreatedDate])
+  @@index([id, ProviderID])
 }
 
 model orderServices {
@@ -124,10 +165,17 @@ model orderServices {
   OrderID                          Int
   CarID                            Int
   CreatedOn                        DateTime?                        @default(now()) @db.Timestamptz(6)
-  ProviderServiceBodyTypeID        Int
+  ProviderServiceBodyTypeID        Int?
+  ServiceID                       Int?
+  service                          services?                       @relation(fields: [ServiceID], references: [id], onDelete: Cascade)
   cars                             cars                             @relation(fields: [CarID], references: [id], onDelete: Cascade)
   orders                           orders                           @relation(fields: [OrderID], references: [id], onDelete: Cascade)
-  providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes @relation(fields: [ProviderServiceBodyTypeID], references: [id], onDelete: Cascade)
+  providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes? @relation(fields: [ProviderServiceBodyTypeID], references: [id], onDelete: Cascade)
+
+  // Performance indexes
+  @@index([OrderID, CarID])
+  @@index([ServiceID])
+  @@index([ProviderServiceBodyTypeID])
 }
 
 model orderCreditCardsPurchase {
@@ -170,14 +218,15 @@ model userTypes {
 }
 
 model modules {
-  id                Int        @id @default(autoincrement())
-  ModuleName        String     @unique
+  id                Int            @id @default(autoincrement())
+  ModuleName        String         @unique
   ModuleDescription String
   ModuleIconLink    String
-  CreatedOn         DateTime   @default(now())
-  isActive          Boolean    @default(true)
+  CreatedOn         DateTime       @default(now())
+  isActive          Boolean        @default(true)
   packages          packages[]
   services          services[]
+  chatSessions      chatSessions[]
 }
 
 model providerServices {
@@ -193,6 +242,12 @@ model providerServices {
   providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes[]
 
   @@unique([ProviderID, ServiceID])
+  @@index([ProviderID])
+  @@index([ServiceID])
+  @@index([isActive])
+  @@index([Rating])
+  @@index([ProviderID, isActive])
+  @@index([ServiceID, isActive])
 }
 
 model packages {
@@ -208,6 +263,10 @@ model packages {
   packageServices      packageServices[]
   colorGradiants       colorGradiants?   @relation(fields: [GradiantID], references: [id], onDelete: Cascade)
   modules              modules           @relation(fields: [ModuleID], references: [id], onDelete: Cascade)
+
+  @@index([ModuleID])
+  @@index([PackagePrice])
+  @@index([ModuleID, PackagePrice])
 }
 
 model bodyTypes {
@@ -244,6 +303,11 @@ model cars {
   bodyTypes     bodyTypes       @relation(fields: [BodyTypeID], references: [id], onDelete: Cascade)
   users         users           @relation(fields: [UserID], references: [id], onDelete: Cascade)
   orderServices orderServices[]
+
+  @@index([UserID])
+  @@index([BodyTypeID])
+  @@index([PlateNumber])
+  @@index([UserID, BodyTypeID])
 }
 
 model colorGradiants {
@@ -270,6 +334,7 @@ model orderHistory {
   id                Int               @id @default(autoincrement())
   OrderID           Int
   HistoryItemID     Int
+  Notes             String?
   CreatedOn         DateTime          @default(now())
   orderHistoryItems orderHistoryItems @relation(fields: [HistoryItemID], references: [id], onDelete: Cascade)
   orders            orders            @relation(fields: [OrderID], references: [id], onDelete: Cascade)
@@ -292,6 +357,12 @@ model attachments {
   TypeID         Int
   Name           String          @unique
   Description    String
+  isActive       Boolean         @default(true)
+  isRequired     Boolean        
+  canUploadFromCamera Boolean
+  canUploadFromGallery Boolean
+  allowMultiple        Boolean @default(false)
+  CreatedOn      DateTime        @default(now())
   attachmentType attachmentTypes @relation(fields: [TypeID], references: [id])
   uploadedFiles  uploadedFiles[]
 }
@@ -326,16 +397,207 @@ model orderAmountStatements {
   OrderID                          Int
   RelatedConstantID                Int?
   RelatedProviderServiceID         Int?
+  RelatedServiceID                Int?
+  RelatedVoucherID               Int?
   Name                             String?
   Amount                           Decimal
+  DiscountAmount                   Decimal?                     
   CreatedAt                        DateTime                          @default(now())
+  voucher                          vouchers?                         @relation(fields: [RelatedVoucherID], references: [id])
+  service                          services?                         @relation(fields: [RelatedServiceID], references: [id], onDelete: Cascade, onUpdate: NoAction)
   orders                           orders                            @relation(fields: [OrderID], references: [id], onDelete: Cascade, onUpdate: NoAction)
   constants                        constants?                        @relation(fields: [RelatedConstantID], references: [id], onDelete: Cascade, onUpdate: NoAction)
   providerServicesAllowedBodyTypes providerServicesAllowedBodyTypes? @relation(fields: [RelatedProviderServiceID], references: [id])
+}
+
+model vouchers {
+  id          Int      @id @default(autoincrement())
+  Label      String   
+  Code       String   @unique
+  DiscountPercentage   Decimal
+  IsActive   Boolean  @default(true)
+  CreatedAt  DateTime @default(now())
+  UpdatedAt  DateTime @updatedAt
+  ordersAmountStatements  orderAmountStatements[]
 }
 
 enum ConstantType {
   Amount
   Percentage
   Numeric
+}
+
+enum ChatMessageType {
+  USER
+  AI_AGENT
+  SYSTEM
+}
+
+enum ChatSessionStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  TRANSFERRED_TO_HUMAN
+}
+
+model chatSessions {
+  id            Int               @id @default(autoincrement())
+  UserID        Int
+  Status        ChatSessionStatus @default(ACTIVE)
+  StartedAt     DateTime          @default(now())
+  EndedAt       DateTime?
+  Context       Json?             // Store conversation context, user preferences, etc.
+  OrderID       Int?              // If session results in an order
+  ModuleID      Int?              // Service module they're interested in
+  user          users             @relation(fields: [UserID], references: [id], onDelete: Cascade)
+  order         orders?           @relation(fields: [OrderID], references: [id])
+  module        modules?          @relation(fields: [ModuleID], references: [id])
+  messages      chatMessages[]
+}
+
+model chatMessages {
+  id          Int             @id @default(autoincrement())
+  SessionID   Int
+  MessageType ChatMessageType
+  Content     String
+  Metadata    Json?           // Store AI confidence, intent classification, etc.
+  CreatedAt   DateTime        @default(now())
+  session     chatSessions    @relation(fields: [SessionID], references: [id], onDelete: Cascade)
+}
+
+model aiAgentIntents {
+  id              Int      @id @default(autoincrement())
+  IntentName      String   @unique
+  Description     String
+  Keywords        String[] // Keywords that trigger this intent
+  ResponseTemplate String  // Template response for this intent
+  RequiresData    Boolean  @default(false) // Whether this intent needs to fetch data
+  IsActive        Boolean  @default(true)
+  CreatedAt       DateTime @default(now())
+  UpdatedAt       DateTime @updatedAt
+}
+
+model aiTrainingData {
+  id                 Int      @id @default(autoincrement())
+  conversationId     String
+  messageId          String
+  userRating         Int      // 1-5 scale rating
+  wasHelpful         Boolean
+  improvementAreas   String[] // Areas where response could be improved
+  correctResponse    String?  // Correct response if provided by user
+  contextData        String   // JSON string of conversation context
+  createdAt          DateTime @default(now())
+  
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+model aiPositiveExamples {
+  id              Int      @id @default(autoincrement())
+  userMessage     String   // The user's message
+  correctResponse String   // The correct AI response
+  context         String   // JSON string of conversation context
+  rating          Int      // User rating (4-5 for positive examples)
+  createdAt       DateTime @default(now())
+  
+  @@index([rating])
+  @@index([createdAt])
+}
+
+model aiPerformanceMetrics {
+  id                    Int      @id @default(autoincrement())
+  date                  DateTime @unique @default(now())
+  totalConversations    Int      @default(0)
+  averageRating         Float    @default(0.0)
+  helpfulResponsesCount Int      @default(0)
+  escalationRate        Float    @default(0.0) // Percentage of conversations escalated to humans
+  commonFailurePoints   String[] // Common areas where AI fails
+  
+  @@index([date])
+}
+
+// Simplified Chat System Models (linked to orders)
+model orderMessages {
+  id              String            @id @default(cuid())
+  orderId         Int
+  senderId        Int
+  messageType     OrderMessageType  @default(TEXT)
+  content         String
+  attachments     Json?             // File attachments, images, etc.
+  createdAt       DateTime          @default(now())
+  replyToId       String?           // For message replies
+  
+  // Relationships
+  order           orders            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sender          users             @relation("SentOrderMessages", fields: [senderId], references: [id])
+  replyTo         orderMessages?    @relation("OrderMessageReplies", fields: [replyToId], references: [id])
+  replies         orderMessages[]   @relation("OrderMessageReplies")
+  
+  @@index([orderId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+// Enums for Chat System
+enum OrderMessageType {
+  TEXT
+  IMAGE
+  FILE
+  LOCATION
+  VOICE
+  SYSTEM
+}
+
+// OTP table for email verification and password reset
+model emailOtps {
+  id          String    @id @default(cuid())
+  email       String
+  otp         String
+  type        OtpType   @default(PASSWORD_RESET)
+  expiresAt   DateTime
+  isUsed      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([email])
+  @@index([email, type])
+  @@index([expiresAt])
+}
+
+enum OtpType {
+  PASSWORD_RESET
+  EMAIL_VERIFICATION
+  TWO_FACTOR_AUTH
+}
+
+enum OrderSubmissionType {
+  PROVIDER_SELECT
+  AUTO_SELECT
+}
+
+// Support system model
+model supportRequests {
+  id                        String    @id @default(cuid())
+  userId                    Int
+  relatedOrderId            Int?
+  issueDescription          String
+  contactUserByRegisteredMobile Boolean @default(false)
+  sendEmail                 Boolean   @default(false)
+  status                    SupportStatus @default(OPEN)
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+  
+  // Relationships
+  user                      users     @relation("UserSupportRequests", fields: [userId], references: [id], onDelete: Cascade)
+  relatedOrder              orders?   @relation("OrderSupportRequests", fields: [relatedOrderId], references: [id])
+   
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum SupportStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
 }

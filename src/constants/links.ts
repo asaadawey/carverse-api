@@ -36,6 +36,14 @@ export enum RouterLinks {
   addDeleteRequest = '/addDeleteRequest/:userId?',
   processDeleteRequest = '/processDeleteRequest/:deleteRequestId',
   getPreviousAddresses = '/getPreviousAddresses',
+  updatePassword = '/updatePassword',
+  sendEmailOtp = '/sendEmailOtp',
+  verifyEmailOtp = '/verifyEmailOtp',
+  getAllUsers = '/admin/users',
+  changeUserStatus = '/admin/users/:userId/status',
+  //#endregion
+  //#region Control Panel
+  flushCache = '/control/flush-cache',
   //#endregion
   //#region Values
   getValues = '/values',
@@ -56,10 +64,23 @@ export enum RouterLinks {
   getOneOrder = '/orders/one/:id',
   getOrderTotalAmountStatements = '/orders/getOrderStatements',
   confirmOrder = '/orders/confirmOrder/:orderId',
+  getAllOrders = '/orders',
+  getProviderRevenue = '/orders/provider/revenue',
   //#endregion
   //#region Constants
   getAllConstants = '/constants',
   modifyConstant = '/constants/update',
   //#endregion
+  //#region Chat
+  getChatHistory = '/chat/:orderId/history',
+  //#endregion
+  //#region Support
+  createSupportRequest = '/support/create',
+  getAllSupportTickets = '/support/tickets',
+  resolveSupportTicket = '/support/tickets/:ticketId/resolve',
+  //#endregion
+  //#region System
   getCsrfToken = '/cvapi-csrf',
+  notFound = '*', // Catch-all for 404 responses
+  //#endregion
 }

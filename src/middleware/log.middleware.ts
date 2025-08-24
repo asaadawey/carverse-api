@@ -1,16 +1,18 @@
 import { RequestHandler } from 'express';
 import { v4 as uuid4 } from 'uuid';
-export const preLogmiddleware: RequestHandler<any, any, any, any> = (req, res, next) => {
-  if (!req.headers['req_id'] && !res.headersSent) req.headers['req_id'] = `AG_${uuid4()}`;
+import logger, { loggerUtils } from '@src/utils/logger';
 
-  console.log(
-    `[PRE-LOG] [IP : ${req.ip}] [${req.method}] ${req.url} ${JSON.stringify({
-      date: new Date().toLocaleTimeString(),
-      body: req.body,
-      req_id: req.headers['req_id'],
-      // ip: req.ip,
-    })} \n`,
-  );
+// Legacy middleware with enhanced logging
+export const preLogmiddleware: RequestHandler<any, any, any, any> = (req, res, next) => {
+  if (!req.headers['req_id'] && !res.headersSent) {
+    req.headers['req_id'] = `CW_${uuid4()}`;
+  }
+
+  // Use the new logger instead of console.log
+  loggerUtils.logRequestStart(req);
 
   next();
 };
+
+// Re-export for backward compatibility
+export default { preLogmiddleware };

@@ -12,7 +12,7 @@ describe('users/register', () => {
     expect(createSuccessResponse).toHaveBeenCalledWith(
       global.mockReq,
       global.mockRes,
-      { result: true, id: 1 },
+      { result: true, id: 1, emailSent: expect.any(Boolean) },
       global.mockNext,
     );
   });

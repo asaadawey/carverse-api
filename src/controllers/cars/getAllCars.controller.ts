@@ -2,6 +2,10 @@ import { RequestHandler } from 'express';
 import { PaginatorQueryParamsProps, paginationSchema, spreadPaginationParams } from '@src/interfaces/express.types';
 import { createFailResponse, createSuccessResponse } from '@src/responses/index';
 import * as yup from 'yup';
+import { Prisma } from '@prisma/client';
+import { HTTPResponses, UserTypes } from '@src/interfaces/enums';
+import HttpException from '@src/errors/HttpException';
+import { getLocalizedMessage } from '@src/utils/localization';
 //#region GetAllCars
 type GetAllCarsLinkQuery = {};
 
@@ -16,14 +20,20 @@ type GetAllCarsResponse = {
   PlateNumber: string;
 
   bodyTypes: {
+    id: number;
     TypeName: string;
   };
 }[];
 
-type GetAllCarsQueryParams = PaginatorQueryParamsProps;
+type GetAllCarsQueryParams = PaginatorQueryParamsProps & { userId?: string };
 
-export const getAllCarsSchema: yup.SchemaOf<{}> = yup.object({
-  query: yup.object().concat(paginationSchema),
+export const getAllCarsSchema: yup.SchemaOf<{ query: GetAllCarsQueryParams }> = yup.object({
+  query: yup
+    .object()
+    .shape({
+      userId: yup.string().optional(),
+    })
+    .concat(paginationSchema),
 });
 
 const getAllCars: RequestHandler<
@@ -33,12 +43,28 @@ const getAllCars: RequestHandler<
   GetAllCarsQueryParams
 > = async (req, res, next) => {
   try {
+    let whereClause: Prisma.carsWhereInput = {};
+
+    if (req.user.userType === UserTypes.Admin) {
+      if (req.query.userId) {
+        whereClause.UserID = Number(req.query.userId);
+      }
+    } else if (req.user.userType === UserTypes.Customer) {
+      whereClause.UserID = Number(req.user.id);
+    } else {
+      throw new HttpException(
+        HTTPResponses.Unauthorised,
+        getLocalizedMessage(req, 'error.unauthorized'),
+        'Provider cannot access cars',
+      );
+    }
+
     const cars = await req.prisma.cars.findMany({
       ...spreadPaginationParams(req.query),
-      where: { UserID: Number(req.user.id) },
+      where: whereClause,
       select: {
         id: true,
-        bodyTypes: { select: { TypeName: true } },
+        bodyTypes: { select: { TypeName: true, id: true } },
         Color: true,
         Manufacturer: true,
         Model: true,

@@ -54,6 +54,15 @@ const processDeleteRequest: RequestHandler<
       },
     });
 
+    await req.prisma.users.update({
+      where: {
+        id: req.user.id,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
     createSuccessResponse(req, res, { createdItemId: deleteRequest.id, result: Boolean(deleteRequest) }, next);
   } catch (error: any) {
     createFailResponse(req, res, error, next);

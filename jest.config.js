@@ -1,31 +1,27 @@
 const config = {
-  "preset": "ts-jest/presets/default-esm",
-  "extensionsToTreatAsEsm": [".ts"],
-  "testEnvironment": "node",
-  "globals": {
-    "ts-jest": {
-      "useESM": true
-    }
-  },
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   transform: {
-    "^.+\\.ts$": [
-      "ts-jest",
+    '^.+\\.ts$': [
+      'ts-jest',
       {
         tsconfig: {
-          module: 'NodeNext',  // Ensure Jest handles ESM correctly
-          target: 'ESNext',
+          module: 'CommonJS',
+          target: 'ES2020',
           esModuleInterop: true,
+          allowSyntheticDefaultImports: true,
           moduleResolution: 'node',
         },
-        useESM: true,
       },
     ],
   },
+  transformIgnorePatterns: ['node_modules/(?!(nanoid|@socket\\.io|socket\\.io-client|@noble|@isaacs)/)'],
   moduleNameMapper: {
-    "^@src/(.*)$": "<rootDir>/src/$1",
-    "^@assets/(.*)$": "<rootDir>/assets/$1",
+    '^@src/(.*)$': '<rootDir>/src/$1',
+    '^@assets/(.*)$': '<rootDir>/assets/$1',
+    '^nanoid$': '<rootDir>/src/__mocks__/nanoid.js',
+    '^nanoid/(.*)$': '<rootDir>/src/__mocks__/nanoid.js',
   },
-  testEnvironment: 'node',
   testRegex: '\\.(spec)\\.ts?$',
   moduleFileExtensions: ['js', 'ts'],
   modulePaths: ['<rootDir>/'],

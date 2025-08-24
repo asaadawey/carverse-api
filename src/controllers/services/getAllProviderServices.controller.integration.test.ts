@@ -26,6 +26,7 @@ describe('Integration providers/getAllProviderServices', () => {
     createdModuleId = createdModule.id;
     const createdProvider = await prisma.provider.create({
       data: {
+        CompanyName: randomstring.generate(7),
         users: {
           create: {
             Email: randomstring.generate(7),
@@ -37,7 +38,6 @@ describe('Integration providers/getAllProviderServices', () => {
             userTypes: { create: { TypeName: randomstring.generate(7) } },
           },
         },
-        NumberOfOrders: 231,
         providerServices: {
           create: [
             {

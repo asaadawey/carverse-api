@@ -4,10 +4,11 @@ import envVars, { isDev, isTest } from '@src/config/environment';
 import { Token, tokens } from '@src/interfaces/token.types';
 import { HTTPErrorString, HTTPResponses } from '@src/interfaces/enums';
 import { decrypt } from '@src/utils/encrypt';
-import { RequestHandler } from 'express';
+import { RequestHandler, Request } from 'express';
 import { createFailResponse } from '@src/responses/index';
+import { generateDeviceFingerprint } from '@src/utils/deviceFingerprint';
 
-const authMiddleware = (auth: string, allowedClient: string): Token /**User id */ => {
+const authMiddleware = (auth: string, allowedClient: string, req?: Request): Token /**User id */ => {
   if (!auth)
     throw new HttpException(HTTPResponses.Unauthorised, HTTPErrorString.UnauthorisedToken, 'Token header not exists');
 
@@ -61,6 +62,20 @@ const authMiddleware = (auth: string, allowedClient: string): Token /**User id *
       'Allowed Client is not right',
     );
 
+  // Device fingerprint validation (if both token and request have device info)
+  if (req && token.deviceFingerprint) {
+    const currentDeviceFingerprint = generateDeviceFingerprint(req);
+
+    // Check if the token was issued for this device
+    if (token.deviceFingerprint !== currentDeviceFingerprint) {
+      throw new HttpException(
+        HTTPResponses.Unauthorised,
+        HTTPErrorString.UnauthorisedToken,
+        'Token issued for different device',
+      );
+    }
+  }
+
   //Inject user id
   return token;
 };
@@ -80,6 +95,7 @@ export const authRoute: RequestHandler = async (req, res, next) => {
       req.user = authMiddleware(
         req.headers[envVars.auth.authKey] as string,
         req.headers[envVars.allowedClient.key] as string,
+        req, // Pass request object for device fingerprint validation
       );
 
       // req.providerId = Number(req.headers['providerId']) || -1;

@@ -27,6 +27,7 @@ describe('services/getAllProviderServices', () => {
       global.mockRes,
       [
         {
+          services: null,
           test: 'test',
         },
       ],
@@ -53,5 +54,60 @@ describe('services/getAllProviderServices', () => {
     await getAllProviderServices(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createFailResponse).toHaveBeenCalledTimes(1);
+  });
+
+  it('Should filter by bodyTypeId when provided', async () => {
+    global.mockReq = {
+      ...global.mockReq,
+      user: {
+        userType: 'Provider',
+        providerId: '1',
+      },
+      params: {
+        providerId: '1',
+        moduleId: '2',
+      },
+      query: {
+        bodyTypeId: '3',
+      },
+    };
+
+    prismaMock.providerServices.findMany.mockResolvedValue([
+      {
+        test: 'test',
+      },
+    ]);
+
+    await getAllProviderServices(global.mockReq, global.mockRes, global.mockNext);
+
+    expect(prismaMock.providerServices.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          AND: expect.arrayContaining([
+            expect.objectContaining({
+              providerServicesAllowedBodyTypes: expect.objectContaining({
+                some: expect.objectContaining({
+                  BodyTypeID: { equals: 3 },
+                }),
+              }),
+            }),
+          ]),
+        }),
+      }),
+    );
+
+    expect(createSuccessResponse).toHaveBeenCalledTimes(1);
+    expect(createSuccessResponse).toHaveBeenCalledTimes(1);
+    expect(createSuccessResponse).toHaveBeenCalledWith(
+      global.mockReq,
+      global.mockRes,
+      [
+        {
+          services: null,
+          test: 'test',
+        },
+      ],
+      global.mockNext,
+    );
   });
 });

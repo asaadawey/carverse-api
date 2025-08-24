@@ -8,7 +8,7 @@ describe('amountUtils.ts', () => {
 
     const result = getAmount(new Decimal(value), ConstantType.Amount, new Decimal(200));
 
-    expect(result.toNumber()).toBe(100);
+    expect(result).toBe(100);
   });
   it('should return percentage', () => {
     const value = new Decimal(5);
@@ -16,6 +16,6 @@ describe('amountUtils.ts', () => {
 
     const result = getAmount(new Decimal(value), ConstantType.Percentage, new Decimal(currentAmount));
 
-    expect(result.toNumber()).toBe(value.div(100).mul(currentAmount).toNumber());
+    expect(result).toBe(value.div(100).mul(currentAmount).toNumber());
   });
 });

@@ -2,16 +2,34 @@ import { prismaMock } from '@src/helpers/testHelpers/unit-singeleton';
 import getOneOrder from './getOneOrder.controller';
 import { createSuccessResponse } from '@src/responses/index';
 
+jest.mock('@src/utils/orderUtils');
 describe('orders/getOneOrder', () => {
   it('Should success and return the order', async () => {
     prismaMock.orders.findUnique.mockResolvedValue({
       id: 111,
+      paymentMethods: {
+        id: 1,
+        MethodName: 'Credit Card',
+        MethodDescription: 'Payment via credit card',
+      },
     });
     global.mockReq.params = { id: 1211 };
     await getOneOrder(global.mockReq, global.mockRes, global.mockNext);
 
     expect(createSuccessResponse).toHaveBeenCalledTimes(1);
-    expect(createSuccessResponse).toHaveBeenCalledWith(global.mockReq, global.mockRes, { id: 111 }, global.mockNext);
+    expect(createSuccessResponse).toHaveBeenCalledWith(
+      global.mockReq,
+      global.mockRes,
+      {
+        id: 111,
+        paymentMethods: {
+          id: 1,
+          MethodName: 'Credit Card',
+          MethodDescription: 'Payment via credit card',
+        },
+      },
+      global.mockNext,
+    );
   });
 
   it('Should fail because no order', async () => {

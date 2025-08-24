@@ -5,6 +5,11 @@ import getUserDetailsController from '@src/controllers/users/getUserDetails.cont
 import addDeleteRequestController from '@src/controllers/users/addDeleteRequest.controller';
 import processDeleteRequestController from '@src/controllers/users/processDeleteRequest.controller';
 import getPreviousAddressesController from '@src/controllers/users/getPreviousAddresses.controller';
+import updatePasswordController from '@src/controllers/users/updatePassword.controller';
+import sendEmailOtpController from '@src/controllers/users/sendEmailOtp.controller';
+import verifyEmailOtpController from '@src/controllers/users/verifyEmailOtp.controller';
+import changeUserStatusController from '@src/controllers/users/changeUserStatus.controller';
+import getAllUsersController from '@src/controllers/users/getAllUsers.controller';
 
 export {
   loginController,
@@ -14,4 +19,9 @@ export {
   addDeleteRequestController,
   processDeleteRequestController,
   getPreviousAddressesController,
+  updatePasswordController,
+  sendEmailOtpController,
+  verifyEmailOtpController,
+  changeUserStatusController,
+  getAllUsersController,
 };

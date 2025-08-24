@@ -5,11 +5,7 @@ export default class HttpException extends Error {
   public message: string;
   public additionalParameters: string | any;
 
-  constructor(
-    status: HTTPResponses,
-    message: HTTPErrorString | HTTPErrorMessages | '',
-    additionalParameters: string | any = null,
-  ) {
+  constructor(status: HTTPResponses, message: string, additionalParameters: string | any = null) {
     super(message);
     this.status = status;
     this.message = message;

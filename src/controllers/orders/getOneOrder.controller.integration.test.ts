@@ -10,6 +10,7 @@ describe('Integration orders/getOneOrder', () => {
   it('Should return one order', async () => {
     const createResult = await prisma.orders.create({
       data: {
+        ProviderNetProfit: 123,
         paymentMethods: {
           connectOrCreate: {
             create: { MethodName: 'Cash', MethodDescription: 's' },
@@ -37,6 +38,7 @@ describe('Integration orders/getOneOrder', () => {
         },
         provider: {
           create: {
+            CompanyName: randomstring.generate(7),
             users: {
               create: {
                 Email: randomstring.generate(7),

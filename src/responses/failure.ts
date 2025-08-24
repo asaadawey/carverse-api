@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTPResponses } from '@src/interfaces/enums';
+import logger from '@src/utils/logger';
 
 const createFailResponse = (
   req: Request | any,
@@ -10,11 +11,18 @@ const createFailResponse = (
   message = '',
   additionalPramater: any = null,
 ) => {
-  console.error(
-    `POST-LOG [${status}] [RESPONSE-FUNC] [${req.method}] ${req.url} ${JSON.stringify(error)} ${
-      additionalPramater || error?.additionalPramater || ''
-    }`,
-  );
+  // Log failure response with structured logging
+  logger.error('Failure response sent', {
+    status,
+    user: req.user,
+    method: req.method,
+    url: req.url,
+    error: error?.message || error,
+    stack: error?.stack,
+    additionalParameters: additionalPramater || error?.additionalPramater,
+    requestId: req.headers['req_id'],
+    ip: req.ip,
+  });
 
   if (error) {
     if (message) error.message = message;

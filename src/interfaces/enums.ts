@@ -10,6 +10,7 @@ export enum OrderHistory {
   CustomerCancelled = 'Customer Cancelled',
   ProviderArrived = 'Provider arrived',
   ServiceFinished = 'Service finished',
+  LookingForProvider = 'Looking for provider',
 }
 
 export enum Constants {
@@ -33,8 +34,9 @@ export enum HTTPErrorString {
 
 export enum HTTPErrorMessages {
   InvalidUsernameOrPassowrd = 'Invalid username or password',
-  NoSufficientPermissions = 'No sufficient permission',
+  NoSufficientPermissions = 'No sufficient permissions',
   AccountInactive = 'Your account is still inactive/under processing',
+  NoEmailVerified = 'Email not verified',
   AccountDeleted = 'Your account has been deleted as per your request/admin request',
 }
 
@@ -56,4 +58,9 @@ export enum UserTypes {
   Customer = 'Customer',
   Provider = 'Provider',
   Admin = 'Admin',
+}
+
+export enum AttachmentTypes {
+  ProviderVerification = 'ProviderVerification',
+  OrderFinished = 'OrderFinished',
 }

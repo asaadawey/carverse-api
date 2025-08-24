@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "public"."attachments" ADD COLUMN     "CreatedOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "isActive" BOOLEAN NOT NULL DEFAULT true;

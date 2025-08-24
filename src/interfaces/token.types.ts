@@ -12,6 +12,8 @@ export interface Token {
   userType: string;
   applicationVersion: string;
   exp?: Date | string;
+  deviceFingerprint?: string; // Device-specific identifier
+  userAgent?: string; // User agent for additional device identification
 }
 
 export const tokens = {

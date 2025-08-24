@@ -1,6 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { AllowedClients, Constants, OrderHistory, PaymentMethods, UserTypes } from '@src/interfaces/enums';
+import {
+  AllowedClients,
+  AttachmentTypes,
+  Constants,
+  OrderHistory,
+  PaymentMethods,
+  UserTypes,
+} from '@src/interfaces/enums';
 import { generateHashedString } from '@src/utils/encrypt';
 
 const prisma = new PrismaClient();
@@ -71,47 +78,57 @@ const main = async () => {
       ModuleName: 'Car washing',
       ModuleIconLink: '/icons/car-wash.png',
       ModuleDescription: 'Wash your car easily by dispatching our providers',
-      services: {
-        createMany: {
-          data: [
-            {
-              ServiceName: 'Stem wash',
-              ServiceDescription: 'Exterior stem wash with rapid interior washing',
-              GradientID:
-                (
-                  await prisma.colorGradiants.findUnique({
-                    where: { ColorName: 'Gold' },
-                  })
-                )?.id ?? 0,
-              ServiceIconLink: '/icons/car-wash.png',
-            },
-            {
-              ServiceName: 'Interior intensive wash',
-              ServiceDescription: 'Full interior cleaning washing',
-              GradientID:
-                (
-                  await prisma.colorGradiants.findUnique({
-                    where: { ColorName: 'Orange' },
-                  })
-                )?.id ?? 0,
-              ServiceIconLink: '/icons/car-wash.png',
-            },
-            {
-              ServiceName: 'Exterior wash',
-              ServiceDescription: 'Full Exterior cleaning washing',
-              GradientID:
-                (
-                  await prisma.colorGradiants.findUnique({
-                    where: { ColorName: 'Green' },
-                  })
-                )?.id ?? 0,
-              ServiceIconLink: '/icons/car-wash.png',
-            },
-          ],
-        },
-      },
+      // services: {
+      //   createMany: {
+      //     data: [
+      //       {
+      //         ServiceName: 'Full washing',
+      //         isAvailableForAutoSelect: true,
+      //         ServiceDescription: 'Full car washing with interior and exterior cleaning',
+      //         ServiceIconLink: '/icons/car-wash.png',
+      //       },
+      //       {
+      //         ServiceName: 'Interior wash only',
+      //         isAvailableForAutoSelect: true,
+      //         ServiceDescription: 'Full interior cleaning washing',
+      //         ServiceIconLink: '/icons/car-wash.png',
+      //       },
+      //       {
+      //         ServiceName: 'Exterior wash only',
+      //         isAvailableForAutoSelect: true,
+      //         ServiceDescription: 'Full Exterior cleaning washing',
+      //         ServiceIconLink: '/icons/car-wash.png',
+      //       },
+      //     ],
+      //   },
+      // },
     },
-    update: {},
+    update: {
+      // services: {
+      //   createMany: {
+      //     data: [
+      //       {
+      //         ServiceName: 'Full washing',
+      //         isAvailableForAutoSelect: true,
+      //         ServiceDescription: 'Full car washing with interior and exterior cleaning',
+      //         ServiceIconLink: '/icons/car-wash.png',
+      //       },
+      //       {
+      //         ServiceName: 'Interior wash only',
+      //         isAvailableForAutoSelect: true,
+      //         ServiceDescription: 'Full interior cleaning washing',
+      //         ServiceIconLink: '/icons/car-wash.png',
+      //       },
+      //       {
+      //         ServiceName: 'Exterior wash only',
+      //         isAvailableForAutoSelect: true,
+      //         ServiceDescription: 'Full Exterior cleaning washing',
+      //         ServiceIconLink: '/icons/car-wash.png',
+      //       },
+      //     ],
+      //   },
+      // },
+    },
     where: { ModuleName: 'Car washing' },
   });
   //#endregion
@@ -120,21 +137,36 @@ const main = async () => {
   await prisma.userTypes.upsert({
     create: { TypeName: UserTypes.Customer, AllowedClients: [AllowedClients.MobileApp, AllowedClients.Web] },
     where: { TypeName: 'Customer' },
-    update: { AllowedClients: [AllowedClients.MobileApp] },
+    update: { AllowedClients: [AllowedClients.MobileApp, AllowedClients.Web] },
   });
   await prisma.userTypes.upsert({
-    create: { TypeName: UserTypes.Provider, AllowedClients: [AllowedClients.MobileApp] },
+    create: { TypeName: UserTypes.Provider, AllowedClients: [AllowedClients.MobileApp, AllowedClients.Web] },
     where: { TypeName: UserTypes.Provider },
-    update: { AllowedClients: [AllowedClients.MobileApp] },
+    update: { AllowedClients: [AllowedClients.MobileApp, AllowedClients.Web] },
   });
   await prisma.userTypes.upsert({
     create: { TypeName: UserTypes.Admin, AllowedClients: [AllowedClients.Web] },
     where: { TypeName: UserTypes.Admin },
-    update: { AllowedClients: [AllowedClients.MobileApp] },
+    update: { AllowedClients: [AllowedClients.Web] },
   });
   //#endregion
   console.log('Seeding userTypes finish');
   //#region Users
+  // Create system user for system messages
+  await prisma.users.upsert({
+    create: {
+      Email: 'system@carwash.com',
+      Password: await generateHashedString('system-user-no-login'),
+      FirstName: 'System',
+      LastName: 'Bot',
+      Nationality: 'System',
+      PhoneNumber: '000000000000',
+      userTypes: { connect: { TypeName: 'Customer' } }, // Use Customer type for simplicity
+    },
+    update: {},
+    where: { Email: 'system@carwash.com' },
+  });
+
   await prisma.users.upsert({
     create: {
       Email: 'a',
@@ -166,9 +198,10 @@ const main = async () => {
       PhoneNumber: '971501234567',
       provider: {
         create: {
+          CompanyName: 'Provider Company',
           providerServices: {
             create: {
-              services: { connect: { ServiceName: 'Stem wash' } },
+              services: { connect: { ServiceName: 'Full washing' } },
               // Price: 40,
               Pofeciency: 'Skilled',
               Rating: 4,
@@ -181,11 +214,75 @@ const main = async () => {
     update: {
       userTypes: {
         update: {
-          AllowedClients: { push: [AllowedClients.Web] },
+          AllowedClients: { push: [AllowedClients.MobileApp] },
         },
       },
     },
     where: { Email: 'b' },
+  });
+  await prisma.users.upsert({
+    create: {
+      Email: 'd',
+      FirstName: 'Fashee5',
+      LastName: 'Provider',
+      Nationality: 'Egypt',
+      Password: await generateHashedString('d'),
+      PhoneNumber: '9715012345673',
+      provider: {
+        create: {
+          CompanyName: 'Provider Company',
+          providerServices: {
+            create: {
+              services: { connect: { ServiceName: 'Full washing' } },
+              // Price: 40,
+              Pofeciency: 'Skilled',
+              Rating: 4,
+            },
+          },
+        },
+      },
+      userTypes: { connect: { TypeName: 'Provider' } },
+    },
+    update: {
+      userTypes: {
+        update: {
+          AllowedClients: { push: [AllowedClients.MobileApp] },
+        },
+      },
+    },
+    where: { Email: 'd' },
+  });
+  await prisma.users.upsert({
+    create: {
+      Email: 'c',
+      FirstName: 'Omar',
+      LastName: 'Provider',
+      Nationality: 'Egypt',
+      Password: await generateHashedString('C'),
+      PhoneNumber: '9715012345671',
+      provider: {
+        create: {
+          CompanyName: 'Provider Company',
+          providerServices: {
+            create: {
+              services: { connect: { ServiceName: 'Full washing' } },
+              // Price: 40,
+              Pofeciency: 'Skilled',
+              Rating: 4,
+            },
+          },
+        },
+      },
+      userTypes: { connect: { TypeName: 'Provider' } },
+    },
+    update: {
+      userTypes: {
+        update: {
+          AllowedClients: { push: [AllowedClients.MobileApp] },
+        },
+      },
+    },
+    where: { Email: 'c' },
   });
   //#endregion
   console.log('Seeding users finish');
@@ -298,38 +395,52 @@ const main = async () => {
     update: {},
     where: { HistoryName: OrderHistory.CustomerCancelled },
   });
+  await prisma.orderHistoryItems.upsert({
+    create: {
+      HistoryName: OrderHistory.LookingForProvider,
+    },
+    update: {},
+    where: { HistoryName: OrderHistory.LookingForProvider },
+  });
 
   //#endregion
   console.log('Seeding orderHistoryItems finish');
   //#region AttachmentsTypes
   await prisma.attachmentTypes.upsert({
     create: {
-      TypeName: 'Provider',
+      TypeName: AttachmentTypes.ProviderVerification,
     },
     where: {
-      TypeName: 'Provider',
+      TypeName: AttachmentTypes.ProviderVerification,
     },
-    update: {},
+    update: {
+      TypeName: AttachmentTypes.ProviderVerification,
+    },
   });
   await prisma.attachmentTypes.upsert({
     create: {
-      TypeName: 'Orders Finished',
+      TypeName: AttachmentTypes.OrderFinished,
     },
     where: {
-      TypeName: 'Orders Finished',
+      TypeName: AttachmentTypes.OrderFinished,
     },
-    update: {},
+    update: {
+      TypeName: AttachmentTypes.OrderFinished,
+    },
   });
   //#endregion
   console.log('Seeding attachmentTypes finish');
   //#region Attachments
   await prisma.attachments.upsert({
     create: {
+      canUploadFromCamera: true,
+      canUploadFromGallery: true,
+      isRequired: true,
       Name: 'Emirates id',
-      Description: 'Used for verification purposes',
+      Description: 'Upload provider emirates id. Who is going to provide the service.',
       attachmentType: {
         connect: {
-          TypeName: 'Provider',
+          TypeName: AttachmentTypes.ProviderVerification,
         },
       },
     },
@@ -341,10 +452,13 @@ const main = async () => {
   await prisma.attachments.upsert({
     create: {
       Name: 'Profile image',
-      Description: 'Used for verification purposes',
+      isRequired: true,
+      canUploadFromCamera: true,
+      canUploadFromGallery: false,
+      Description: 'Upload a clear and recent profile image of yourself. Take a selfie.',
       attachmentType: {
         connect: {
-          TypeName: 'Provider',
+          TypeName: AttachmentTypes.ProviderVerification,
         },
       },
     },
@@ -355,26 +469,33 @@ const main = async () => {
   });
   await prisma.attachments.upsert({
     create: {
-      Name: 'Car registration',
-      Description: 'Used for verification purposes',
+      isRequired: false,
+      Name: 'Car registration card',
+      canUploadFromCamera: true,
+      canUploadFromGallery: true,
+      Description: 'Upload car registration card (Required if you are using a car Toyota/Nissan ...etc).',
       attachmentType: {
         connect: {
-          TypeName: 'Provider',
+          TypeName: AttachmentTypes.ProviderVerification,
         },
       },
     },
     update: {},
     where: {
-      Name: 'Car registration',
+      Name: 'Car registration card',
     },
   });
   await prisma.attachments.upsert({
     create: {
+      canUploadFromCamera: true,
+      canUploadFromGallery: false,
+      isRequired: true,
       Name: 'Car from front',
-      Description: 'Used for verification purposes',
+      Description:
+        'Take a picture for your front car/cart with clear view and company name visible. Must be taken from camera',
       attachmentType: {
         connect: {
-          TypeName: 'Orders Finished',
+          TypeName: AttachmentTypes.ProviderVerification,
         },
       },
     },
@@ -385,17 +506,57 @@ const main = async () => {
   });
   await prisma.attachments.upsert({
     create: {
-      Name: 'Car from back',
-      Description: 'Used for verification purposes',
+      canUploadFromCamera: true,
+      canUploadFromGallery: false,
+      isRequired: true,
+      Name: 'Car from side',
+      Description:
+        'Take a picture for your side car/cart with clear view and company name visible. Must be taken from camera',
       attachmentType: {
         connect: {
-          TypeName: 'Orders Finished',
+          TypeName: AttachmentTypes.ProviderVerification,
         },
       },
     },
     update: {},
     where: {
-      Name: 'Car from back',
+      Name: 'Car from side',
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      canUploadFromCamera: true,
+      canUploadFromGallery: false,
+      isRequired: true,
+      Name: 'Customer car from front',
+      Description: 'Take a picture for the car from front',
+      attachmentType: {
+        connect: {
+          TypeName: AttachmentTypes.OrderFinished,
+        },
+      },
+    },
+    update: {},
+    where: {
+      Name: 'Customer car from front',
+    },
+  });
+  await prisma.attachments.upsert({
+    create: {
+      isRequired: true,
+      canUploadFromCamera: true,
+      canUploadFromGallery: false,
+      Name: 'Customer car from back',
+      Description: 'Take a picture for the car from back',
+      attachmentType: {
+        connect: {
+          TypeName: AttachmentTypes.OrderFinished,
+        },
+      },
+    },
+    update: {},
+    where: {
+      Name: 'Customer car from back',
     },
   });
   //#endregion

@@ -26,7 +26,7 @@ describe('Integration orders/getOrderTotalAmountStatements', () => {
           Password: 'testPaswword',
           PhoneNumber: randomstring.generate(7),
           userTypes: { create: { TypeName: randomstring.generate(7) } },
-          provider: { create: {} },
+          provider: { create: { CompanyName: randomstring.generate(7) } },
         },
         select: {
           id: true,
